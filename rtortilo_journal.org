@@ -1,0 +1,83 @@
+#+STARTUP: logdone
+* May
+** 13 [100%]
+   - [X] Read Simix and section 3 of the paper
+** 14 [100%]
+   - [X] Revisit Orgmode emacs (no more vim orgmode)
+   - [X] Revisit Tutorials, deploy,platform, play w/code
+   - [X] Read Simix code, try to understand the main parts of it.
+** 15 [100%]
+   - [X] understand how to run experiment.
+** 16 [100%]
+   - [X] Figure out how to get the times of the previous exp. (system time, in log folder)
+   - [X] deploy a parapluie node in rennes. Somehow it refuses to give me a node there, so I got a parapide node. Its not the same, but at least I am able to run the simulation.
+   - [X] Install newer version of simgrid. I struggled a lot here, since it seems there are some files missing in examples/msg/chord/ and examples/platform/
+   - [X] Figure out how to run with different ammount of threads --cfg flag for simgrid simulations
+
+
+** 19 [100%]
+   - [X] Figure out how to run all the experiments using a script
+   - [X] Schedule a Launch with all the experiments. Run in parapluie-9.rennes.grid5000.fr
+
+** 20 [100%] 
+   - [X] Run simulation in G5K, using the last version available of [[https://gforge.inria.fr/projects/simgrid/][simgrid]]
+	 Anyway, the simulation was too slow, couldnt finish it. Had some unexpected exceptions too.
+
+** 21 [100%]
+   - [X] Run te experiment available at revision 918d6192, but with the newer revision. NOTE: this didnt work, the script to run the experiment is simpler than the one I actually need
+   - [X] Run modified script on the older version and see what happens
+   - [X] Run the scripts of 2011_parallel on the older version and see what happens
+   - [X] Run the scripts of 2011_parallel on the newer version and see what happens. Still slower than the paper, at least in constant sequential mode.
+** 22 [100%] Simulation is slow, even with the same parameters (like the older version). 
+   - [X] Try with other runtime options, lile --cfg=config
+   - [X] Try to figure out what the bottleneck is
+   - [X] Learn to use FlameGraph
+** 23 [100%]
+   - [X] read and write down simix things
+   - [X] try to use perf to understand performance ussues
+
+
+** 26 [100%]
+   - [X] Read and write down things about thread synchronization.
+** 27 [100%]
+   - [X] profilers: poor man profiler, perf, gprof.
+   - [X] learn about thread synchronization.
+
+** 28 [0%]
+   - [ ] Use profilers to find bottleneck in simulation (poorman's, perf, gprof, flamegraph)
+   - [ ] 
+   - [ ] 
+   - [ ] 
+
+ New data:
+           |              | constant |   |   |   |    |    | precise |   |   |   |    |    |
+           | nodes\thread |        1 | 2 | 4 | 8 | 16 | 24 |       1 | 2 | 4 | 8 | 16 | 24 |
+           |         1000 |          |   |   |   |    |    |         |   |   |   |    |    |
+           |         3000 |          |   |   |   |    |    |         |   |   |   |    |    |
+           |        10000 |     1257 |   |   |   |    |    |         |   |   |   |    |    |
+           |        30000 |          |   |   |   |    |    |         |   |   |   |    |    |
+           |       100000 |          |   |   |   |    |    |         |   |   |   |    |    |
+           |       300000 |          |   |   |   |    |    |         |   |   |   |    |    |
+           |      1000000 |          |   |   |   |    |    |         |   |   |   |    |    |
+           |      2000000 |          |   |   |   |    |    |         | ? |   |   |    |    |
+
+   - Steps:
+     1) connect to G5k, connect to Rennes, try to ask a parapluie node:
+       oarsub -p "cluster='parapluie'" -l nodes=5,walltime=2 -I -t deploy
+     2) apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb
+     3) copy simgrid from Rennes frontend
+     4) cmake -Denable_compile_optimizations=ON -Denable_supernovae=ON -Denable_compile_warnings=ON -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF .
+     5) make && make install of simgrid
+     6) to run test, this should work:  ./testall.sh path/to/simgrid/ 3.11
+     7) example run: ./chord One_cluster_nobb_1000_hosts.xml chord1000.xml --log=root.thres:critical --cfg=contexts/stack_size:16 --cfg=contexts/guard_size:0 --cfg=network/model:Constant --cfg=network/latency_factor:0.1
+     8) Dont forget to modify script to copy logs to home folder (otherwise they will lay on the node, and they will be erased)
+     9) To copy something from rennes to the deployed node: cp -r rtortilopez@rennes.grid5000.fr:path/to/file . 
+
+  - performance tools:
+    1) perf record ./chord ...
+    2) perf record -g -e cpu-clock ./chord and then:
+    3) perf script | stackcollapse-perf.pl | flamegraph.pl > myapp.svg
+    4) script gdb poorman profiler of Gabriel | stackcollapse-gdb.pl | flamegraph.pl > myapp.svg
+    5) To copy from node to laptop: scp root@<node_number>.rennes.grid:~/SimGrid/examples/msg/chord/myapp.svg .
+    6) poor man's profiler
+    7) try with compilation flag -fno-omit-frame-pointer
