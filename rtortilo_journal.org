@@ -43,12 +43,12 @@
    - [X] profilers: poor man profiler, perf, gprof.
    - [X] learn about thread synchronization.
 
-** 28 [0%]
-   - [ ] Use profilers to find bottleneck in simulation (poorman's, perf, gprof, flamegraph)
-   - [ ] 
-   - [ ] 
-   - [ ] 
+** 28 [100%]
+   - [X] Profiling to find bottleneck in simulation (poorman's, perf, gprof, flamegraph)
 
+* June
+
+* Useful info:
  New data:
            |              | constant |   |   |   |    |    | precise |   |   |   |    |    |
            | nodes\thread |        1 | 2 | 4 | 8 | 16 | 24 |       1 | 2 | 4 | 8 | 16 | 24 |
@@ -61,7 +61,7 @@
            |      1000000 |          |   |   |   |    |    |         |   |   |   |    |    |
            |      2000000 |          |   |   |   |    |    |         | ? |   |   |    |    |
 
-   - Steps:
+   - Steps to connect to G5K and deploy SimGrid:
      1) connect to G5k, connect to Rennes, try to ask a parapluie node:
        oarsub -p "cluster='parapluie'" -l nodes=5,walltime=2 -I -t deploy
      2) apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb
@@ -73,7 +73,7 @@
      8) Dont forget to modify script to copy logs to home folder (otherwise they will lay on the node, and they will be erased)
      9) To copy something from rennes to the deployed node: cp -r rtortilopez@rennes.grid5000.fr:path/to/file . 
 
-  - performance tools:
+  - Performance tools:
     1) perf record ./chord ...
     2) perf record -g -e cpu-clock ./chord and then:
     3) perf script | stackcollapse-perf.pl | flamegraph.pl > myapp.svg
@@ -81,3 +81,38 @@
     5) To copy from node to laptop: scp root@<node_number>.rennes.grid:~/SimGrid/examples/msg/chord/myapp.svg .
     6) poor man's profiler
     7) try with compilation flag -fno-omit-frame-pointer
+
+* Paper
+** Problem Analysis
+  1) Optimal threshold for Amdhal. Which portion of the problem is paralellizable. Which not. Why is hard?(a)
+     Two graphics: #SD vs. #process (b) && #SD vs. time(SD) (c)
+
+** Find threshold between sequential/parallel
+  1) test over real runs. not simulations (what were real runs?)
+  2) geometric mean (of..)
+Once I get the basis threshold:
+  3) adaptative algorithm to choose how many threads wake up in each round:
+     * if #proc<threshold  --> sequential
+     * elif #proc>threshold  --> parallel
+     or
+     * if #proc<thresh -->  sequential exec. (chrono) and then seq_time += chrono; seq_amount += #proc;
+     * else parallel exec. (crhono) and then par_time+=chrono; par_amount+=#proc;
+     After 5 sched round:
+                (a)                     (b)
+     * if seq_time/seq_amount > par_time/par_amount THEN --thresh (c - coeff x a/b)
+     * else ++thres
+  4) parallel threshold of parmap in cache?
+  5) Fast Init: save threshold on disk?
+
+** Optimizations
+  1) 
+  2) implement parmap between N cores: maestro+(N-1)(default?); maestrosleep+(N)(how to sleep master); maestro sleep+(N-1) (each one of those with busy waiters, futex and posix threads)
+  3) parmap next
+  4) busy waiters with different #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
+     Speedup is the same as parallel?
+  Performance regression testing
+
+** Hot topics task 5
+1) we are near amdhal paralelism threshold, because there are no more things to paralellize.
+2) we want to run in parallel not only the threads but also the events in each thread (that would be the souls right?)
+3) we want to find the independent events and run them in parallel.
