@@ -1,0 +1,55 @@
+
+* Host
+Linux parapluie-38.rennes.grid5000.fr 3.2.0-4-amd64 #1 SMP Debian 3.2.54-2 x86_64 GNU/Linux
+* Environment Variables
+TERM=xterm
+SHELL=/bin/bash
+SSH_CLIENT=172.16.111.106 59394 22
+SSH_TTY=/dev/pts/0
+LC_ALL=en_US.UTF-8
+USER=root
+LD_LIBRARY_PATH=/usr/local/lib
+MAIL=/var/mail/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/root/SimGrid/examples/msg/chord
+LANG=en_US.UTF-8
+SHLVL=3
+HOME=/root
+LANGUAGE=en_US:en
+LOGNAME=root
+SSH_CONNECTION=172.16.111.106 59394 172.16.99.38 22
+_=/usr/bin/printenv
+* Tools
+** Compiler
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/4.7/lto-wrapper
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Debian 4.7.2-5' --with-bugurl=file:///usr/share/doc/gcc-4.7/README.Bugs --enable-languages=c,c++,go,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-4.7 --enable-shared --enable-linker-build-id --with-system-zlib --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --with-gxx-include-dir=/usr/include/c++/4.7 --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --enable-gnu-unique-object --enable-plugin --enable-objc-gc --with-arch-32=i586 --with-tune=generic --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Thread model: posix
+gcc version 4.7.2 (Debian 4.7.2-5) 
+** Make tool
+GNU Make 3.81
+Copyright (C) 2006  Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
+
+This program built for x86_64-pc-linux-gnu
+** CMake
+cmake version 2.8.9
+*Time
+** Sequential
+*** Constant
+Command terminated by signal 11
+clock:534.33 user:533.14 sys:1.18 telapsed:8:54.33 swapped:0 exitval:0 max:1968528k avg:0k
+*** Precise
+[1296.200823] chord.c:924: [msg_chord/CRITICAL] Messages created: 26844394
+clock:561.86 user:560.61 sys:1.25 telapsed:9:21.86 swapped:0 exitval:0 max:2074392k avg:0k
+** Parallel
+*** Constant
+[1276.100000] chord.c:924: [msg_chord/CRITICAL] Messages created: 26826930
+clock:464.82 user:704.59 sys:10.34 telapsed:7:44.82 swapped:0 exitval:0 max:1981444k avg:0k
+*** Precise
+[1296.200823] chord.c:924: [msg_chord/CRITICAL] Messages created: 26844393
+clock:601.32 user:833.20 sys:43.27 telapsed:10:01.32 swapped:0 exitval:0 max:2086060k avg:0k

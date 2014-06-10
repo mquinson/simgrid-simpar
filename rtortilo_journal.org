@@ -36,7 +36,7 @@
    - [X] read and write down simix things
    - [X] try to use perf to understand performance ussues
 
-
+     
 ** 26 [100%]
    - [X] Read and write down things about thread synchronization.
 ** 27 [100%]
@@ -45,8 +45,24 @@
 
 ** 28 [100%]
    - [X] Profiling to find bottleneck in simulation (poorman's, perf, gprof, flamegraph)
-
+    
 * June
+** 2 - 6 SUD'14
+** 10 [100%]
+   - [X] Make script to test performance on different versions.
+   - [X] Start tests performance in different versions of SG, using a "bisection" methodology.
+2 = parapluie9 =  SimGrid3.11.1 e32a2a561ef184dc9ef8cdaf25759bba6b2ea198
+3 = parapluie8 =  SimGrid3.8    71c9241aa27344f9f8f02f3c1272af4556691713
+4 = parapluie38 = SimGrid3.9  f95108e7e5bcb66bba76a24c1c433eee710e38e0
+5 = parapluie31 = SimGrid3.10
+
+** 11 [%]
+   - [ ] Make a graph showing times of each version. Posible graphs: 
+         y=time,x=nodes(choose a fixed number of threads, and then: different versions with different color lines); 
+         y=time,x=#cpu (diff. versions w/ diff. colors lines, fixed amount of nodes, lets say 10000 or 100000)
+   - [ ] Keep working on optimizations of threads.
+
+ 
 
 * Useful info:
  New data:
@@ -64,16 +80,16 @@
    - Steps to connect to G5K and deploy SimGrid:
      1) connect to G5k, connect to Rennes, try to ask a parapluie node:
        oarsub -p "cluster='parapluie'" -l nodes=5,walltime=2 -I -t deploy
-     2) apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb
+     2) apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev
      3) copy simgrid from Rennes frontend
-     4) cmake -Denable_compile_optimizations=ON -Denable_supernovae=ON -Denable_compile_warnings=ON -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF .
-     5) make && make install of simgrid
+     4) cmake -Denable_compile_optimizations=ON -Denable_supernovae=ON -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF .
+     5) make && make install && sudo chmod 777 /usr/local/lib/libsimgrid.so.<version_number>
      6) to run test, this should work:  ./testall.sh path/to/simgrid/ 3.11
      7) example run: ./chord One_cluster_nobb_1000_hosts.xml chord1000.xml --log=root.thres:critical --cfg=contexts/stack_size:16 --cfg=contexts/guard_size:0 --cfg=network/model:Constant --cfg=network/latency_factor:0.1
      8) Dont forget to modify script to copy logs to home folder (otherwise they will lay on the node, and they will be erased)
-     9) To copy something from rennes to the deployed node: cp -r rtortilopez@rennes.grid5000.fr:path/to/file . 
+     9) To copy something from rennes to the deployed node: scp -r rtortilopez@rennes.grid5000.fr:path/to/file . 
 
-  - Performance tools:
+  - Profilers:
     1) perf record ./chord ...
     2) perf record -g -e cpu-clock ./chord and then:
     3) perf script | stackcollapse-perf.pl | flamegraph.pl > myapp.svg
@@ -81,14 +97,14 @@
     5) To copy from node to laptop: scp root@<node_number>.rennes.grid:~/SimGrid/examples/msg/chord/myapp.svg .
     6) poor man's profiler
     7) try with compilation flag -fno-omit-frame-pointer
-
+       
 * Paper
 ** Problem Analysis
   1) Optimal threshold for Amdhal. Which portion of the problem is paralellizable. Which not. Why is hard?(a)
      Two graphics: #SD vs. #process (b) && #SD vs. time(SD) (c)
 
 ** Find threshold between sequential/parallel
-  1) test over real runs. not simulations (what were real runs?)
+  1) test over real runs. not simulations (what would be real runs?)
   2) geometric mean (of..)
 Once I get the basis threshold:
   3) adaptative algorithm to choose how many threads wake up in each round:
@@ -106,7 +122,7 @@ Once I get the basis threshold:
 
 ** Optimizations
   1) 
-  2) implement parmap between N cores: maestro+(N-1)(default?); maestrosleep+(N)(how to sleep master); maestro sleep+(N-1) (each one of those with busy waiters, futex and posix threads)
+  2) implement parmap between N cores: maestroawake+(N-1)(default?); maestrosleep+(N)(how to sleep master); maestro sleep+(N-1) (each one of those with busy waiters, futex and posix threads)
   3) parmap next
   4) busy waiters with different #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
      Speedup is the same as parallel?
@@ -114,5 +130,5 @@ Once I get the basis threshold:
 
 ** Hot topics task 5
 1) we are near amdhal paralelism threshold, because there are no more things to paralellize.
-2) we want to run in parallel not only the threads but also the events in each thread (that would be the souls right?)
+2) we want to run in parallel not only the threads but also the events in each thread?
 3) we want to find the independent events and run them in parallel.
