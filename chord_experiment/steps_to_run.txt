@@ -1,5 +1,6 @@
 1) connect to rennes frontend of G5K, ask for a parapluie node:
        oarsub -p "cluster='parapluie'" -l nodes=1,walltime=7:00 -I -t deploy
+       kadeploy3 -f $OAR_NODE_FILE -e wheezy-x64-base -k
 2) apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb
 3) copy simgrid repo from Rennes frontend
 4) cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF .
