@@ -4,7 +4,8 @@ version=$3
 SGPATH=$4
 export LD_LIBRARY_PATH="$SGPATH/lib"
 gcc chord.c -L$SGPATH/lib -I$SGPATH/include -I$SGPATH/src/include -lsimgrid -o chord
-cmd="./chord One_cluster_nobb_"$nodes"_hosts.xml chord$nodes.xml --cfg=contexts/stack_size:16 --log=root.thres:critical"
+guard=" --cfg=contexts/guard_size:0 "
+cmd="./chord One_cluster_nobb_"$nodes"_hosts.xml chord$nodes.xml --cfg=contexts/stack_size:16 --log=root.thres:critical" #$guard
 
 #save logs in this file  
 file="test$nodes.threads$thread.$version.org"
@@ -27,11 +28,10 @@ make -v >> $file
 echo "** CMake" >> $file
 cmake --version >> $file
 echo "*Time" >> $file
-
 #Start measuring times
 echo "** Sequential" >> $file
 echo "*** Constant" >> $file
-cmd1=$cmd" --cfg=network/model:Constant --cfg=network/latency_factor:0.1"
+cmd1=$cmd" --cfg=network/model:Constant --cfg=network/latency_factor:0.1" 
 echo $cmd1
 /usr/bin/time -f "$timefmt" -o $me.timings $cmd1 $cmd1 2>> $file
 cat $me.timings >> $file

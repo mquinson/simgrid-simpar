@@ -1,0 +1,30 @@
+Versions of SimGrid used:
+SimGrid3.11     e32a2a561ef184dc9ef8cdaf25759bba6b2ea198
+SimGrid3.8      71c9241aa27344f9f8f02f3c1272af4556691713
+SimGrid3.9      f95108e7e5bcb66bba76a24c1c433eee710e38e0
+SimGrid3.10     (downloaded from website)
+
+All the platform/development files are the same as used in 2011 experiment 
+(they can be generated with generate.py)
+
+Versions of tools:
+Operative System: Linux 3.2.0-4-amd64 #1 SMP Debian 3.2.54-2 x86_64 GNU/Linux
+
+GCC:
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/4.7/lto-wrapper
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Debian 4.7.2-5' --with-bugurl=file:///usr/share/doc/gcc-4.7/README.Bugs --enable-languages=c,c++,go,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-4.7 --enable-shared --enable-linker-build-id --with-system-zlib --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --with-gxx-include-dir=/usr/include/c++/4.7 --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --enable-gnu-unique-object --enable-plugin --enable-objc-gc --with-arch-32=i586 --with-tune=generic --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Thread model: posix
+gcc version 4.7.2 (Debian 4.7.2-5)
+
+MAKE:
+GNU Make 3.81
+
+CMake:
+cmake version 2.8.9
+
+
+
+
