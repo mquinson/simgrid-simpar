@@ -51,16 +51,27 @@
 ** 10 [100%]
    - [X] Make script to test performance on different versions.
    - [X] Start tests performance in different versions of SG, using a "bisection" methodology.
-2 = parapluie9 =  SimGrid3.11.1 e32a2a561ef184dc9ef8cdaf25759bba6b2ea198
-3 = parapluie8 =  SimGrid3.8    71c9241aa27344f9f8f02f3c1272af4556691713
-4 = parapluie38 = SimGrid3.9  f95108e7e5bcb66bba76a24c1c433eee710e38e0
-5 = parapluie31 = SimGrid3.10
 
-** 11 [%]
-   - [ ] Make a graph showing times of each version. Posible graphs: 
-         y=time,x=nodes(choose a fixed number of threads, and then: different versions with different color lines); 
-         y=time,x=#cpu (diff. versions w/ diff. colors lines, fixed amount of nodes, lets say 10000 or 100000)
-   - [ ] Keep working on optimizations of threads.
+To run performance regression test: ./SGXP.pl --site=nancy --cluster=graphene --test=chord,goal --rev="e32a2a561ef184dc9ef8cdaf25759bba6b2ea198,71c9241aa27344f9f8f02f3c1272af4556691713,f95108e7e5bcb66bba76a24c1c433eee710e38e0"
+
+** 11 [100%]
+   - [X] Start with optimization of dynamic threshold of paper, have an initial version working (not necessarily more efficient).
+** 12 [100%]
+   - [X] Performances timings of dynamic threshold algorithm.
+** 13 [100%]
+   - [X] Performance regression test. repo: git+ssh://rtortilo@scm.gforge.inria.fr//gitroot/simgrid/simgrid-perf-reg-tests.git
+         Install r-base ruby gem rserve-client
+         To install all libraries of R: first, download them:
+            wget http://cran.r-project.org/src/contrib/Archive/Rcpp/Rcpp_0.9.10.tar.gz
+            wget http://cran.r-project.org/src/contrib/Archive/plyr/plyr_1.8.tar.gz
+            wget http://cran.r-project.org/src/contrib/Archive/reshape2/reshape2_1.2.tar.gz
+            wget http://cran.r-project.org/src/contrib/Archive/ggplot2/ggplot2_0.9.3.tar.gz
+            and install it with:
+            R CMD INSTALL Rcpp_0.9.10.tar.gz
+         Then install Rserve (install.package("Rserve") and load library(Rserve) rserve and start Rserve() daemon).
+	 After this one should be able to run ./SG-PRT.rb
+   - [X] Finish performance timings of dynamic threshold algorithm, check if it is really working. Plot a graph.
+   - [X] Try to start with the cores optimization of parmap.
 
  
 
@@ -70,7 +81,7 @@
            | nodes\thread |        1 | 2 | 4 | 8 | 16 | 24 |       1 | 2 | 4 | 8 | 16 | 24 |
            |         1000 |          |   |   |   |    |    |         |   |   |   |    |    |
            |         3000 |          |   |   |   |    |    |         |   |   |   |    |    |
-           |        10000 |     1257 |   |   |   |    |    |         |   |   |   |    |    |
+           |        10000 |          |   |   |   |    |    |         |   |   |   |    |    |
            |        30000 |          |   |   |   |    |    |         |   |   |   |    |    |
            |       100000 |          |   |   |   |    |    |         |   |   |   |    |    |
            |       300000 |          |   |   |   |    |    |         |   |   |   |    |    |
@@ -82,7 +93,7 @@
        oarsub -p "cluster='parapluie'" -l nodes=5,walltime=2 -I -t deploy
      2) apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev
      3) copy simgrid from Rennes frontend
-     4) cmake -Denable_compile_optimizations=ON -Denable_supernovae=ON -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF .
+     4) cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF .
      5) make && make install && sudo chmod 777 /usr/local/lib/libsimgrid.so.<version_number>
      6) to run test, this should work:  ./testall.sh path/to/simgrid/ 3.11
      7) example run: ./chord One_cluster_nobb_1000_hosts.xml chord1000.xml --log=root.thres:critical --cfg=contexts/stack_size:16 --cfg=contexts/guard_size:0 --cfg=network/model:Constant --cfg=network/latency_factor:0.1
@@ -108,11 +119,13 @@
   2) geometric mean (of..)
 Once I get the basis threshold:
   3) adaptative algorithm to choose how many threads wake up in each round:
-     * if #proc<threshold  --> sequential
-     * elif #proc>threshold  --> parallel
-     or
+     This is what is already done (smx_ctx_*_runall):
+        * if #proc<threshold  --> sequential
+        * elif #proc>threshold  --> parallel
+     Change threshold dinamically:
+     There are timers already defined in the code, but they are not used to do this:
      * if #proc<thresh -->  sequential exec. (chrono) and then seq_time += chrono; seq_amount += #proc;
-     * else parallel exec. (crhono) and then par_time+=chrono; par_amount+=#proc;
+     * else ------------->  parallel exec. (crhono) and then par_time+=chrono; par_amount+=#proc;
      After 5 sched round:
                 (a)                     (b)
      * if seq_time/seq_amount > par_time/par_amount THEN --thresh (c - coeff x a/b)
@@ -120,14 +133,20 @@ Once I get the basis threshold:
   4) parallel threshold of parmap in cache?
   5) Fast Init: save threshold on disk?
 
+Versions of SimGrid:
+SimGrid3.11.1 e32a2a561ef184dc9ef8cdaf25759bba6b2ea198
+SimGrid3.8    71c9241aa27344f9f8f02f3c1272af4556691713
+SimGrid3.9    f95108e7e5bcb66bba76a24c1c433eee710e38e0
+SimGrid3.10
+
 ** Optimizations
   1) 
-  2) implement parmap between N cores: maestroawake+(N-1)(default?); maestrosleep+(N)(how to sleep master); maestro sleep+(N-1) (each one of those with busy waiters, futex and posix threads)
-  3) parmap next
+  2) implement parmap between N cores: maestroawake+(N-1)(default?); maestrosleep+(N)(how to sleep master. Check line where master work with its minions and then comment that line? that way master will not work?); maestro sleep+(N-1) (each one of those with busy waiters, futex and posix threads)
+  3) parmap next. Not now.
   4) busy waiters with different #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
      Speedup is the same as parallel?
   Performance regression testing
-
+  
 ** Hot topics task 5
 1) we are near amdhal paralelism threshold, because there are no more things to paralellize.
 2) we want to run in parallel not only the threads but also the events in each thread?
