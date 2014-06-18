@@ -27,8 +27,7 @@ R CMD INSTALL digest_0.1.0.tar.gz
 R CMD INSTALL gtable_0.1.1.tar.gz
 R CMD INSTALL munsell_0.4.tar.gz
 R CMD INSTALL reshape2_1.0.tar.gz
-R CMD INSTALL munsell_0.4.tar.gz
-R CMD INSTALL proto_0.3-9.tar.gz
 R CMD INSTALL scales_0.1.0.tar.gz
+R CMD INSTALL proto_0.3-9.tar.gz
 R CMD INSTALL reshape2_1.2.tar.gz
 R CMD INSTALL ggplot2_0.9.3.tar.gz

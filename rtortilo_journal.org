@@ -53,7 +53,7 @@
    - [X] Make script to test performance on different versions.
    - [X] Start tests performance in different versions of SG, using a "bisection" methodology.
 
-To run performance regression test: ./SGXP.pl --site=nancy --cluster=graphene --test=chord,goal --rev="e32a2a561ef184dc9ef8cdaf25759bba6b2ea198,71c9241aa27344f9f8f02f3c1272af4556691713,f95108e7e5bcb66bba76a24c1c433eee710e38e0"
+To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graphene --test=chord,goal --rev="e32a2a561ef184dc9ef8cdaf25759bba6b2ea198,71c9241aa27344f9f8f02f3c1272af4556691713,f95108e7e5bcb66bba76a24c1c433eee710e38e0"
 ** 11 [100%]
    - [X] Start with optimization of dynamic threshold of paper, have an initial version working (not necessarily more efficient).
 ** 12 [100%]
@@ -66,6 +66,29 @@ To run performance regression test: ./SGXP.pl --site=nancy --cluster=graphene --
 
 ** 16 [100%]
    - [X] Re run Performance regression test with fixed amount of commits. For version 3.9 and ahead there are ~2221 commits (until 3.11 release, +2270 until HEAD)
+** 17 [100%]
+   - [X] Debug dynamic threshold algorithm
+** 18 [100%]
+*** DONE make a Rstudio file [100%]
+  CLOSED: [2014-06-18 Wed 13:57]
+**** DONE Transcript paper schema into file
+     CLOSED: [2014-06-18 Wed 17:02]
+**** DONE graph (Gnuplot to R)
+     CLOSED: [2014-06-18 Wed 17:02]
+** 19 [%]
+* TODO Fast performance tests to pinpoint the faulty commit & fix it. [50%]
+** DONE Adapt script to do it
+   CLOSED: [2014-06-18 Wed 17:01]
+** TODO Run it in a dicotomy way: first the last commit, then some older commit, then a commit in the middle... until find the faulty one.
+** TODO Fix code that makes performance drop down.
+Once the performance issue is fixed, run experiment with the fixed version.
+* TODO Experiment of Section I [%]
+** TODO Gather data-> id Sched Round : time taken by each SR : #proc. From this data set I can generate the 2 graphs:
+*** TODO Find the ifndef/define of the benchmarks that are already done
+*** TODO Set up everything to run tests and gather data (with chord, for example)
+*** TODO The graph 1: Y=% of scheduling rounds taking #proc. x=#proc
+*** TODO The graph 2: Y=number of scheduling round. x=Time (is the time of each scheduling round).
+** TODO Amdhal: Optimal Ahmdal threshold: make measures of the application with and without benchmarking (benchmark measuring time of sequential parts of the code and parallel parts of the code. Sum both of them and get total time. Check that total time is the same as without benchmarking). Thats for say that my measurings doesnt affect the performance. After that, benchmark the sequential parts and the parallel parts of the code
 
 * Useful info:
 ** To run classical chord experiment
@@ -109,7 +132,6 @@ repository: git+ssh://rtortilo@scm.gforge.inria.fr//gitroot/simgrid/simgrid-perf
 5) set number of commits wanted to analyze in SG-PRT.rb
 6) ./SG-PRT.rb
 
-
 * Paper
 ** Problem Analysis
   1) Optimal threshold for Amdhal. Which portion of the problem is paralellizable. Which not. Why is hard?(a)
@@ -142,7 +164,7 @@ SimGrid3.10
 
 ** Optimizations
   1) 
-  2) implement parmap between N cores: maestroawake+(N-1)(default?); maestrosleep+(N)(how to sleep master. Check line where master work with its minions and then comment that line? that way master will not work?); maestro sleep+(N-1) (each one of those with busy waiters, futex and posix threads)
+  2) implement parmap between N cores: maestroawake+(N-1)(default?); maestrosleep+(N)(how to sleep master. Check line where master work with its minions and then comment that line? that way master will not work?); maestro sleep+(N-1) (each one of those with busy waiters, futex and posix threads) #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
   3) parmap next. Not now.
   4) busy waiters with different #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
      Speedup is the same as parallel?
@@ -152,3 +174,5 @@ SimGrid3.10
 1) we are near amdhal paralelism threshold, because there are no more things to paralellize.
 2) we want to run in parallel not only the threads but also the events in each thread?
 3) we want to find the independent events and run them in parallel.
+
+
