@@ -35,7 +35,12 @@ But finding an optimal threshold is not always the best option: some simulations
 Thats why an algorithm for a dynamic threshold calculation is proposed.
 TODO: explanation of the heuristic...bla bla is the amount of time taken by each scheduling round, and calculate on the fly a dynamic threshold to fit better the simulation. Pseudocode maybe
 
-
+\subsection{Models used in the chord simulation}
+\begin{itemize}
+\item Workstation model: Default vm workstation model (as it appears on ./chord --help)
+\item Network Model: LV08 (or Constant)
+\item Cpu Model: Cas01
+\end{itemize}
 <<AdaptativeAlgorithmPlot,echo = FALSE,fig = TRUE>>=
 library('ggplot2')
 library('gridExtra')
