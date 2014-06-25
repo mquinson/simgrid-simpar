@@ -4,12 +4,13 @@
 \SweaveOpts{concordance=TRUE}
 
 \section{Problem Analysis}
-\subsection{Optimal Amdhal's law threshold}
-Optimal Amdhal threshold: the goal is to reach the maximum parallelizable portion of the system. Then a benchmark is proposed: measure parallel execution times and sequential execution times of the system.
-First we want to prove that our benchmarkings are not intrusive, that is, our measures do no really affect the overall performance of the system. For that, the experiments are run with and without benchmarking.
-When the benchmark is done, the sum of both parallel and sequential timings of the code is done and compared with the original timing. (The sum of times should be almost the same as the time of the system without benchmarking).
-Once the benchmark is done, one can compare the actual speedup of the system against the theoretical speepup of the system according to Amdhal's law, and prove how close or how far are we from the optimal
-Amdhal's law threshold.
+\subsection{Optimal Amdhal's law threshold} %Also, the benchmarking not intrusive is here.
+We want to find the maximum speedup achieved with our parallel model. For that, a test a benchmark test is run to get the timings of a typical sequential and parallel executions. After that, and using the Amdahl's law, we can retrieve the real speedup achieved with our system.
+But first we want to prove that our benchmarks are not intrusive, that is, our measures do no really affect the overall performance of the system. For that, the experiments are run with and without benchmarking, and then a comparation of both is made to find if there is a significative breach of time between both experiments.
+%TODO: small comment about the timings we got.
+We proved that our benchmarkings are indeed, not intrusive, as it can be seen in the Figure
+
+Once the benchmark is done, one can calculate the actual speedup provided by our system, using the Amdahl's law equation.
 
 \subsection{Initial experiment}
 (Probably a comment of scheduling rounds and parallel/sequential execution.)
@@ -20,7 +21,6 @@ Graph 1: Y=\% of scheduling rounds taking \#proc. x=\#proc. is like a probabilis
 Graph 2: Y=number of scheduling round. x=Time (is the time of each scheduling round).
  This two graph with their respectives experiments are the ones who will help us to find the optimal
  threshold for parallelizable executions of user processes in the system.
-\subsection{}
 \subsection{}
 
 \section{Optimal threshold for parallel execution}
@@ -34,18 +34,75 @@ Something about Geometric mean...
 But finding an optimal threshold is not always the best option: some simulations can take more time in each process and other less time. If a simulation has very efficient processes, or processes that dont work too much, then the threshold could be inefficient,
 Thats why an algorithm for a dynamic threshold calculation is proposed.
 TODO: explanation of the heuristic...bla bla is the amount of time taken by each scheduling round, and calculate on the fly a dynamic threshold to fit better the simulation. Pseudocode maybe
+
+
 <<AdaptativeAlgorithmPlot,echo = FALSE,fig = TRUE>>=
 library('ggplot2')
+library('gridExtra')
 library('reshape')
+# write a simple function to add footnote
+makeFootnote <- function(footnoteText =
+                         format(Sys.time(), "%d %b %Y"),
+                         size = 0.8, color = grey(.5))
+{
+  require(grid)
+  pushViewport(viewport())
+  grid.text(label = footnoteText ,
+    x = unit(0.5,"npc"),
+    y = unit(0.5, "mm"),
+    just =c("centre", "bottom"),
+    check.overlap = 1,
+    gp = gpar(cex = size, col = color))
+ popViewport()
+}
+
 orig_data = read.table("./optimizations_experiments/dynamic_threshold/optimization3.dat")
 opt_data = read.table("./optimizations_experiments/dynamic_threshold/optimization3_part2.dat")
 orig_data = as.data.frame.matrix(orig_data)
 opt_data = as.data.frame.matrix(opt_data)
-data <- data.frame(nodes =  orig_data[1:4,1], thr4const=orig_data[1:4,2], thr8const=orig_data[1:4,3], thr16const=orig_data[1:4,4], thr4prec=orig_data[1:4,5],thr8prec=orig_data[1:4,6],thr16prec=orig_data[1:4,7],optthr4const=opt_data[1:4,2], optthr8const=opt_data[1:4,3], optthr16const=opt_data[1:4,4], optthr4prec=opt_data[1:4,5], optthr8prec=opt_data[1:4,6],optthr16prec=opt_data[1:4,7])
+#data <- data.frame(nodes =  orig_data[1:4,1], thr4const=orig_data[1:4,2], thr8const=orig_data[1:4,3], thr16const=orig_data[1:4,4], thr4prec=orig_data[1:4,5],thr8prec=orig_data[1:4,6],thr16prec=orig_data[1:4,7],optthr4const=opt_data[1:4,2], optthr8const=opt_data[1:4,3], optthr16const=opt_data[1:4,4], optthr4prec=opt_data[1:4,5], optthr8prec=opt_data[1:4,6],optthr16prec=opt_data[1:4,7])
+data <- data.frame(nodes =  orig_data[1:4,1], thr4prec=orig_data[1:4,5],thr8prec=orig_data[1:4,6],thr16prec=orig_data[1:4,7],optthr4prec=opt_data[1:4,5], optthr8prec=opt_data[1:4,6],optthr16prec=opt_data[1:4,7])
 df <- melt(data ,  id = 'nodes', variable_name = 'versions')
-g <- ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() + scale_fill_hue() + ylab('time')
+g <- ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() + scale_fill_hue()
+#labs(title = 'Chord simulation, Precise Model', sub = 'Original version vs. Adaptative algorithm', ylab = 'time')
 plot(g)
+makeFootnote("Chord simulation, Precise Model. Original version vs. Adaptative algorithm", color = "black")
 @
+
+\subsection{Finding performance problems origins}
+
+<<FaultyCommit,echo = FALSE,fig = TRUE>>=
+library('ggplot2')
+library('gridExtra')
+library('reshape')
+# write a simple function to add footnote
+makeFootnote <- function(footnoteText =
+                         format(Sys.time(), "%d %b %Y"),
+                         size = 0.8, color = grey(.5))
+{
+  require(grid)
+  pushViewport(viewport())
+ grid.text(label = footnoteText ,
+   x = unit(0.5,"npc"),
+    y = unit(0.5, "mm"),
+   just =c("centre", "bottom"),
+    check.overlap = 1,
+    gp = gpar(cex = size, col = color))
+ popViewport()
+}
+
+pinpoint = read.table("./optimizations_experiments/pinpoint/pinpoint.dat")
+pinpoint = as.data.frame.matrix(pinpoint)
+#data <- data.frame(nodes =  orig_data[1:4,1], thr4const=orig_data[1:4,2], thr8const=orig_data[1:4,3], thr16const=orig_data[1:4,4], thr4prec=orig_data[1:4,5],thr8prec=orig_data[1:4,6],thr16prec=orig_data[1:4,7],optthr4const=opt_data[1:4,2], optthr8const=opt_data[1:4,3], optthr16const=opt_data[1:4,4], optthr4prec=opt_data[1:4,5], optthr8prec=opt_data[1:4,6],optthr16prec=opt_data[1:4,7])
+data <- data.frame(hashs =  pinpoint[1:14,1], thr4_prec=pinpoint[1:14,4], thr8_prec=pinpoint[1:14,5])
+df <- melt(data ,  id = 'hashs', variable_name = 'versions')
+df <- transform(df, hashs = factor(hashs, levels = c("34de819","71c9241","f95108e","8ec4cdb","34e46b4","49288d9","a711dd8","ccfa6d0","58edfe4","048b8c7","edd6d5b","525d972","eb547ff","ce1289d")))
+g <- ggplot(df, aes(x=hashs,y=value, group=versions, colour=versions)) + geom_line() + scale_fill_hue() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#labs(title = 'Chord simulation, Precise Model', sub = 'Original version vs. Adaptative algorithm', ylab = 'time')
+plot(g)
+#makeFootnote("Finding faulty commit. Chord Simulation", color = "black")
+@
+
 \section{Optimizations}
 \subsection{}
 \subsection{Parmap between N cores}
