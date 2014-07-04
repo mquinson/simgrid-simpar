@@ -75,51 +75,95 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
      CLOSED: [2014-06-18 Wed 17:02]
 **** DONE graph (Gnuplot to R)
      CLOSED: [2014-06-18 Wed 17:02]
-** 19 [%]
-* TODO Fast performance tests to pinpoint the faulty commit & fix it. [50%]
-** DONE Adapt script to do it
+** 19 [100%]
+*** DONE start with pinpoint test
+    CLOSED: [2014-06-20 Fri 09:30]
+** 20 [100%]
+*** DONE Fast performance tests to pinpoint the faulty commit & fix it. [66%]
+    CLOSED: [2014-06-24 Tue 09:25]
+**** DONE Adapt script to do it
    CLOSED: [2014-06-18 Wed 17:01]
-** TODO Run it in a dicotomy way: first the last commit, then some older commit, then a commit in the middle... until find the faulty one.
-** TODO Fix code that makes performance drop down.
-Once the performance issue is fixed, run experiment with the fixed version.
+**** DONE Run it in a dicotomy way: first the last commit, then some older commit, then a commit in the middle... until find the faulty one.
+   CLOSED: [2014-06-20 Fri 17:21]
+     Faulty commits-> well, actually I think there are dozens at least, since the performance drops down with the inclusion of "surf++"
+
+
+** 23 [100%]
+*** DONE start with pinpointing of surf branch
+    CLOSED: [2014-06-24 Tue 09:26]
+** 24 [100%]
+**** DONE Explore logs of execution of C/C++ versions. Explore surf layer, searching for bug, using Paul suggestions.
+     CLOSED: [2014-06-25 Wed 09:55]
+** 25 [100%]
+   - [X] Keep digging in branches. Special atention to hypervisor one
+** 27 [100%]
+*** DONE Apparently, the perforance drop was introduced in smx_network:1195 (compare with an older commit). make 2 tests: one with the code similar to the older version, one with the if blocks "right". 
+    CLOSED: [2014-06-27 Fri 17:29]
+    
+
+** 30 [100%]
+  - [X] Prepare scripts and code for experiments.
+
+* July
+** 1 [100%]
+*** DONE Prepare code to run Amdahl Benchmark. Dont forget to set log_critical to the final print of Amdahl law. Then run exp. the same way without amdahl benchmark. In the table will be the final times, in the logs will be the times of the parallel/sequential execution too.
+    CLOSED: [2014-07-01 Tue 16:00]
+** 2 [100%]
+*** DONE Run portion of experiments (<10k)
+    CLOSED: [2014-07-02 Wed 17:56]
+**** DONE without amdahl benchmark
+     CLOSED: [2014-07-01 Tue 16:03]
+**** DONE with amdahl benchmark
+     CLOSED: [2014-07-02 Wed 17:55]
+** 3 [100%]
+- [X] benchmark experiment for SR. Still not working.
+** 4 [%]
+*** TODO fix exp. of benchmark per SR.
 * TODO Experiment of Section I [%]
+** TODO Benchmark: before Amdahl benchmark, do experiments with the optimized version without benchmark and save those timings. Thats is for the comparation of timings to say that our benchmark is not intrusive.
+*** DONE modify scripts for this.
+    CLOSED: [2014-06-30 Mon 15:34]
 ** TODO Gather data-> id Sched Round : time taken by each SR : #proc. From this data set I can generate the 2 graphs:
-*** TODO Find the ifndef/define of the benchmarks that are already done
+*** DONE Find the ifndef/define of the benchmarks that are already done
+    CLOSED: [2014-07-02 Wed 09:29]
 *** TODO Set up everything to run tests and gather data (with chord, for example)
+**** TODO Fix deadlock on SR benchmarks. Posible cause: process_list is never cleaned up, thats with it enter the if and enter the deadlock.
 *** TODO The graph 1: Y=% of scheduling rounds taking #proc. x=#proc
 *** TODO The graph 2: Y=number of scheduling round. x=Time (is the time of each scheduling round).
-** TODO Amdhal: Optimal Ahmdal threshold: make measures of the application with and without benchmarking (benchmark measuring time of sequential parts of the code and parallel parts of the code. Sum both of them and get total time. Check that total time is the same as without benchmarking). Thats for say that my measurings doesnt affect the performance. After that, benchmark the sequential parts and the parallel parts of the code
+** TODO Amdhal: Optimal Ahmdal threshold: measure time of sequential executions, then measure time of parallel+sequential execution in a parallel execution. Calculate Amdahl law.
+
+
 
 * Useful info:
 ** To run classical chord experiment
- New data:
-           |              | constant |   |   |   |    |    | precise |   |   |   |    |    |
-           | nodes\thread |        1 | 2 | 4 | 8 | 16 | 24 |       1 | 2 | 4 | 8 | 16 | 24 |
-           |         1000 |          |   |   |   |    |    |         |   |   |   |    |    |
-           |         3000 |          |   |   |   |    |    |         |   |   |   |    |    |
-           |        10000 |          |   |   |   |    |    |         |   |   |   |    |    |
-           |        30000 |          |   |   |   |    |    |         |   |   |   |    |    |
-           |       100000 |          |   |   |   |    |    |         |   |   |   |    |    |
-           |       300000 |          |   |   |   |    |    |         |   |   |   |    |    |
-           |      1000000 |          |   |   |   |    |    |         |   |   |   |    |    |
-           |      2000000 |          |   |   |   |    |    |         | ? |   |   |    |    |
-
    - Steps to connect to G5K and deploy SimGrid:
      1) connect to G5k, connect to Rennes, try to ask a parapluie node:
        oarsub -p "cluster='parapluie'" -l nodes=5,walltime=2 -I -t deploy
-     2) apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev
+	Aks for an specific node, for example:
+       oarsub -p 'cluster="parapide"' -l {'network_address in ("parapide-8.rennes.grid5000.fr")'}/nodes=1,walltime=5:00 -I -t deploy
+     2) apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev libdwarf-dev libunwind7-dev valgrind libsigc++
      3) copy simgrid from Rennes frontend
-     4) cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF .
+     4) cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF -Denable_documentation=OFF .
      5) make && make install && sudo chmod 777 /usr/local/lib/libsimgrid.so.<version_number>
      6) to run test, this should work:  ./testall.sh path/to/simgrid/ 3.11
-     7) example run: ./chord One_cluster_nobb_1000_hosts.xml chord1000.xml --log=root.thres:critical --cfg=contexts/stack_size:16 --cfg=contexts/guard_size:0 --cfg=network/model:Constant --cfg=network/latency_factor:0.1
+     7) example run:
+        ./chord One_cluster_nobb_1000_hosts.xml chord1000.xml --log=root.thres:critical --cfg=contexts/stack_size:16 --cfg=contexts/guard_size:0 --cfg=network/model:Constant --cfg=network/latency_factor:0.1
+	./chord One_cluster_nobb_10000_hosts.xml chord10000.xml --cfg=contexts/stack_size:16 --log=root.thres:critical --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --cfg=contexts/nthreads:4
+	./chord One_cluster_nobb_10000_hosts.xml chord10000.xml --cfg=contexts/stack_size:16 --log=root.thres:critical --cfg=maxmin/precision:0.00001 --cfg=contexts/nthreads:4 --cfg=maxmin/precision:0.00001
      8) Dont forget to modify script to copy logs to home folder (otherwise they will lay on the node, and they will be erased)
      9) To copy something from rennes to the deployed node: scp -r rtortilopez@rennes.grid5000.fr:path/to/file . 
+    10) To print current revision hash git rev-parse --short HEAD
+    11) git log --pretty=oneline --pretty=format:"%h %s"  --since 17/11/2013 --until 23/01/2014 |  less
+    12) If it fails to allocate stack with big amount of nodes, then use --cfg=contexts/guard_size:0
 ** Profilers:
     1) perf record ./chord ...
     2) perf record -g -e cpu-clock ./chord and then:
     3) perf script | stackcollapse-perf.pl | flamegraph.pl > myapp.svg
-    4) script gdb poorman profiler of Gabriel | stackcollapse-gdb.pl | flamegraph.pl > myapp.svg
+    4) script gdb poorman profiler of Gabriel | stackcollapse-gdb.pl | flamegraph.pl > myapp.svg . Example:
+       Run chord:
+       ./chord One_cluster_nobb_10000_hosts.xml chord10000.xml --log=root.thres:critical --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 &
+       and: 
+       ./poorman.sh 1000 0.1 $(pidof chord) | ./stackcollapse-gdb.pl | ./flamegraph.pl > myapp.svg
     5) To copy from node to laptop: scp root@<node_number>.rennes.grid:~/SimGrid/examples/msg/chord/myapp.svg .
     6) poor man's profiler
     7) try with compilation flag -fno-omit-frame-pointer
@@ -132,6 +176,9 @@ repository: git+ssh://rtortilo@scm.gforge.inria.fr//gitroot/simgrid/simgrid-perf
 5) set number of commits wanted to analyze in SG-PRT.rb
 6) ./SG-PRT.rb
 
+** Pinpoint tests
+1) To get a list of specific commits (and count them,etc) git log 772d63c..ce1289d --pretty=oneline | head -n570 | less 
+2) If compilaton of chord fails for version 3.10 (or whatever else), try copying the content of folder src/ to usr/local/src
 * Paper
 ** Problem Analysis
   1) Optimal threshold for Amdhal. Which portion of the problem is paralellizable. Which not. Why is hard?(a)
@@ -160,7 +207,7 @@ Versions of SimGrid:
 SimGrid3.11.1 e32a2a561ef184dc9ef8cdaf25759bba6b2ea198
 SimGrid3.8    71c9241aa27344f9f8f02f3c1272af4556691713
 SimGrid3.9    f95108e7e5bcb66bba76a24c1c433eee710e38e0
-SimGrid3.10
+SimGrid3.10   772d63cca583f5d16096fa9f487b4ab07d9af8f0
 
 ** Optimizations
   1) 

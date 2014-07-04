@@ -1,0 +1,5 @@
+This script is to get the timings of chord simulation on SimGrid. Just copy 
+this 2 scripts on examples/msg/chord/ and run ./testall.sh
+Logs with timings will be s-copied on log/ folder on rennes.g5k:~/ 
+One can use this test to measure time of standar version vs. optimized
+version, or without benchmark vs. w/benchmarks ;)

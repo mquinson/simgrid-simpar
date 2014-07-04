@@ -5,9 +5,40 @@
 
 \section{Problem Analysis}
 \subsection{Optimal Amdhal's law threshold} %Also, the benchmarking not intrusive is here.
-We want to find the maximum speedup achieved with our parallel model. For that, a test a benchmark test is run to get the timings of a typical sequential and parallel executions. After that, and using the Amdahl's law, we can retrieve the real speedup achieved with our system.
-But first we want to prove that our benchmarks are not intrusive, that is, our measures do no really affect the overall performance of the system. For that, the experiments are run with and without benchmarking, and then a comparation of both is made to find if there is a significative breach of time between both experiments.
-%TODO: small comment about the timings we got.
+We want to find the maximum speedup achieved with our current parallel model. For that, a test a benchmark test is run to get the timings of a typical sequential and parallel executions. After that, and using the Amdahl's law, we can retrieve the real speedup achieved with our system.
+But first we want to prove that our benchmarks are not intrusive, that is, our measures do no really affect the overall performance of the system. For that, the experiments are run with and without benchmarking, and then a comparation of both is made to find if there is a significative breach in the timings of both experiments.
+<<BenchmarkNotIntrusive,echo = FALSE,fig = TRUE>>=
+library('ggplot2')
+library('gridExtra')
+library('reshape')
+# write a simple function to add footnote
+makeFootnote <- function(footnoteText =
+                         format(Sys.time(), "%d %b %Y"),
+                         size = 0.8, color = grey(.5))
+{
+  require(grid)
+  pushViewport(viewport())
+  grid.text(label = footnoteText ,
+    x = unit(0.5,"npc"),
+    y = unit(0.5, "mm"),
+    just =c("centre", "bottom"),
+    check.overlap = 1,
+    gp = gpar(cex = size, col = color))
+ popViewport()
+}
+
+tim = read.table("./optimizations_experiments/timings/timings_d321137.dat")
+tim_amdahl = read.table("./optimizations_experiments/timings/timings_Amdahl_d321137.dat")
+tim = as.data.frame.matrix(tim)
+tim_amdahl = as.data.frame.matrix(tim_amdahl)
+#data <- data.frame(nodes =  orig_data[1:4,1], thr4const=orig_data[1:4,2], thr8const=orig_data[1:4,3], thr16const=orig_data[1:4,4], thr4prec=orig_data[1:4,5],thr8prec=orig_data[1:4,6],thr16prec=orig_data[1:4,7],optthr4const=opt_data[1:4,2], optthr8const=opt_data[1:4,3], optthr16const=opt_data[1:4,4], optthr4prec=opt_data[1:4,5], optthr8prec=opt_data[1:4,6],optthr16prec=opt_data[1:4,7])
+data <- data.frame(nodes =  tim[1:3,1], constant=tim[1:3,2],constant_bench=tim_amdahl[1:3,2])
+df <- melt(data ,  id = 'nodes', variable_name = 'versions')
+g <- ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() + scale_fill_hue()
+plot(g)
+makeFootnote("Timings of a tipical run vs. a run with benchmarks activated", color = "black")
+@
+
 We proved that our benchmarkings are indeed, not intrusive, as it can be seen in the Figure
 
 Once the benchmark is done, one can calculate the actual speedup provided by our system, using the Amdahl's law equation.
@@ -99,9 +130,9 @@ makeFootnote <- function(footnoteText =
 pinpoint = read.table("./optimizations_experiments/pinpoint/pinpoint.dat")
 pinpoint = as.data.frame.matrix(pinpoint)
 #data <- data.frame(nodes =  orig_data[1:4,1], thr4const=orig_data[1:4,2], thr8const=orig_data[1:4,3], thr16const=orig_data[1:4,4], thr4prec=orig_data[1:4,5],thr8prec=orig_data[1:4,6],thr16prec=orig_data[1:4,7],optthr4const=opt_data[1:4,2], optthr8const=opt_data[1:4,3], optthr16const=opt_data[1:4,4], optthr4prec=opt_data[1:4,5], optthr8prec=opt_data[1:4,6],optthr16prec=opt_data[1:4,7])
-data <- data.frame(hashs =  pinpoint[1:14,1], thr4_prec=pinpoint[1:14,4], thr8_prec=pinpoint[1:14,5])
+data <- data.frame(hashs =  pinpoint[1:15,1], thr4_prec=pinpoint[1:15,4], thr8_prec=pinpoint[1:15,5])
 df <- melt(data ,  id = 'hashs', variable_name = 'versions')
-df <- transform(df, hashs = factor(hashs, levels = c("34de819","71c9241","f95108e","8ec4cdb","34e46b4","49288d9","a711dd8","ccfa6d0","58edfe4","048b8c7","edd6d5b","525d972","eb547ff","ce1289d")))
+df <- transform(df, hashs = factor(hashs, levels = c("34de819","71c9241","f95108e","8ec4cdb","34e46b4","49288d9","a711dd8","ccfa6d0","58edfe4","048b8c7","b9734b1","edd6d5b","525d972","eb547ff","ce1289d")))
 g <- ggplot(df, aes(x=hashs,y=value, group=versions, colour=versions)) + geom_line() + scale_fill_hue() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 #labs(title = 'Chord simulation, Precise Model', sub = 'Original version vs. Adaptative algorithm', ylab = 'time')
 plot(g)
