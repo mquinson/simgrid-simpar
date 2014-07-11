@@ -117,8 +117,31 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
      CLOSED: [2014-07-02 Wed 17:55]
 ** 3 [100%]
 - [X] benchmark experiment for SR. Still not working.
-** 4 [%]
-*** TODO fix exp. of benchmark per SR.
+** 4 [100%]
+*** DONE fix exp. of benchmark per SR.
+    CLOSED: [2014-07-04 Fri 16:47]
+
+** 7 [100%]
+   - [X] plot, Rstudio, organize data
+** 8 [100%]
+*** DONE work on Amdahl section on Rstudio.
+    CLOSED: [2014-07-08 Tue 15:30]
+**** DONE from the logs, get sequential and parallel times (python)
+    CLOSED: [2014-07-08 Tue 15:28]
+**** DONE From the normal logs, get completely sequential times (user+system)(python)
+     CLOSED: [2014-07-08 Tue 16:21]
+** 9 [100%]
+*** DONE work on Rstudio
+    CLOSED: [2014-07-10 Thu 10:57]
+** 10 [%]
+*** TODO experiments to check the segfault with big sizes.
+*** TODO experiments to take mean of values for amdahl for the speedup plot
+*** TODO plot second graph of introduction
+*** TODO think experiment of "micro" amdahl timings. That would be I)c)
+
+
+**** TODO Plot speedup graph with amdahl law.
+
 * TODO Experiment of Section I [%]
 ** TODO Benchmark: before Amdahl benchmark, do experiments with the optimized version without benchmark and save those timings. Thats is for the comparation of timings to say that our benchmark is not intrusive.
 *** DONE modify scripts for this.
@@ -126,9 +149,12 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
 ** TODO Gather data-> id Sched Round : time taken by each SR : #proc. From this data set I can generate the 2 graphs:
 *** DONE Find the ifndef/define of the benchmarks that are already done
     CLOSED: [2014-07-02 Wed 09:29]
-*** TODO Set up everything to run tests and gather data (with chord, for example)
-**** TODO Fix deadlock on SR benchmarks. Posible cause: process_list is never cleaned up, thats with it enter the if and enter the deadlock.
-*** TODO The graph 1: Y=% of scheduling rounds taking #proc. x=#proc
+*** DONE Set up everything to run tests and gather data (with chord, for example)
+    CLOSED: [2014-07-07 Mon 13:13]
+**** DONE Fix code on SR benchmarks.
+     CLOSED: [2014-07-07 Mon 13:13]
+*** DONE The graph 1: Y=% of scheduling rounds taking #proc. x=#proc
+    CLOSED: [2014-07-08 Tue 09:30]
 *** TODO The graph 2: Y=number of scheduling round. x=Time (is the time of each scheduling round).
 ** TODO Amdhal: Optimal Ahmdal threshold: measure time of sequential executions, then measure time of parallel+sequential execution in a parallel execution. Calculate Amdahl law.
 
@@ -145,16 +171,18 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
      3) copy simgrid from Rennes frontend
      4) cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF -Denable_documentation=OFF .
      5) make && make install && sudo chmod 777 /usr/local/lib/libsimgrid.so.<version_number>
-     6) to run test, this should work:  ./testall.sh path/to/simgrid/ 3.11
-     7) example run:
+     6) example run:
         ./chord One_cluster_nobb_1000_hosts.xml chord1000.xml --log=root.thres:critical --cfg=contexts/stack_size:16 --cfg=contexts/guard_size:0 --cfg=network/model:Constant --cfg=network/latency_factor:0.1
 	./chord One_cluster_nobb_10000_hosts.xml chord10000.xml --cfg=contexts/stack_size:16 --log=root.thres:critical --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --cfg=contexts/nthreads:4
 	./chord One_cluster_nobb_10000_hosts.xml chord10000.xml --cfg=contexts/stack_size:16 --log=root.thres:critical --cfg=maxmin/precision:0.00001 --cfg=contexts/nthreads:4 --cfg=maxmin/precision:0.00001
+     7) to run test, this should work:  ./testall.sh path/to/simgrid/ 3.11
      8) Dont forget to modify script to copy logs to home folder (otherwise they will lay on the node, and they will be erased)
      9) To copy something from rennes to the deployed node: scp -r rtortilopez@rennes.grid5000.fr:path/to/file . 
-    10) To print current revision hash git rev-parse --short HEAD
-    11) git log --pretty=oneline --pretty=format:"%h %s"  --since 17/11/2013 --until 23/01/2014 |  less
-    12) If it fails to allocate stack with big amount of nodes, then use --cfg=contexts/guard_size:0
+   - To print current revision hash git rev-parse --short HEAD
+     1) git log --pretty=oneline --pretty=format:"%h %s"  --since 17/11/2013 --until 23/01/2014 |  less
+     2) If it fails to allocate stack with big amount of nodes, then use --cfg=contexts/guard_size:0
+
+for file in sr_*; do tail -n +0 $file >> sr_total_1000.log; done
 ** Profilers:
     1) perf record ./chord ...
     2) perf record -g -e cpu-clock ./chord and then:
