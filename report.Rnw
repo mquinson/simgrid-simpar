@@ -3,33 +3,88 @@
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
-\section{Problem Analysis}
-\subsection{Optimal Amdhal's law threshold}
+\section{Motivation and Problem Statement}
+
+Simulation is the third pillar of science, allowing to study complicated
+phenomenons through complex models. When the size or complexity of the studied
+models becomes too large, it is classical to leverage more resources through
+Parallel Discrete-Event Simulation (PDES).  
+
+Still, the parallel simulation of very fine grained applications deployed on
+large-scale distributed systems (LSDS) remains challenging. As a matter of fact,
+most simulators of Peer-to-Peer systems are sequential, despite the vast
+literature on PDES over the last three decades.
+
+dPeerSim is one of the very few existing PDES for P2P systems, but it presents
+deceiving performance: it can achieve a decent speedup when increasing the
+amount of logical processes (LP): from 4h with 2 LPs down to 1h with 16 LPs.
+But it remains vastly inefficient when compared to sequential version of
+PeerSim, that performs the same experiment in 50 seconds only. This calls for a
+new parallel schema specifically tailored to this category of Discrete Event
+Simulators.
+
+Discrete Event Simulation of Distributed Applications classically alternates
+between simulation phases where the models compute the next event date, and
+phases where the application workload is executed.  We proposed
+in~\cite{previous} to not split the simulation model across several computing
+nodes, but instead to keep the model sequential and execute the application
+workload in parallel when possible. We hypothesized that this would help
+reducing the synchronization costs. We evaluate our contribution with very fine
+grained workloads such as P2P protocols. These workloads are the most difficult
+to execute efficiently in parallel because execution times are very short,
+making it very difficult to amortize the synchronization times.
+
+We implemented this parallel schema within the SimGrid framework, and showed
+that the extra complexity does not endangers the performance since the
+sequential version of SimGrid still outperforms several competing solutions when
+our addition are present but disabled at run time.
+
+To the best of our knowledge, it is the first time that a parallel simulation of
+P2P system proves to be faster that the best known sequential execution. Yet,
+the parallel simulation only outperforms sequential one when the amount of
+processes becomes large enough. This is because of the pigonhole principle: when
+the amount of processes increases, the average amount of processes that are
+ready to run at each simulated timestamp (and can thus run in parallel)
+increases. When simulating the Chord protocol, it takes 500,000 processes or
+more to amortizing the synchronization costs, while the classical studies of the
+literature usually involve less processes.
+
+The current work aims at further improving the performance of our PDES, using
+several P2P protocols as a workload. We investigate the possible inefficiency
+and propose generic solutions that could be included in other similar simulators
+of large-scale distributed systems, be them P2P simulators of cloud, HPC or
+sensornets ones.
+
+This paper is organized as follows: Section~\ref{sec:context} recaps the SimGrid
+architecture and quickly presents the parallel execution schema detailed
+in~\cite{previous}. Section~\ref{sec:parallel} explores several trade-offs for
+the efficiency of the parallel sections. Section~\ref{sec:problem} analysis the
+theoretical performance bound, and discusses the previous work at the light of
+the Amhdal law.  Section~\ref{sec:adaptative} proposes an algorithm to
+automatically tune the level of parallelism that is adapted to the simulated
+application. Section~\ref{sec:cc} concludes this paper and discusses some future
+work.
+
+
+\section{Context}\label{sec:context}
+
+XXX: Recap of previous paper
+
+XXX: Explain why there is no future work
+
+\section{Optimizations}\ref{sec:parallel}
+\subsection{}
+\subsection{Parmap between N cores}
+ \#proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
+\subsection{Busy Waiters}
+ \#proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
+ \subsection{Performance Regression Testing}
+
+\section{Problem Analysis}\label{sec:problem}
+\subsection{Optimal Amdhal's law threshold} %Also, the benchmarking not intrusive is here.
 We want to find the maximum speedup achieved with our current parallel model. For that, a test a benchmark test is run to get the timings of a typical sequential and parallel executions. After that, and using the Amdahl's law, we can retrieve the real speedup achieved with our system.
-But first we want to prove that our benchmarks are not intrusive, that is, our measures do no really affect the overall performance of the system. For that, the experiments are run with and without benchmarking.
-Then, taking a typical Chord simulation, a comparison of both versions (benchmarked one and original) is made to find if there is a significative breach in the timings.
-The percentage difference equation is used to represent the how big is the breach between the two experiments:
-\[
-\frac{|benchmark-raw|}{(benchmark+raw)/2}
-\]
-Being \emph{raw} the time of a typical sequential simulation and \emph{benchmark} the time of a simulation with benchmarks enabled.
-
-%<<BenchmarkNotIntrusive,echo = FALSE,fig = TRUE>>=
-%library('ggplot2')
-%library('gridExtra')
-%library('reshape')
-%tim = read.table("./optimizations_experiments/timings/timings_d321137.dat")
-%tim_amdahl = read.table("./optimizations_experiments/timings/timings_Amdahl_d321137.dat")
-%tim = as.data.frame.matrix(tim)
-%tim_amdahl = as.data.frame.matrix(tim_amdahl)
-%data <- data.frame(nodes =  tim[1:4,1], constant=tim[1:4,2],constant_bench=tim_amdahl[1:4,2])
-%df <- melt(data ,  id = 'nodes', variable_name = 'versions')
-%g <- ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() + scale_fill_hue()
-%plot(g)
-%makeFootnote("Timings of a tipical run vs. a run with benchmarks activated", color = "black")
-%@
-
-<<PercentageDifference,echo = FALSE,fig = TRUE>>=
+But first we want to prove that our benchmarks are not intrusive, that is, our measures do no really affect the overall performance of the system. For that, the experiments are run with and without benchmarking, and then a comparation of both is made to find if there is a significative breach in the timings of both experiments.
+<<BenchmarkNotIntrusive,echo = FALSE,fig = TRUE>>=
 library('ggplot2')
 library('gridExtra')
 library('reshape')
@@ -172,14 +227,15 @@ makeFootnote <- function(footnoteText =
     gp = gpar(cex = size, col = color))
  popViewport()
 }
+library('plyr')
+library('data.table')
 temp = list.files(path='./optimizations_experiments/sr_counts/', pattern="*precise.log", full.names = TRUE)
 flist <- lapply(temp, read.table)
-sr_data <-rbindlist(flist)
+sr_data <- rbindlist(flist)
 sr_data[, "V1"] <- NULL
 sr_data = as.data.frame.matrix(sr_data)
 
 #for the mean
-library('plyr')
 df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
 g <-ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlab("") + ylab("") + geom_line()
 plot(g)
@@ -189,10 +245,16 @@ makeFootnote("Mean of times depending on the amount of processes of each schedul
 \subsection{}
 
 \section{Optimal threshold for parallel execution}
-\subsection{Adaptative algorithm to calculate threshold}
-But finding an optimal threshold is not always the best option: some simulations can take more time in each process and other less time. If a simulation has very efficient processes, or processes that dont work too much, then the threshold could be inefficient,
-Thats why an algorithm for a dynamic threshold calculation is proposed.
-TODO: explanation of the heuristic... is the amount of time taken by each scheduling round, and calculate on the fly a dynamic threshold to fit better the simulation. Pseudocode maybe
+\subsection{Getting a real threshold over simulations}
+The threshold wanted is how many processes are the right amount to be executed in parallel when it is necessary, and when is it better to execute them in a sequential way.
+Initially, what we want is to find an optimal threshold for the beginning of any simulation.
+For that, a series of experiments have to be run using <version> of SimGrid.
+That is why we test the performance of the engine in an exhaustive way, benchmarking the scheduling rounds timings in parallel and sequential executions, and finding the best average option for a simulation.
+Something about Geometric mean...
+\subsection{Adaptive algorithm to calculate threshold}
+But finding an optimal threshold is not always the best option: some simulations can take more time in each process and other less time. If a simulation has very efficient processes, or processes that don't work too much, then the threshold could be inefficient,
+That's why an algorithm for a dynamic threshold calculation is proposed.
+TODO: explanation of the heuristic...bla bla is the amount of time taken by each scheduling round, and calculate on the fly a dynamic threshold to fit better the simulation. Pseudocode
 
 \subsection{Models used in the chord simulation}
 \begin{itemize}
@@ -267,11 +329,6 @@ makeFootnote("Chord simulation, Precise Model. Original version vs. Adaptative a
 %#makeFootnote("Finding faulty commit. Chord Simulation", color = "black")
 %@
 
-\section{Optimizations}
-\subsection{}
-\subsection{Parmap between N cores}
- \#proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
-\subsection{Busy Waiters}
- \#proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
- \subsection{Performance Regression Testing}
+\section{Conclusion}\label{sec:cc}
+
 \end{document}
