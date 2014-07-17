@@ -121,6 +121,7 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
 *** DONE fix exp. of benchmark per SR.
     CLOSED: [2014-07-04 Fri 16:47]
 
+
 ** 7 [100%]
    - [X] plot, Rstudio, organize data
 ** 8 [100%]
@@ -133,15 +134,35 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
 ** 9 [100%]
 *** DONE work on Rstudio
     CLOSED: [2014-07-10 Thu 10:57]
-** 10 [%]
+** 10 [100%]
+*** DONE get better data and plot 2nd graph of intro.
+    CLOSED: [2014-07-11 Fri 11:22]
+** 11 [100%]
+*** DONE run sr experiment with more nodes and gather data. The plot is still weird.
+    CLOSED: [2014-07-15 Tue 09:50]
+
+** 15 [100%]
+*** DONE keep working on SR round times plot
+    CLOSED: [2014-07-17 Thu 09:41]
+**** DONE make more experiments from the laptop
+     CLOSED: [2014-07-17 Thu 09:41]
+** 16 [100%]
+   - [X] valgrind and gdb to track the bug in chord. Found a corruption in memory, still dont find the bug
+** 17 [%]
 *** TODO experiments to check the segfault with big sizes.
-*** TODO experiments to take mean of values for amdahl for the speedup plot
-*** TODO plot second graph of introduction
+**** The problem seems to appear when using benhmarks SR with raw contexts, since with ucontext it does work ok.
+***** TODO Check with raw context and no BENCHMARK_PER_SR if it works
+****** TODO If it works, then there is a problem catching the context from the list when doing the benchmark.
+****** TODO If it does not work, then whe have a problem (This case should not happen)
+
+
+*** TODO experiments to take mean of values for amdahl for the speedup plot (the same as SR exp, just make more of this and take the mean in R)
 *** TODO think experiment of "micro" amdahl timings. That would be I)c)
+*** TODO try with other examples.
 
+*** TODO Plot better speedup graph with amdahl law, using bigger sizes (once the segfault is fixed)
 
-**** TODO Plot speedup graph with amdahl law.
-
+*** TODO sequential execution of SR experiments for the plot
 * TODO Experiment of Section I [%]
 ** TODO Benchmark: before Amdahl benchmark, do experiments with the optimized version without benchmark and save those timings. Thats is for the comparation of timings to say that our benchmark is not intrusive.
 *** DONE modify scripts for this.
@@ -211,7 +232,7 @@ repository: git+ssh://rtortilo@scm.gforge.inria.fr//gitroot/simgrid/simgrid-perf
 ** Problem Analysis
   1) Optimal threshold for Amdhal. Which portion of the problem is paralellizable. Which not. Why is hard?(a)
      Two graphics: #SD vs. #process (b) && #SD vs. time(SD) (c)
-
+     
 ** Find threshold between sequential/parallel
   1) test over real runs. not simulations (what would be real runs?)
   2) geometric mean (of..)
@@ -238,7 +259,7 @@ SimGrid3.9    f95108e7e5bcb66bba76a24c1c433eee710e38e0
 SimGrid3.10   772d63cca583f5d16096fa9f487b4ab07d9af8f0
 
 ** Optimizations
-  1) 
+  1) bind each tread to one core
   2) implement parmap between N cores: maestroawake+(N-1)(default?); maestrosleep+(N)(how to sleep master. Check line where master work with its minions and then comment that line? that way master will not work?); maestro sleep+(N-1) (each one of those with busy waiters, futex and posix threads) #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
   3) parmap next. Not now.
   4) busy waiters with different #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).

@@ -69,8 +69,34 @@ work.
 \section{Context}\label{sec:context}
 
 XXX: Recap of previous paper
+In the previous work ~\cite{previous} we proposed to parallelize the execution
+of the user code while keeping the simulation engine sequential.
+This is enabled by applying classical concepts of OS design to this new context:
+every interaction between the user processes and the simulated environment is
+mediated by a specific layer that acts as the OS kernel.
 
-XXX: Explain why there is no future work
+Experimental results showed that the new design does not hinder the tool
+scalability. In fact, the sequential version of SimGrid remains orders of magnitude
+more scalable than state of the art simulators.
+The difficulty to get a parallel version of a P2P simulator faster than its
+sequential counterpart was also revealed, being the first time that a parallel
+simulation of Chord runs faster than the best known sequential implementation.
+
+A result showed in the previous work is that the speedups only increased
+up to a certain point when increasing the amount of working threads.
+We also have proved that for small instances, parallelism actually hinders the
+performance, and that the relative gain of parallelism seems even strictly increasing
+with the system size. In particular, the constant model was benefited from parallelism
+only after about 30000 nodes while the precise model had to reach about 500000
+nodes for that. This can be explained using the Amdahl's law and taking in count
+the code portions that do not run in parallel: it is much higher with the precise
+model since we compute the hardware models sequentially.
+
+Now we are closer to the optimal Amdahl's law threshold, that means, that we have
+reach a limit on the parallelizable portions of the code. The remaining optimizations
+seek for an ultimate speedup, trying to get a better parallel threshold dynamically
+depending on the simulation, and better performance of the threads taking in count
+their distribution on the CPU cores.
 
 \section{Optimizations}\ref{sec:parallel}
 \subsection{}
@@ -82,8 +108,17 @@ XXX: Explain why there is no future work
 
 \section{Problem Analysis}\label{sec:problem}
 \subsection{Optimal Amdhal's law threshold} %Also, the benchmarking not intrusive is here.
-We want to find the maximum speedup achieved with our current parallel model. For that, a test a benchmark test is run to get the timings of a typical sequential and parallel executions. After that, and using the Amdahl's law, we can retrieve the real speedup achieved with our system.
-But first we want to prove that our benchmarks are not intrusive, that is, our measures do no really affect the overall performance of the system. For that, the experiments are run with and without benchmarking, and then a comparation of both is made to find if there is a significative breach in the timings of both experiments.
+We want to find the maximum speedup achieved with our current parallel
+model. For that, a test a benchmark test is run to get the timings of a
+typical sequential and parallel executions. After that, and using
+the Amdahl's law, we can retrieve the real speedup achieved with
+our system.
+
+But first we want to prove that our benchmarks are not intrusive,
+that is, our measures do not really affect the overall performance
+of the system. For that, the experiments are run with and without
+benchmarking, and then a comparation of both is made to find if
+there is a significative breach in the timings of both experiments.
 <<BenchmarkNotIntrusive,echo = FALSE,fig = TRUE>>=
 library('ggplot2')
 library('gridExtra')
@@ -136,13 +171,22 @@ g <- ggplot(df, aes(x=nodes,y=value, group=difference, colour=difference)) + geo
 plot(g)
 makeFootnote("Figure 1: Percentage difference of time between benchmarked and original version", color = "black")
 @
-As it can be seen in the Figure 1, the maximum difference in the execution time of both versions is 15\%, which is not big enough to say that the benchmark is intrusive\\
-TODO: This is just an asumption. I think I need a stronger statistical fact here to prove what I want. Also, is the percentage diff equation the best option?
+As it can be seen in the Figure 1, the maximum difference in the execution
+time of both versions is 15\%, which is not big enough to say that the
+benchmark is intrusive\\
 
-As a conclusion, the benchmarking is not refally intrusive for the computation, since it does not affect the parallel nor sequential executions of the simulation in a significant way.
+TODO: This is just an asumption. I think I need a stronger statistical fact
+here to prove what I want. Also, is the percentage diff equation the best option?
 
-To calculate the speedup obtained with our parallel model, the experiment was ran with 1000, 3000, 5000 and 10000 nodes. But as it can be seen in the Figure, the real speedup is achieved with bigger sizes.\\
-TODO: is practically impossible to run simulation with 100k nodes, thows segfault. Without that, there's no way to show that there is speedup.
+As a conclusion, the benchmarking is not really intrusive for the computation,
+since it does not affect the parallel nor sequential executions of the simulation
+in a significant way.
+
+To calculate the speedup obtained with our parallel model, the experiment was
+ran with 1000, 3000, 5000 and 10000 nodes. But as it can be seen in the Figure,
+the real speedup is achieved with bigger sizes.\\
+TODO: is practically impossible to run simulation with 100k nodes, thows
+segfault. Without that, there's no way to show that there is speedup.
 
 <<AmdahlSpeedup,echo = FALSE,fig = TRUE>>=
 library('ggplot2')
@@ -179,10 +223,18 @@ makeFootnote("Figure 2: Real speedup achieved using parallel mode in Chord simul
 
 
 \subsection{Parallelizable portions of the problem}
-(Probably a comment of scheduling rounds and parallel/sequential execution.)
-This experiment will be based on a typical Chord simulation, and the data wanted are the following: ID of each Scheduling Round, time taken by each Scheduling Round and number of process executed in each scheduling round.
+XXX: Probably a comment of scheduling rounds and parallel/sequential execution.
 
-What we want to prove is that the limit on the speed up reached is due to the fact that we are very closer to the limit of parallelizable portions of the system. As it can be seen on the first graph, the amount of processes computed by each scheduling round is only one most of the times, so the parallel execution is not possible in that instances. The remaining processes are executed in parallel due to the parallel execution threshold already setted up in SimGrid (which can be modified).
+This experiment will be based on a typical Chord simulation, and the data wanted
+are the following: ID of each Scheduling Round, time taken by each Scheduling Round
+and number of process executed in each scheduling round.
+
+What we want to prove is that the limit on the speed up reached is due to the fact
+that we are very closer to the limit of parallelizable portions of the system. As
+it can be seen on the first graph, the amount of processes computed by each scheduling
+round is only one most of the times, so the parallel execution is not possible in that
+instances. The remaining processes are executed in parallel due to the parallel
+execution threshold already setted up in SimGrid (which can be modified).
 
 <<ShedRoundDistribution,echo = FALSE,fig = TRUE>>=
 library('ggplot2')
@@ -213,6 +265,8 @@ makeFootnote("Amount of scheduling rounds computing.", color = "black")
 <<SchedRoundTimes,echo = FALSE,fig = TRUE>>=
 library('ggplot2')
 library('gridExtra')
+library('plyr')
+library('data.table')
 makeFootnote <- function(footnoteText =
                          format(Sys.time(), "%d %b %Y"),
                          size = 0.8, color = grey(.5))
@@ -227,9 +281,8 @@ makeFootnote <- function(footnoteText =
     gp = gpar(cex = size, col = color))
  popViewport()
 }
-library('plyr')
-library('data.table')
-temp = list.files(path='./optimizations_experiments/sr_counts/', pattern="*precise.log", full.names = TRUE)
+
+temp = list.files(path='./optimizations_experiments/sr_counts', pattern="*3000\\_threads*", full.names = TRUE)
 flist <- lapply(temp, read.table)
 sr_data <- rbindlist(flist)
 sr_data[, "V1"] <- NULL
@@ -237,7 +290,7 @@ sr_data = as.data.frame.matrix(sr_data)
 
 #for the mean
 df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
-g <-ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlab("") + ylab("") + geom_line()
+g <-ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlab("") + ylab("") + geom_point(size = 3)  #+geom_line()
 plot(g)
 makeFootnote("Mean of times depending on the amount of processes of each scheduling round.", color = "black")
 @
@@ -246,15 +299,26 @@ makeFootnote("Mean of times depending on the amount of processes of each schedul
 
 \section{Optimal threshold for parallel execution}
 \subsection{Getting a real threshold over simulations}
-The threshold wanted is how many processes are the right amount to be executed in parallel when it is necessary, and when is it better to execute them in a sequential way.
-Initially, what we want is to find an optimal threshold for the beginning of any simulation.
+The threshold wanted is how many processes are the right amount to be executed
+in parallel when it is necessary, and when is it better to execute them in a
+sequential way.
+Initially, what we want is to find an optimal threshold for the beginning of
+any simulation.
 For that, a series of experiments have to be run using <version> of SimGrid.
-That is why we test the performance of the engine in an exhaustive way, benchmarking the scheduling rounds timings in parallel and sequential executions, and finding the best average option for a simulation.
+That is why we test the performance of the engine in an exhaustive way,
+benchmarking the scheduling rounds timings in parallel and sequential
+executions, and finding the best average option for a simulation.
+
 Something about Geometric mean...
 \subsection{Adaptive algorithm to calculate threshold}
-But finding an optimal threshold is not always the best option: some simulations can take more time in each process and other less time. If a simulation has very efficient processes, or processes that don't work too much, then the threshold could be inefficient,
+But finding an optimal threshold is not always the best option: some simulations
+can take more time in each process and other less time. If a simulation has
+very efficient processes, or processes that don't work too much, then the
+threshold could be inefficient,
 That's why an algorithm for a dynamic threshold calculation is proposed.
-TODO: explanation of the heuristic...bla bla is the amount of time taken by each scheduling round, and calculate on the fly a dynamic threshold to fit better the simulation. Pseudocode
+TODO: explanation of the heuristic...bla bla is the amount of time taken by
+each scheduling round, and calculate on the fly a dynamic threshold to fit
+better the simulation. Pseudocode
 
 \subsection{Models used in the chord simulation}
 \begin{itemize}
