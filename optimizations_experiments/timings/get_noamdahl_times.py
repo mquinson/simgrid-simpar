@@ -4,6 +4,7 @@ MODES = ['constant', 'precise']
 THREADS = ['1', '2', '4', '8', '16', '24']
 output_file = "total_times_noamdahl.log"
 
+
 def parse_files():
     f = open(output_file, "w")
     f.write("#Non bencharked timings\n#constant first, precise last\n")

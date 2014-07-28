@@ -68,7 +68,6 @@ work.
 
 \section{Context}\label{sec:context}
 
-XXX: Recap of previous paper
 In the previous work ~\cite{previous} we proposed to parallelize the execution
 of the user code while keeping the simulation engine sequential.
 This is enabled by applying classical concepts of OS design to this new context:
@@ -82,7 +81,7 @@ The difficulty to get a parallel version of a P2P simulator faster than its
 sequential counterpart was also revealed, being the first time that a parallel
 simulation of Chord runs faster than the best known sequential implementation.
 
-A result showed in the previous work is that the speedups only increased
+A relevant result showed in the previous work is that the speedups only increased
 up to a certain point when increasing the amount of working threads.
 We also have proved that for small instances, parallelism actually hinders the
 performance, and that the relative gain of parallelism seems even strictly increasing
@@ -99,7 +98,6 @@ depending on the simulation, and better performance of the threads taking in cou
 their distribution on the CPU cores.
 
 \section{Optimizations}\ref{sec:parallel}
-\subsection{}
 \subsection{Parmap between N cores}
  \#proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
 \subsection{Busy Waiters}
@@ -210,10 +208,14 @@ makeFootnote <- function(footnoteText =
 
 orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl.log")
 opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl.log")
+opt_data2 = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
 orig_data = as.data.frame.matrix(orig_data)
 opt_data = as.data.frame.matrix(opt_data)
-data <- data.frame(nodes =  orig_data[1:4,1], seq = orig_data[1:4,8], sumamd = opt_data[1:4,11])
-data[, "speedup"] <- data[, "seq"] / data[, "sumamd"]
+opt_data2 = as.data.frame.matrix(opt_data2)
+data <- data.frame(nodes =  orig_data[1:4,1], seq = orig_data[1:4,8], sumamd = opt_data[1:4,11], sumamd2 = opt_data2[1:4,11])
+# an extra seq column to average would be good too.
+data[, "avgamdahl"] <- colMeans(rbind(data[, "sumamd"], data[, "sumamd2"]), na.rm=TRUE)
+data[, "speedup"] <- data[, "seq"] / data[, "avgamdahl"]
 df <- melt(data ,  id = 'nodes', variable_name = 'speedup')
 g <- ggplot(data, aes(x=nodes,y=speedup, colour=speedup)) + geom_line() + scale_colour_continuous(guide=FALSE)
 #labs(title = 'Chord simulation, Precise Model', sub = 'Original version vs. Adaptative algorithm', ylab = 'time')
@@ -256,9 +258,9 @@ makeFootnote <- function(footnoteText =
 }
 sr_data = read.table("./optimizations_experiments/sr_counts/sr_total_1000.log")
 sr_data = as.data.frame.matrix(sr_data)
-ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,13) + geom_histogram(aes(y=..count../sum(..count..))) + xlab("") + ylab("")
+ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,13) + geom_histogram(aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + theme(panel.background = element_blank()) + #scale_x_discrete(breaks = seq(1, 10))
 
-makeFootnote("Amount of scheduling rounds computing.", color = "black")
+makeFootnote("Proportion of scheduling rounds computing processes.", color = "black")
 @
 
 
@@ -295,8 +297,6 @@ plot(g)
 makeFootnote("Mean of times depending on the amount of processes of each scheduling round.", color = "black")
 @
 
-\subsection{}
-
 \section{Optimal threshold for parallel execution}
 \subsection{Getting a real threshold over simulations}
 The threshold wanted is how many processes are the right amount to be executed
@@ -309,7 +309,53 @@ That is why we test the performance of the engine in an exhaustive way,
 benchmarking the scheduling rounds timings in parallel and sequential
 executions, and finding the best average option for a simulation.
 
-Something about Geometric mean...
+<<SchedRoundParThreshold,echo = FALSE,fig = TRUE>>=
+library('ggplot2')
+library('gridExtra')
+library('plyr')
+library('data.table')
+makeFootnote <- function(footnoteText =
+                         format(Sys.time(), "%d %b %Y"),
+                         size = 0.8, color = grey(.5))
+{
+  require(grid)
+  pushViewport(viewport())
+  grid.text(label = footnoteText ,
+    x = unit(0.5,"npc"),
+    y = unit(0.5, "mm"),
+    just =c("centre", "bottom"),
+    check.overlap = 1,
+    gp = gpar(cex = size, col = color))
+ popViewport()
+}
+
+#SEQUENTIAL
+temp = list.files(path='./optimizations_experiments/sr_counts', pattern="threads2", full.names = TRUE)
+flist <- lapply(temp, read.table)
+sr_data <- rbindlist(flist) #TODO: SE PUEDE SACAR, CREO
+sr_data[, "V1"] <- NULL
+sr_data = as.data.frame.matrix(sr_data)
+df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
+
+#PARALLEL:
+temp2 = list.files(path='./optimizations_experiments/sr_counts', pattern="threads4", full.names = TRUE)
+flist2 <- lapply(temp2, read.table)
+sr_data2 <- rbindlist(flist2) #TODO: SE PUEDE SACAR, CREO
+sr_data2[, "V1"] <- NULL
+sr_data2 = as.data.frame.matrix(sr_data2)
+df2 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
+
+#merge this two datasets
+df3 = merge(df, df2, by.x = 'V3', by.y = 'V3', incomparables = NULL)
+df3[, 'speedup'] <- df3[,'mean_value.x'] / df3[, 'mean_value.y']
+#for the mean
+g <-ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line()
+plot(g)
+makeFootnote("Speedup obtained in relation with the amount of processes computed by scheduling round.", color = "black")
+@
+
+
+
 \subsection{Adaptive algorithm to calculate threshold}
 But finding an optimal threshold is not always the best option: some simulations
 can take more time in each process and other less time. If a simulation has

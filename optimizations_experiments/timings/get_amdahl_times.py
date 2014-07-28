@@ -1,9 +1,9 @@
 DIR = "log_amdahl"
-SIZES = ['1000', '3000', '5000', '10000']
+SIZES = ['1000', '3000', ] #'5000', '10000']
 MODES = ['constant', 'precise']
 THREADS = ['1', '2', '4', '8', '16', '24']
-output_file = "total_seq-par_times_amdahl.log"
-output_sum_file = "total_sum_times_amdahl.log"
+output_file = "total_seq-par_times_amdahl2.log"
+output_sum_file = "total_sum_times_amdahl2.log"
 
 def parse_amdahl_files():
     f = open(output_file, "w")
@@ -15,7 +15,7 @@ def parse_amdahl_files():
         sum_line = "{}\t".format(size)
         for mode in MODES:
             for thread in THREADS:
-                file = open("{}/chord_{}_threads{}_{}.log".format(DIR, size, thread, mode), "r")
+                file = open("{}/chord2_{}_threads{}_{}.log".format(DIR, size, thread, mode), "r")
                 lines = [line for line in file.read().splitlines() if "Amdahl" in line]
                 # tuples containing (sequential,parallel) time
                 if lines:

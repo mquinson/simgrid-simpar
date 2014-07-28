@@ -141,6 +141,7 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
 *** DONE run sr experiment with more nodes and gather data. The plot is still weird.
     CLOSED: [2014-07-15 Tue 09:50]
 
+
 ** 15 [100%]
 *** DONE keep working on SR round times plot
     CLOSED: [2014-07-17 Thu 09:41]
@@ -148,22 +149,33 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
      CLOSED: [2014-07-17 Thu 09:41]
 ** 16 [100%]
    - [X] valgrind and gdb to track the bug in chord. Found a corruption in memory, still dont find the bug
-** 17 [%]
-*** TODO experiments to check the segfault with big sizes.
-**** The problem seems to appear when using benhmarks SR with raw contexts, since with ucontext it does work ok.
-***** TODO Check with raw context and no BENCHMARK_PER_SR if it works
-****** TODO If it works, then there is a problem catching the context from the list when doing the benchmark.
-****** TODO If it does not work, then whe have a problem (This case should not happen)
+** 17-18 [100%]
+   - [X] Analyze stacks, the bug has its origins on the SR benchmarks
 
 
-*** TODO experiments to take mean of values for amdahl for the speedup plot (the same as SR exp, just make more of this and take the mean in R)
-*** TODO think experiment of "micro" amdahl timings. That would be I)c)
-*** TODO try with other examples.
+** 21 [100%]
+   - [X] Using gdb. Found where the SIGSEV comes from: raw_swapcontext from suspend_serial of smx_context_raw.c. The problem is with the address of the next_context
+     The problem seems to be with the way 'i' index was computed in smx_ctx_raw_suspend_serial. I fixed it and now it works.
+** 22 [100%]
+   - [X] Found 2 more segfaults: when nthreads=1 using the SR benchmarks, and when the sizes are too big (with or without benchmarks) in chord simulation.
+   - [X] Re run experiments with SR with smaller sizes, in the cluster
+** 23 
+   - found that the 'performance fix' might be what causes the segfaults in some scenarios 
+** 24 
+   - Fixed potential SIGSEV when removing communication action when a SURF communication action is finishes (SIMIX_post_comm)
+** 25 [100%]
+   - [X] Make new experiments with bigger sizes: speedup (amdahl, /log_amdahl), SR (/log_sr), and raw (/log)(to compare intrusiveness of experiment). Use parapluie
+   - [X] Prepare "micro" amdahl timings. That would be I)c). Use SR experiment, one with 1 thread (seq), one with better parallel version. Average timings of each amount of processes and then calculate speedup of each amount of processes
 
-*** TODO Plot better speedup graph with amdahl law, using bigger sizes (once the segfault is fixed)
+** 28 [%]
+   - [ ] run SR like this: adding all the times of the parallel execution; taking the maxtime of the parallel execution. That way I get the sequential time of each SR, and the parallel time. 
+   - [ ] generate 300000, 1000000 and 2000000 nodes files again, there are some problems with the current ones. Run final part of experiments with it(raw, amdahl, sr)
+   - [ ] Work on better plots in rstudio. Work on report
+   - [ ] Migrate from Rstudio to emacs
+   - [ ] Commit fix
 
-*** TODO sequential execution of SR experiments for the plot
-* TODO Experiment of Section I [%]
+
+* TODO Experiment of Section I [0%]
 ** TODO Benchmark: before Amdahl benchmark, do experiments with the optimized version without benchmark and save those timings. Thats is for the comparation of timings to say that our benchmark is not intrusive.
 *** DONE modify scripts for this.
     CLOSED: [2014-06-30 Mon 15:34]
@@ -176,8 +188,10 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
      CLOSED: [2014-07-07 Mon 13:13]
 *** DONE The graph 1: Y=% of scheduling rounds taking #proc. x=#proc
     CLOSED: [2014-07-08 Tue 09:30]
-*** TODO The graph 2: Y=number of scheduling round. x=Time (is the time of each scheduling round).
+*** DONE The graph 2: Y=number of scheduling round. x=Time (is the time of each scheduling round).
+    CLOSED: [2014-07-25 Fri 10:58]
 ** TODO Amdhal: Optimal Ahmdal threshold: measure time of sequential executions, then measure time of parallel+sequential execution in a parallel execution. Calculate Amdahl law.
+*** TODO try with other examples.
 
 
 
