@@ -6,7 +6,6 @@
 #+LATEX_HEADER: \usepackage{wrapfig}
 #+STARTUP: hideblocks
 #+PROPERTY: session *R* 
-#+PROPERTY: results output
 
 #+begin_LaTeX
   \hypersetup{
@@ -15,6 +14,14 @@
   }
   \lstset{basicstyle=\ttfamily\bfseries\small}
 #+end_LaTeX
+
+#+begin_src R  :exports none
+library('ggplot2')
+library('gridExtra')
+library('reshape')
+library('plyr')
+library('data.table')
+#+end_src
 
 #+LaTeX: \begin{document}
 
@@ -71,7 +78,8 @@ and propose generic solutions that could be included in other similar simulators
 of large-scale distributed systems, be them P2P simulators of cloud, HPC or
 sensornets ones.
 
-This paper is organized as follows: Section~\ref{sec:context} recaps the SimGrid
+This paper is organized as follows: Section~\ref{sec:con
+text} recaps the SimGrid
 architecture and quickly presents the parallel execution schema detailed
 in~\cite{previous}. Section~\ref{sec:parallel} explores several trade-offs for
 the efficiency of the parallel sections. Section~\ref{sec:problem} analysis the
@@ -87,41 +95,57 @@ work.
 In the previous work ~\cite{previous} we proposed to parallelize the execution
 of the user code while keeping the simulation engine sequential.
 This is enabled by applying classical concepts of OS design to this new context:
-every interaction between the user processes and the simulated environment is
-mediated by a specific layer that acts as the OS kernel.
+every interaction between the user processes (from now on, user processes and
+processes mean the same thing) and the simulated environment passes
+through a specific layer that act as an OS kernel.
+
+A novel way to virtualize user processes (\emph{raw contexts}) was
+crafted to improve efficiency and avoid unnecesary system calls, 
+but other ways to do this can be found for the sake of portability, such as full
+featured threads, or POSIX ucontexts. A new data structure to store the shared
+state of the system and synchronize the process execution was
+implemented as well.
+
+A new specific layer that acts as the OS kernel was implemented in SimGrid to
+emulate systems calls, called \emph{requests}, and each time a user process
+want to interact with other process, or the kernel itself, it raises
+a \emph{request}.
+After that, the engine takes control of the program and answer the
+\emph{requests} of each process. This way the user processes can be parallelized
+in a safe manner.
 
 Experimental results showed that the new design does not hinder the tool
-scalability. In fact, the sequential version of SimGrid remains orders of magnitude
-more scalable than state of the art simulators.
+scalability. In fact, the sequential version of SimGrid remains orders of
+magnitude more scalable than state of the art simulators.
 The difficulty to get a parallel version of a P2P simulator faster than its
-sequential counterpart was also revealed, being the first time that a parallel
-simulation of Chord runs faster than the best known sequential implementation.
+sequential counterpart was also revealed in ~\cite{previous}, being the first
+time that a parallel simulation of Chord runs faster than the best known
+sequential implementation.
 
-A relevant result showed in the previous work is that the speedups only increased
-up to a certain point when increasing the amount of working threads.
+An interesting result showed in the previous work is that the speedups only
+increased up to a certain point when increasing the amount of working threads.
 We also have proved that for small instances, parallelism actually hinders the
-performance, and that the relative gain of parallelism seems even strictly increasing
-with the system size. In particular, the constant model was benefited from parallelism
-only after about 30000 nodes while the precise model had to reach about 500000
-nodes for that. This can be explained using the Amdahl's law and taking in count
-the code portions that do not run in parallel: it is much higher with the precise
-model since we compute the hardware models sequentially.
+performance, and that the relative gain of parallelism seems even strictly
+increasing with the system size. In particular, the constant model was
+benefited from parallelism only after about 30000 nodes while the precise
+model had to reach about 500000 nodes for that. This can be explained using
+the Amdahl's law and taking in count the code portions that do not run in
+parallel: it is much higher with the precise model since we compute the
+hardware models sequentially.
 
 Now we are closer to the optimal Amdahl's law threshold, that means, that we have
-reach a limit on the parallelizable portions of the code. The remaining optimizations
-seek for an ultimate speedup, trying to get a better parallel threshold dynamically
-depending on the simulation, and better performance of the threads taking in count
-their distribution on the CPU cores.
+reach a limit on the parallelizable portions of the code in our proposed model.
+The remaining optimizations seek for a final speedup, trying to get a better
+parallel threshold dynamically depending on the simulation, and better
+performance of the threads taking in count their distribution on the CPU cores.
 
 #+LaTeX: \section{Optimizations}\ref{sec:parallel}
 #+LaTeX: \subsection{Parmap between N cores}
- \#proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
 #+LaTeX: \subsection{Busy Waiters}
- \#proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).
 #+LaTeX: \subsection{Performance Regression Testing}
 
-#+LaTeX: \section{Problem Analysis}\label{sec:problem}
-#+LaTeX: \subsection{Optimal Amdhal's law threshold} %Also, the benchmarking not intrusive is here.
+#+LaTeX: \section{Performance Analysis}\label{sec:problem}
+#+LaTeX: \subsection{Current speedup achieved} %Also, the benchmarking not intrusive is here.
 We want to find the maximum speedup achieved with our current parallel
 model. For that, a test a benchmark test is run to get the timings of a
 typical sequential and parallel executions. After that, and using
@@ -134,14 +158,12 @@ of the system. For that, the experiments are run with and without
 benchmarking, and then a comparation of both is made to find if
 there is a significative breach in the timings of both experiments.
 
-#+name: bench-not-intrusive
-#+begin_src R :results graphics :file bench-not-intrusive.pdf 
-library('ggplot2')
-library('gridExtra')
-library('reshape')
 
+#+name: benchnotintr
+#+begin_src R :results output graphics :exports results :scale 1.8 :file bench-not-intrusive.pdf
 orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl.log")
 opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl.log")
+#TODO: get at least 3 data sets of each one. Average them and then do the plot
 orig_data = as.data.frame.matrix(orig_data)
 opt_data = as.data.frame.matrix(opt_data)
 data <- data.frame(nodes =  orig_data[1:4,1], 
@@ -168,16 +190,19 @@ data[, "t8nobench"] <- NULL
 data[, "t2bench"] <- NULL
 data[, "t8bench"] <- NULL
 df <- melt(data ,  id = 'nodes', variable_name = 'difference')
-ggplot(df, aes(x=nodes,y=value, group=difference, colour=difference)) + geom_line() + scale_fill_hue() + ylim(0,0.3)
+g <- ggplot(df, aes(x=nodes,y=value, group=difference, colour=difference)) + geom_line() + scale_fill_hue() + ylim(0,0.3)
+plot(g)
 #+end_src
+
+#+attr_latex: width=0.1, height=0.1,placement=[p]
+#+label: fig:one
 #+caption: Percentage difference of time between benchmarked and original version.
-#+results:
+#+results: benchnotintr
 [[file:bench-not-intrusive.pdf]]
 
-
 As it can be seen in the Figure 1, the maximum difference in the execution
-time of both versions is 15\%, which is not big enough to say that the
-benchmark is intrusive\\
+time of both versions is 15%, which is not big enough to say that the
+benchmark is intrusive.
 
 TODO: This is just an asumption. I think I need a stronger statistical fact
 here to prove what I want. Also, is the percentage diff equation the best option?
@@ -189,66 +214,58 @@ in a significant way.
 To calculate the speedup obtained with our parallel model, the experiment was
 ran with 1000, 3000, 5000 and 10000 nodes. But as it can be seen in the Figure,
 the real speedup is achieved with bigger sizes.\\
-TODO: is practically impossible to run simulation with 100k nodes, thows
-segfault. Without that, there's no way to show that there is speedup.
 
 #+name: amdahl-speedup
-#+begin_src R :results graphics  :file amdahl-speedup.pdf
-library('ggplot2')
-library('gridExtra')
-library('reshape')
+#+begin_src R  :results output graphics :exports results :file amdahl-speedup.pdf
 orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl.log")
-opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl.log")
-opt_data2 = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
+opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
 orig_data = as.data.frame.matrix(orig_data)
 opt_data = as.data.frame.matrix(opt_data)
-opt_data2 = as.data.frame.matrix(opt_data2)
-data <- data.frame(nodes =  orig_data[1:4,1], seq = orig_data[1:4,8], sumamd = opt_data[1:4,11], sumamd2 = opt_data2[1:4,11])
+data <- data.frame(nodes =  orig_data[1:4,1], seq = orig_data[1:4,8], sumamd = opt_data[1:4,11])
 # an extra seq column to average would be good too.
-data[, "avgamdahl"] <- colMeans(rbind(data[, "sumamd"], data[, "sumamd2"]), na.rm=TRUE)
-data[, "speedup"] <- data[, "seq"] / data[, "avgamdahl"]
+data[, "speedup"] <- data[, "seq"] / data[, "sumamd"]
 df <- melt(data ,  id = 'nodes', variable_name = 'speedup')
 ggplot(data, aes(x=nodes,y=speedup, colour=speedup)) + geom_line() + scale_colour_continuous(guide=FALSE)
 #+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:two
 #+caption: Real speedup achieved using parallell mode in Chord simulation.
-#+results:
+#+results: amdahl-speedup
 [[file:amdahl-speedup.pdf]]
 
 
-\subsection{Parallelizable portions of the problem}
-XXX: Probably a comment of scheduling rounds and parallel/sequential execution.
-
-This experiment will be based on a typical Chord simulation, and the data wanted
+#+LaTeX: \subsection{Parallelizable portions of the problem}
+This experiment is based on a typical Chord simulation, and the data wanted
 are the following: ID of each Scheduling Round, time taken by each Scheduling Round
 and number of process executed in each scheduling round.
 
 What we want to prove is that the limit on the speed up reached is due to the fact
 that we are very closer to the limit of parallelizable portions of the system. As
-it can be seen on the first graph, the amount of processes computed by each scheduling
+it can be seen on the , the amount of processes computed by each scheduling
 round is only one most of the times, so the parallel execution is not possible in that
 instances. The remaining processes are executed in parallel due to the parallel
 execution threshold already setted up in SimGrid (which can be modified).
 
-: #+name: sr-distribution
-: #+begin_src R :results output graphics  :file sr-distribution.pdf
-: library('ggplot2')
-: library('gridExtra')
-: library('reshape')
+#+name: sr-distribution
+#+begin_src R  :results output graphics :exports results  :file sr-distribution.pdf
 
-: sr_data = read.table("./optimizations_experiments/sr_counts/sr_total_1000.log")
-: sr_data = as.data.frame.matrix(sr_data)
-: ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,13) + geom_histogram(aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + theme(panel.background = element_blank()) + #scale_x_discrete(breaks = seq(1, 10))
-: #+end_src
-: #+caption: Proportion of scheduling rounds computing processes.
-: #+results:
-: [[file:sr-distribution.pdf]]
+sr_data = read.table("./optimizations_experiments/sr_counts/sr_total_1000.log")
+sr_data = as.data.frame.matrix(sr_data)
+ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,13) + geom_histogram(aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") #+ theme(panel.background = element_blank()) + #scale_x_discrete(breaks = seq(1, 10))
+#+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:three
+#+caption: Proportion of scheduling rounds computing processes.
+#+results: sr-distribution
+[[file:sr-distribution.pdf]]
+
+
+
 
 #+name: sr-times
-#+begin_src R :results graphics  :file sr-times.pdf
-library('ggplot2')
-library('gridExtra')
-library('plyr')
-library('data.table')
+#+begin_src R  :results output graphics :exports results  :file sr-times.pdf
 
 temp = list.files(path='./optimizations_experiments/sr_counts', pattern="*3000\\_threads*", full.names = TRUE)
 flist <- lapply(temp, read.table)
@@ -259,8 +276,11 @@ sr_data = as.data.frame.matrix(sr_data)
 df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
 ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlab("") + ylab("") + geom_point(size = 3)  #+geom_line()
 #+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:four
 #+caption: Mean of times depending on the amount of processes of each scheduling round.
-#+results:
+#+results: sr-times
 [[file:sr-times.pdf]]
 
 #+LaTeX: \section{Optimal threshold for parallel execution}
@@ -276,12 +296,7 @@ benchmarking the scheduling rounds timings in parallel and sequential
 executions, and finding the best average option for a simulation.
 
 #+name: sr-par-threshold
-#+begin_src R :results graphics  :file sr-par-threshold.pdf
-library('ggplot2')
-library('gridExtra')
-library('plyr')
-library('data.table')
-
+#+begin_src R :results output graphics :exports results   :file sr-par-threshold.pdf
 #SEQUENTIAL
 temp = list.files(path='./optimizations_experiments/sr_counts', pattern="threads2", full.names = TRUE)
 flist <- lapply(temp, read.table)
@@ -302,36 +317,43 @@ df2 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
 df3 = merge(df, df2, by.x = 'V3', by.y = 'V3', incomparables = NULL)
 df3[, 'speedup'] <- df3[,'mean_value.x'] / df3[, 'mean_value.y']
 #for the mean
-ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line()
+g <- ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line()
+plot(g)
 #+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[H]
+#+label: fig:five
 #+caption: Speedup obtained in relation with the amount of processes computed by scheduling round.
-#+results:
+#+results:sr-par-threshold
 [[file:sr-par-threshold.pdf]]
 
 
 
 #+LaTeX: \subsection{Adaptive algorithm to calculate threshold}
-But finding an optimal threshold is not always the best option: some simulations
-can take more time in each process and other less time. If a simulation has
+Finding an optimal threshold and keep it during all the simulation might not
+always be the best option: some simulations can take more or less time in
+the execution of user processes. If a simulation has
 very efficient processes, or processes that don't work too much, then the
-threshold could be inefficient,
+threshold could be inapropiate, leading to parallelize scheduling rounds
+that would run more efficiently in a sequential way.
 That's why an algorithm for a dynamic threshold calculation is proposed.
+
+
 TODO: explanation of the heuristic...bla bla is the amount of time taken by
 each scheduling round, and calculate on the fly a dynamic threshold to fit
 better the simulation. Pseudocode
 
-#+LaTeX: \subsection{Models used in the chord simulation}
-\begin{itemize}
-\item Workstation model: Default vm workstation model (as it appears on ./chord --help)
-\item Network Model: LV08 (or Constant)
-\item Cpu Model: Cas01
-\end{itemize}
+
+
+: Models used in the chord simulations
+: \begin{itemize}
+: \item Workstation model: Default vm workstation model (as it appears on ./chord --help)
+: \item Network Model: LV08 (or Constant)
+: \item Cpu Model: Cas01
+: \end{itemize}
 
 #+name: adapt-algorithm
-#+begin_src R :results graphics  :file adapt-algorithm.pdf
-library('ggplot2')
-library('gridExtra')
-library('reshape')
+#+begin_src R  :results output graphics :exports results  :file adapt-algorithm.pdf
 
 orig_data = read.table("./optimizations_experiments/dynamic_threshold/optimization3.dat")
 opt_data = read.table("./optimizations_experiments/dynamic_threshold/optimization3_part2.dat")
@@ -342,11 +364,16 @@ data <- data.frame(nodes =  orig_data[1:4,1], thr4prec=orig_data[1:4,5],thr8prec
 df <- melt(data ,  id = 'nodes', variable_name = 'versions')
 ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() + scale_fill_hue()
 #+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:six
 #+caption: Chord simulation, Precise Model. Original version vs. Adaptative algorithm.
-#+results:
+#+results: adapt-algorithm
 [[file:adapt-algorithm.pdf]]
 
 
 #+LaTeX: \section{Conclusion}\label{sec:cc}
+
+#+LaTeX: \section{References}\label{sec:ref}
 
 #+LaTeX: \end{document}

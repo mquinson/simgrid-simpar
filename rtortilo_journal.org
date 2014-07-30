@@ -167,12 +167,19 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
    - [X] Make new experiments with bigger sizes: speedup (amdahl, /log_amdahl), SR (/log_sr), and raw (/log)(to compare intrusiveness of experiment). Use parapluie
    - [X] Prepare "micro" amdahl timings. That would be I)c). Use SR experiment, one with 1 thread (seq), one with better parallel version. Average timings of each amount of processes and then calculate speedup of each amount of processes
 
-** 28 [%]
-   - [ ] run SR like this: adding all the times of the parallel execution; taking the maxtime of the parallel execution. That way I get the sequential time of each SR, and the parallel time. 
-   - [ ] generate 300000, 1000000 and 2000000 nodes files again, there are some problems with the current ones. Run final part of experiments with it(raw, amdahl, sr)
-   - [ ] Work on better plots in rstudio. Work on report
-   - [ ] Migrate from Rstudio to emacs
-   - [ ] Commit fix
+
+** 28 [100%]
+   - [X] run SR like this: adding all the times of the parallel execution; taking the maxtime of the parallel execution. That way I get the sequential time of each SR, and the parallel time. 
+   - [X] generate 300000, 1000000 nodes files again, there are some problems with the current ones. Run final part of experiments with it(raw, amdahl, sr)
+   - [X] Migrate from Rstudio to emacs
+** 29 [100%]
+   - [X] Work on better plots in rstudio. Work on report
+** 30 [100%]
+   - [X] fix SR
+   - [X] keep working with report
+** 31 [%]
+   - [ ] make better plots
+   - [ ] organize data of experiments. Check that I have everything and probably relaunch some exp. to update data with the fixed version of SimGrid
 
 
 * TODO Experiment of Section I [0%]
