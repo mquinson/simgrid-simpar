@@ -1,10 +1,10 @@
 DIR = "log_amdahl"
-SIZES = ['1000', '3000', '10000']
+SIZES = ['1000', '3000', '5000','10000']
 MODES = ['constant', 'precise']
 THREADS = ['1', '2', '4', '8', '16', '24']
 output_file = "total_seq-par_times_amdahl2.log"
 output_sum_file = "total_sum_times_amdahl2.log"
-input_seq = ['', '2']
+input_seq = ['']
 
 
 def parse_amdahl_files():

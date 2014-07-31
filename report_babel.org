@@ -78,8 +78,7 @@ and propose generic solutions that could be included in other similar simulators
 of large-scale distributed systems, be them P2P simulators of cloud, HPC or
 sensornets ones.
 
-This paper is organized as follows: Section~\ref{sec:con
-text} recaps the SimGrid
+This paper is organized as follows: Section~\ref{sec:context} recaps the SimGrid
 architecture and quickly presents the parallel execution schema detailed
 in~\cite{previous}. Section~\ref{sec:parallel} explores several trade-offs for
 the efficiency of the parallel sections. Section~\ref{sec:problem} analysis the
@@ -126,18 +125,14 @@ An interesting result showed in the previous work is that the speedups only
 increased up to a certain point when increasing the amount of working threads.
 We also have proved that for small instances, parallelism actually hinders the
 performance, and that the relative gain of parallelism seems even strictly
-increasing with the system size. In particular, the constant model was
-benefited from parallelism only after about 30000 nodes while the precise
-model had to reach about 500000 nodes for that. This can be explained using
-the Amdahl's law and taking in count the code portions that do not run in
-parallel: it is much higher with the precise model since we compute the
-hardware models sequentially.
+increasing with the system size.
 
 Now we are closer to the optimal Amdahl's law threshold, that means, that we have
 reach a limit on the parallelizable portions of the code in our proposed model.
 The remaining optimizations seek for a final speedup, trying to get a better
 parallel threshold dynamically depending on the simulation, and better
-performance of the threads taking in count their distribution on the CPU cores.
+performance of the threads taking in count their distribution on the CPU cores
+and the different synchronization modes (futex, POSIX primitives or busy waiters).
 
 #+LaTeX: \section{Optimizations}\ref{sec:parallel}
 #+LaTeX: \subsection{Parmap between N cores}
@@ -161,34 +156,35 @@ there is a significative breach in the timings of both experiments.
 
 #+name: benchnotintr
 #+begin_src R :results output graphics :exports results :scale 1.8 :file bench-not-intrusive.pdf
-orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl.log")
-opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl.log")
+orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
+opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
 #TODO: get at least 3 data sets of each one. Average them and then do the plot
 orig_data = as.data.frame.matrix(orig_data)
 opt_data = as.data.frame.matrix(opt_data)
+#Precise model, 2 threads (faster version with <10k nodes)
 data <- data.frame(nodes =  orig_data[1:4,1], 
                    t2nobench = orig_data[1:4,9],
-                   t8nobench = orig_data[1:4,11],
-                   t2bench = opt_data[1:4,9],
-                   t8bench = opt_data[1:4,11])
+                   #t8nobench = orig_data[1:4,11],
+                   t2bench = opt_data[1:4,9])
+                   #t8bench = opt_data[1:4,11])
 data[, "diff2"] <- abs(data$t2nobench - data$t2bench)
-data[, "diff8"] <- abs(data$t8nobench - data$t8bench)
+#data[, "diff8"] <- abs(data$t8nobench - data$t8bench)
 data[, "sum2"] <- data$t2nobench + data$t2bench
-data[, "sum8"] <- data$t8nobench + data$t8bench
+#data[, "sum8"] <- data$t8nobench + data$t8bench
 data[, "avg2"] <- data$sum2 / 2
-data[, "avg8"] <- data$sum8 / 2
+#data[, "avg8"] <- data$sum8 / 2
 data[, "pdiff2"] <- data$diff2 / data$avg2
-data[, "pdiff8"] <- data$diff8 / data$avg8
+#data[, "pdiff8"] <- data$diff8 / data$avg8
 data[, "diff2"] <- NULL
-data[, "diff8"] <- NULL
+#data[, "diff8"] <- NULL
 data[, "sum2"] <- NULL
-data[, "sum8"] <- NULL
+#data[, "sum8"] <- NULL
 data[, "avg2"] <- NULL
-data[, "avg8"] <- NULL
+#data[, "avg8"] <- NULL
 data[, "t2nobench"] <- NULL
-data[, "t8nobench"] <- NULL
+#data[, "t8nobench"] <- NULL
 data[, "t2bench"] <- NULL
-data[, "t8bench"] <- NULL
+#data[, "t8bench"] <- NULL
 df <- melt(data ,  id = 'nodes', variable_name = 'difference')
 g <- ggplot(df, aes(x=nodes,y=value, group=difference, colour=difference)) + geom_line() + scale_fill_hue() + ylim(0,0.3)
 plot(g)
@@ -200,20 +196,20 @@ plot(g)
 #+results: benchnotintr
 [[file:bench-not-intrusive.pdf]]
 
-As it can be seen in the Figure 1, the maximum difference in the execution
+As it can be seen in the Figure \ref{fig:one}, the maximum difference in the execution
 time of both versions is 15%, which is not big enough to say that the
 benchmark is intrusive.
-
-TODO: This is just an asumption. I think I need a stronger statistical fact
-here to prove what I want. Also, is the percentage diff equation the best option?
 
 As a conclusion, the benchmarking is not really intrusive for the computation,
 since it does not affect the parallel nor sequential executions of the simulation
 in a significant way.
 
-To calculate the speedup obtained with our parallel model, the experiment was
-ran with 1000, 3000, 5000 and 10000 nodes. But as it can be seen in the Figure,
-the real speedup is achieved with bigger sizes.\\
+The experiment to calculate speedups involves the Chord simulation,
+using the Precise model of our engine, and running it with 2,4,8,16 and 24 threads.
+The actual speedup obtained can be seen in the Figure \ref{fig:two}.
+It is clear from that graph that the real speedup with our parallel model is obtained
+when the size of the problem is bigger than 100000 nodes.
+This confirms what we have proved in ~\cite{previous}.
 
 #+name: amdahl-speedup
 #+begin_src R  :results output graphics :exports results :file amdahl-speedup.pdf
@@ -234,25 +230,30 @@ ggplot(data, aes(x=nodes,y=speedup, colour=speedup)) + geom_line() + scale_colou
 #+results: amdahl-speedup
 [[file:amdahl-speedup.pdf]]
 
-
 #+LaTeX: \subsection{Parallelizable portions of the problem}
 This experiment is based on a typical Chord simulation, and the data wanted
-are the following: ID of each Scheduling Round, time taken by each Scheduling Round
+is the following: ID of each Scheduling Round, time taken by each Scheduling Round
 and number of process executed in each scheduling round.
 
 What we want to prove is that the limit on the speed up reached is due to the fact
-that we are very closer to the limit of parallelizable portions of the system. As
-it can be seen on the , the amount of processes computed by each scheduling
+that we are very closer to the line that define what is parallelizable in our model
+and what is exeuted sequentially.
+As it can be seen in the Figure \ref{fig:three} , the amount of processes computed by each scheduling
 round is only one most of the times, so the parallel execution is not possible in that
 instances. The remaining processes are executed in parallel due to the parallel
-execution threshold already setted up in SimGrid (which can be modified).
+execution threshold already setted up in SimGrid (which can be modified), but it only
+represents the 31\% of the total amount of user processes in a typical run.
 
 #+name: sr-distribution
 #+begin_src R  :results output graphics :exports results  :file sr-distribution.pdf
 
-sr_data = read.table("./optimizations_experiments/sr_counts/sr_total_1000.log")
+temp = list.files(path='./optimizations_experiments/sr_counts', pattern="*precise*", full.names = TRUE)
+flist <- lapply(temp, read.table)
+sr_data <- rbindlist(flist)
+sr_data[, "V1"] <- NULL
 sr_data = as.data.frame.matrix(sr_data)
-ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,13) + geom_histogram(aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") #+ theme(panel.background = element_blank()) + #scale_x_discrete(breaks = seq(1, 10))
+
+ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,15) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds")
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
@@ -260,9 +261,6 @@ ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,13) + geom_histogram(
 #+caption: Proportion of scheduling rounds computing processes.
 #+results: sr-distribution
 [[file:sr-distribution.pdf]]
-
-
-
 
 #+name: sr-times
 #+begin_src R  :results output graphics :exports results  :file sr-times.pdf
@@ -277,11 +275,18 @@ df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
 ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlab("") + ylab("") + geom_point(size = 3)  #+geom_line()
 #+end_src
 
+
+Besides that, the Figure \ref{fig:four} show that when the amount of processes is biggger,
+then the sequential execution time is bigger. That means that parallelizing that remaining 31\%
+of processes is what makes the achieved speedup.
+
+
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:four
 #+caption: Mean of times depending on the amount of processes of each scheduling round.
 #+results: sr-times
 [[file:sr-times.pdf]]
+
 
 #+LaTeX: \section{Optimal threshold for parallel execution}
 #+LaTeX: \subsection{Getting a real threshold over simulations}
