@@ -127,17 +127,12 @@ We also have proved that for small instances, parallelism actually hinders the
 performance, and that the relative gain of parallelism seems even strictly
 increasing with the system size.
 
-Now we are closer to the optimal Amdahl's law threshold, that means, that we have
+Now we are closer to the optimal Amdahl's law threshold, that means that we have
 reach a limit on the parallelizable portions of the code in our proposed model.
 The remaining optimizations seek for a final speedup, trying to get a better
 parallel threshold dynamically depending on the simulation, and better
 performance of the threads taking in count their distribution on the CPU cores
 and the different synchronization modes (futex, POSIX primitives or busy waiters).
-
-#+LaTeX: \section{Optimizations}\ref{sec:parallel}
-#+LaTeX: \subsection{Parmap between N cores}
-#+LaTeX: \subsection{Busy Waiters}
-#+LaTeX: \subsection{Performance Regression Testing}
 
 #+LaTeX: \section{Performance Analysis}\label{sec:problem}
 #+LaTeX: \subsection{Current speedup achieved} %Also, the benchmarking not intrusive is here.
@@ -150,43 +145,71 @@ our system.
 But first we want to prove that our benchmarks are not intrusive,
 that is, our measures do not really affect the overall performance
 of the system. For that, the experiments are run with and without
-benchmarking, and then a comparation of both is made to find if
-there is a significative breach in the timings of both experiments.
+benchmarking, using the Precise mode, and then a comparation of
+both is made to find if there is a significative breach in the
+timings of both experiments.
 
 
 #+name: benchnotintr
 #+begin_src R :results output graphics :exports results :scale 1.8 :file bench-not-intrusive.pdf
 orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
 opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
-#TODO: get at least 3 data sets of each one. Average them and then do the plot
 orig_data = as.data.frame.matrix(orig_data)
 opt_data = as.data.frame.matrix(opt_data)
+#TODO: make experiments with 25000, 50000 and 75000
 #Precise model, 2 threads (faster version with <10k nodes)
-data <- data.frame(nodes =  orig_data[1:4,1], 
-                   t2nobench = orig_data[1:4,9],
-                   #t8nobench = orig_data[1:4,11],
-                   t2bench = opt_data[1:4,9])
-                   #t8bench = opt_data[1:4,11])
+data <- data.frame(nodes =  orig_data[1:5,1], 
+                   t2nobench = orig_data[1:5,9],
+                   t2bench = opt_data[1:5,9],
+		   t4nobench = orig_data[1:5,10],
+		   t4bench = opt_data[1:5,10],
+		   t16nobench = orig_data[1:5,12],
+		   t16bench = opt_data[1:5,12],
+                   t8nobench = orig_data[1:5,11],
+                   t8bench = opt_data[1:5,11])
 data[, "diff2"] <- abs(data$t2nobench - data$t2bench)
-#data[, "diff8"] <- abs(data$t8nobench - data$t8bench)
+data[, "diff8"] <- abs(data$t8nobench - data$t8bench)
+data[, "diff4"] <- abs(data$t4nobench - data$t4bench)
+data[, "diff16"] <- abs(data$t16nobench - data$t16bench)
+
 data[, "sum2"] <- data$t2nobench + data$t2bench
-#data[, "sum8"] <- data$t8nobench + data$t8bench
+data[, "sum8"] <- data$t8nobench + data$t8bench
+data[, "sum16"] <- data$t16nobench + data$t16bench
+data[, "sum4"] <- data$t4nobench + data$t4bench
+
 data[, "avg2"] <- data$sum2 / 2
-#data[, "avg8"] <- data$sum8 / 2
-data[, "pdiff2"] <- data$diff2 / data$avg2
-#data[, "pdiff8"] <- data$diff8 / data$avg8
+data[, "avg8"] <- data$sum8 / 2
+data[, "avg4"] <- data$sum4 / 2
+data[, "avg16"] <- data$sum16 / 2
+
+data[, "2 threads"] <- data$diff2 / data$avg2
+data[, "16 threads"] <- data$diff16 / data$avg16
+data[, "4 threads"] <- data$diff4 / data$avg4
+data[, "8 threads"] <- data$diff8 / data$avg8
+
+
 data[, "diff2"] <- NULL
-#data[, "diff8"] <- NULL
+data[, "diff8"] <- NULL
+data[, "diff4"] <- NULL
+data[, "diff16"] <- NULL
 data[, "sum2"] <- NULL
-#data[, "sum8"] <- NULL
+data[, "sum8"] <- NULL
+data[, "sum4"] <- NULL
+data[, "sum16"] <- NULL
 data[, "avg2"] <- NULL
-#data[, "avg8"] <- NULL
+data[, "avg8"] <- NULL
+data[, "avg4"] <- NULL
+data[, "avg16"] <- NULL
 data[, "t2nobench"] <- NULL
-#data[, "t8nobench"] <- NULL
+data[, "t8nobench"] <- NULL
+data[, "t4nobench"] <- NULL
+data[, "t16nobench"] <- NULL
 data[, "t2bench"] <- NULL
-#data[, "t8bench"] <- NULL
+data[, "t8bench"] <- NULL
+data[, "t4bench"] <- NULL
+data[, "t16bench"] <- NULL
 df <- melt(data ,  id = 'nodes', variable_name = 'difference')
-g <- ggplot(df, aes(x=nodes,y=value, group=difference, colour=difference)) + geom_line() + scale_fill_hue() + ylim(0,0.3)
+g <- ggplot(df, aes(x=nodes,y=value, group=difference, color=difference)) + geom_line() + scale_fill_hue() + ylim(0,0.3)
 plot(g)
 #+end_src
 
@@ -197,11 +220,9 @@ plot(g)
 [[file:bench-not-intrusive.pdf]]
 
 As it can be seen in the Figure \ref{fig:one}, the maximum difference in the execution
-time of both versions is 15%, which is not big enough to say that the
-benchmark is intrusive.
-
-As a conclusion, the benchmarking is not really intrusive for the computation,
-since it does not affect the parallel nor sequential executions of the simulation
+time of both versions is lesser than 15\%, and even lower with sizes bigger than 100000
+nodes. That allow us to conclude that the benchmarking done to calculate the speedup is
+not intrusive since it does not affect the parallel nor sequential executions of the simulation
 in a significant way.
 
 The experiment to calculate speedups involves the Chord simulation,
@@ -213,15 +234,31 @@ This confirms what we have proved in ~\cite{previous}.
 
 #+name: amdahl-speedup
 #+begin_src R  :results output graphics :exports results :file amdahl-speedup.pdf
-orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl.log")
+orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
 opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
 orig_data = as.data.frame.matrix(orig_data)
 opt_data = as.data.frame.matrix(opt_data)
-data <- data.frame(nodes =  orig_data[1:4,1], seq = orig_data[1:4,8], sumamd = opt_data[1:4,11])
+data <- data.frame(nodes =  orig_data[1:5,1], seq = opt_data[1:5,8], t2 = opt_data[1:5,9],
+                   t4 = opt_data[1:5,10], t8 = opt_data[1:5,11], t16 = opt_data[1:5,12],
+                   t24 = opt_data[1:5,13])
 # an extra seq column to average would be good too.
-data[, "speedup"] <- data[, "seq"] / data[, "sumamd"]
-df <- melt(data ,  id = 'nodes', variable_name = 'speedup')
-ggplot(data, aes(x=nodes,y=speedup, colour=speedup)) + geom_line() + scale_colour_continuous(guide=FALSE)
+data[, "speedup2"] <- data[, "seq"] / data[, "t2"]
+data[, "speedup4"] <- data[, "seq"] / data[, "t4"]
+data[, "speedup8"] <- data[, "seq"] / data[, "t8"]
+data[, "speedup16"] <- data[, "seq"] / data[, "t16"]
+data[, "speedup24"] <- data[, "seq"] / data[, "t24"]
+data[, "base"] <- data[, "seq"] / data[, "seq"]
+
+
+data[, "t2"] <- NULL
+data[, "t4"] <- NULL
+data[, "t8"] <- NULL
+data[, "t16"] <- NULL
+data[, "t24"] <- NULL
+data[, "seq"] <- NULL
+
+df <- melt(data ,  id = 'nodes', variable_name = 'versions')
+ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() #+ scale_colour_continuous(guide=FALSE)
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
@@ -262,24 +299,23 @@ ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,15) + geom_histogram(
 #+results: sr-distribution
 [[file:sr-distribution.pdf]]
 
+
+Besides that, the Figure \ref{fig:four} show that when the amount of processes is biggger,
+then the sequential execution time is bigger. That means that parallelizing that remaining 31\%
+of processes is what gets makes the achieved speedup.
+
 #+name: sr-times
 #+begin_src R  :results output graphics :exports results  :file sr-times.pdf
 
-temp = list.files(path='./optimizations_experiments/sr_counts', pattern="*3000\\_threads*", full.names = TRUE)
+temp = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
 flist <- lapply(temp, read.table)
 sr_data <- rbindlist(flist)
 sr_data[, "V1"] <- NULL
 sr_data = as.data.frame.matrix(sr_data)
 #for the mean
 df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
-ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlab("") + ylab("") + geom_point(size = 3)  #+geom_line()
+ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlim(0,2000) + xlab("") + ylab("") + ylim(0,0.005) + geom_point(size = 1)
 #+end_src
-
-
-Besides that, the Figure \ref{fig:four} show that when the amount of processes is biggger,
-then the sequential execution time is bigger. That means that parallelizing that remaining 31\%
-of processes is what makes the achieved speedup.
-
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:four
@@ -303,7 +339,7 @@ executions, and finding the best average option for a simulation.
 #+name: sr-par-threshold
 #+begin_src R :results output graphics :exports results   :file sr-par-threshold.pdf
 #SEQUENTIAL
-temp = list.files(path='./optimizations_experiments/sr_counts', pattern="threads2", full.names = TRUE)
+temp = list.files(path='./optimizations_experiments/sr_counts/sequential2', pattern="*.log", full.names = TRUE)
 flist <- lapply(temp, read.table)
 sr_data <- rbindlist(flist) #TODO: SE PUEDE SACAR, CREO
 sr_data[, "V1"] <- NULL
@@ -311,7 +347,7 @@ sr_data = as.data.frame.matrix(sr_data)
 df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
 
 #PARALLEL:
-temp2 = list.files(path='./optimizations_experiments/sr_counts', pattern="threads4", full.names = TRUE)
+temp2 = list.files(path='./optimizations_experiments/sr_counts/parallel', pattern="*.log", full.names = TRUE)
 flist2 <- lapply(temp2, read.table)
 sr_data2 <- rbindlist(flist2) #TODO: SE PUEDE SACAR, CREO
 sr_data2[, "V1"] <- NULL
@@ -322,7 +358,9 @@ df2 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
 df3 = merge(df, df2, by.x = 'V3', by.y = 'V3', incomparables = NULL)
 df3[, 'speedup'] <- df3[,'mean_value.x'] / df3[, 'mean_value.y']
 #for the mean
-g <- ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line()
+g <- ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line() + xlim(1,100)
+
+#g <- ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line()
 plot(g)
 #+end_src
 
@@ -332,7 +370,94 @@ plot(g)
 #+results:sr-par-threshold
 [[file:sr-par-threshold.pdf]]
 
+As it can be seen in the Figure \ref{fig:five}, despite being in a
+constant or precise model, the speedup can be found starting from
+45 user processes.
 
+#+LaTeX: \section{Optimizations}\ref{sec:parallel}
+#+LaTeX: \subsection{Binding threads to physical cores}
+Talking about multicores CPUs, parallelization through threads is well
+proved to be a good optimization, as we said in the previous section \ref{sec:problem}.
+But there is still some improvements that can be done.
+
+Thread execution depends heavily on the operative system scheduler: when one
+thread is \emph{idle}, the scheduler may decide to switch it for another thread
+ready to work, so it can maximize the occupancy of the cpu cores, and probably,
+run a program in a faster way. Or it may just want to switch threads
+because their execution time quote is over.
+
+And when the first thread is ready to work again, the cpu core where it
+was before might be occupied, forcing the system to run the thread in
+another core. Of course this depend on which scheduler implementation we are using.
+
+Regardless of the situation, migration of threads between cores entails an
+increase of cache misses, which in a big size simulation can be detrimental to
+the performance.
+
+Moreover, in a dedicated computer with many cores (like a cluster node, for example),
+thread migration between the cores might be senseless and might introduce unnecessary
+cache misses.
+
+This is actually our case: the amount of cache misses is XX% in a typical Chord simulation
+while with threads binding it is reduced until XX%.
+TODO: a quick study of cache misses using perf with small amount nodes. Just
+write the percentage, dont plot/table nothing
+
+In order to avoid these cache misses produced by regular context switching
+of threads, Glib offers a way to bind each thread to a physical core
+of the CPU. Note that this is only available in Linux platforms.
+
+A Chord simulation was run in a parapluie node, with 24 cores, and the speedup gained
+binding the threads to cores was XXX in the best case, as it can be seen in the
+Figure \ref{fig:six}.
+
+#+name: binding-speedup
+#+begin_src R  :results output graphics :exports results :file binding-speedup.pdf
+orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
+opt_data = read.table("./optimizations_experiments/binding_cores/timings_64be642.dat")
+orig_data = as.data.frame.matrix(orig_data)
+opt_data = as.data.frame.matrix(opt_data)
+#Legend: t2=time with binding; t2nb = time with No Binding
+data <- data.frame(nodes =  orig_data[1:5,1], t2nb = orig_data[1:5,3], t4nb = orig_data[1:5,4],
+                   t8nb = orig_data[1:5,5], t16nb = orig_data[1:5,6], t24nb = orig_data[1:5,7],
+                   t2 = opt_data[1:5,9],
+                   t4 = opt_data[1:5,10], t8 = opt_data[1:5,11], t16 = opt_data[1:5,12],
+                   t24 = opt_data[1:5,13])
+
+data[, "speedup2"] <- data[, "t2nb"] / data[, "t2"]
+data[, "speedup4"] <- data[, "t4nb"] / data[, "t4"]
+data[, "speedup8"] <- data[, "t8nb"] / data[, "t8"]
+data[, "speedup16"] <- data[, "t16nb"] / data[, "t16"]
+data[, "speedup24"] <- data[, "t24nb"] / data[, "t24"]
+data[, "base"] <- data[, "t2"] / data[, "t2"]
+data[, "t2"] <- NULL
+data[, "t4"] <- NULL
+data[, "t8"] <- NULL
+data[, "t16"] <- NULL
+data[, "t24"] <- NULL
+data[, "t2nb"] <- NULL
+data[, "t4nb"] <- NULL
+data[, "t8nb"] <- NULL
+data[, "t16nb"] <- NULL
+data[, "t24nb"] <- NULL
+
+df <- melt(data ,  id = 'nodes', variable_name = 'versions')
+ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() #+ scale_colour_continuous(guide=FALSE)
+#+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:two
+#+caption: Speedup achieved binding threads to physical CPU cores.
+#+results: binding-speedup
+[[file:binding-speedup.pdf]]
+
+
+
+#+LaTeX: \subsection{Parmap between N cores}
+
+#+LaTeX: \subsection{Busy Waiters}
+
+#+LaTeX: \subsection{Performance Regression Testing}
 
 #+LaTeX: \subsection{Adaptive algorithm to calculate threshold}
 Finding an optimal threshold and keep it during all the simulation might not
@@ -371,7 +496,7 @@ ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() 
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
-#+label: fig:six
+#+label: fig:seven
 #+caption: Chord simulation, Precise Model. Original version vs. Adaptative algorithm.
 #+results: adapt-algorithm
 [[file:adapt-algorithm.pdf]]

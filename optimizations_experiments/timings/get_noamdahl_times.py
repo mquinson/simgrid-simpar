@@ -1,9 +1,9 @@
 DIR = "log"
-SIZES = ['1000', '3000','5000', '10000']
+SIZES = ['1000', '3000','5000', '10000', '100000', '300000']
 MODES = ['constant', 'precise']
 THREADS = ['1', '2', '4', '8', '16', '24']
 output_file = "total_times_noamdahl2.log"
-input_seq = ['2']
+input_seq = ['']
 
 def parse_files():
     f = open(output_file, "w")
