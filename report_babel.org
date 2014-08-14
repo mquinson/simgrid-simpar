@@ -284,13 +284,17 @@ represents the 31\% of the total amount of user processes in a typical run.
 #+name: sr-distribution
 #+begin_src R  :results output graphics :exports results  :file sr-distribution.pdf
 
-temp = list.files(path='./optimizations_experiments/sr_counts', pattern="*precise*", full.names = TRUE)
+#temp = list.files(path='./optimizations_experiments/sr_counts', pattern="*precise*", full.names = TRUE)
+temp = list.files(path='./optimizations_experiments/sr_counts', pattern="sr_3000_threads24_constant.log", full.names = TRUE)
 flist <- lapply(temp, read.table)
 sr_data <- rbindlist(flist)
 sr_data[, "V1"] <- NULL
 sr_data = as.data.frame.matrix(sr_data)
 
-ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,15) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds")
+#ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,15) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds")
+#ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(1,15) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + scale_x_continuous(breaks=c(1:15), labels=c(1:15),limits=c(1,15))
+ggplot(data=sr_data, geom="histogram", aes(x=V3)) + ylim(0,0.7)+ xlim(1,13) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..)), origin=-0.5) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + scale_x_continuous(breaks=c(1:13), labels=c(1:13),limits=c(1,13)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank()) #, axis.line = element_line(colour = "black"))
+
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
@@ -302,12 +306,13 @@ ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,15) + geom_histogram(
 
 Besides that, the Figure \ref{fig:four} show that when the amount of processes is biggger,
 then the sequential execution time is bigger. That means that parallelizing that remaining 31\%
-of processes is what gets makes the achieved speedup.
+of processes is what gets the achieved speedup.
 
 #+name: sr-times
 #+begin_src R  :results output graphics :exports results  :file sr-times.pdf
 
 temp = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
+
 flist <- lapply(temp, read.table)
 sr_data <- rbindlist(flist)
 sr_data[, "V1"] <- NULL
@@ -372,13 +377,14 @@ plot(g)
 
 As it can be seen in the Figure \ref{fig:five}, despite being in a
 constant or precise model, the speedup can be found starting from
-45 user processes.
+33 user processes.
 
 #+LaTeX: \section{Optimizations}\ref{sec:parallel}
 #+LaTeX: \subsection{Binding threads to physical cores}
-Talking about multicores CPUs, parallelization through threads is well
-proved to be a good optimization, as we said in the previous section \ref{sec:problem}.
-But there is still some improvements that can be done.
+Regarding the multicore architectures (like almost every modern CPU),
+parallelization through threads is well proved to be a good optimization,
+as we said in the previous section \ref{sec:problem}, But there are still
+some improvements that can be done.
 
 Thread execution depends heavily on the operative system scheduler: when one
 thread is \emph{idle}, the scheduler may decide to switch it for another thread
@@ -391,25 +397,43 @@ was before might be occupied, forcing the system to run the thread in
 another core. Of course this depend on which scheduler implementation we are using.
 
 Regardless of the situation, migration of threads between cores entails an
-increase of cache misses, which in a big size simulation can be detrimental to
-the performance.
+increase of cache misses, and the amount of CPU migrations in a big size
+simulation can be detrimental for the performance.
 
-Moreover, in a dedicated computer with many cores (like a cluster node, for example),
-thread migration between the cores might be senseless and might introduce unnecessary
-cache misses.
 
-This is actually our case: the amount of cache misses is XX% in a typical Chord simulation
-while with threads binding it is reduced until XX%.
-TODO: a quick study of cache misses using perf with small amount nodes. Just
-write the percentage, dont plot/table nothing
+CONTEXT SWITCHES-CPU MIGRATIONS:
+%With optimization:
+100k nodes
+55,140,730 context-switches                                            
+719 cpu-migrations
 
-In order to avoid these cache misses produced by regular context switching
+300k nodes
+149,137,600 context-switches                                            
+215 cpu-migrations
+
+500k nodes
+191,718,919 context-switches                                            
+428 cpu-migrations   
+
+%Without optimization:
+100k nodes
+54,486,113 context-switches                                            
+165 cpu-migrations
+
+300k nodes
+151,484,132 context-switches                                            
+9,227 cpu-migrations
+
+
+
+In order to avoid these CPU migrations produced by a constant context switching
 of threads, Glib offers a way to bind each thread to a physical core
 of the CPU. Note that this is only available in Linux platforms.
 
-A Chord simulation was run in a parapluie node, with 24 cores, and the speedup gained
-binding the threads to cores was XXX in the best case, as it can be seen in the
-Figure \ref{fig:six}.
+A Chord simulation was run in a parapluie node, with 24 cores, binding the threads to
+physical cores. The CPU migration
+was drastically reduced (almost 97\% less migrations) and the speed up obtained
+was XXX as it can be seen in the Figure \ref{fig:six}.
 
 #+name: binding-speedup
 #+begin_src R  :results output graphics :exports results :file binding-speedup.pdf
@@ -455,6 +479,8 @@ ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() 
 
 #+LaTeX: \subsection{Parmap between N cores}
 
+(Results are stored in optimizations_experiments/parmap)
+
 #+LaTeX: \subsection{Busy Waiters}
 
 #+LaTeX: \subsection{Performance Regression Testing}
@@ -468,12 +494,35 @@ threshold could be inapropiate, leading to parallelize scheduling rounds
 that would run more efficiently in a sequential way.
 That's why an algorithm for a dynamic threshold calculation is proposed.
 
+The main idea behind this heuristic is to calculate the optimal number
+of processes that can be run in parallel during the execution of the
+simulation.
 
-TODO: explanation of the heuristic...bla bla is the amount of time taken by
-each scheduling round, and calculate on the fly a dynamic threshold to fit
-better the simulation. Pseudocode
 
+TODO: DECIDE WHICH VERSION OF ADAPTIVE ALGORITHM USE. THE ORIGINAL ONE
+THE IDEA1 OR THE IDEA2.2. 
 
+For that purpose, the time of five parallel scheduling rounds (and five
+sequential) are  measured. At the end, both performances are compared according
+to the time spent in each scheduling round and the amount of processes
+computed. If the sequential version turned to be better, the 
+
+IDEA1: NO CORRER CADA 5 SCHEDULING ROUNDS SOLAMENTE, SINO QUE SEAN 5 EN PARALELO Y 5 EN SECUENCIAL, ASI
+SE TIENE UN MEJOR CALCULO DE LOS SPEEDUPS.
+
+IDEA 2: TENER EN CUENTA TAMBIEN LA CANTIDAD DE LOS PROCESOS DE CADA SCHEDULING ROUND A LA HORA DE HACER LA
+MEDICION DE PERFORMANCE? POR EJEMPLO CORRER DOS VECES UNA SCHEDULING ROUND, EN PARALELO Y SECUENCIAL, Y VER CUAL
+FUE LA MAS RAPIDO. OTRA ES GUARDAR EN ALGUN LADO LOS DATOS DE CUANTOS PROCESOS HUBO Y QUE VELOCIDAD TUVO ESA CANTIDAD
+DE PROCESOS EN PARALELO O EN SECUENCIAL, Y CUANDO SE VUELVE A EJECUTAR ESA CANTIDAD DE PROCESOS, NO ELEGIR LA QUE YA SE PROBO: POR EJEMPLO,
+SI CON 20 PROCESOS SE HIZO PARALELA, LA SIGUIENTE HACERLO EN SECUENCIAL. Y EN BASE A ESO ELEGIR EL NUEVO THRESHOLD.
+LA VERDAD NO ME PARECE LA MEJOR OPCION, PORQUE NUNCA SE SABE CUANDO SE VAN A VOLVER A REPETIR LAS CANTIDADES DE PROCESOS,
+PERO CAPAZ QUE SIRVE, PUES EL THRESHOLD SIEMPRE ES CHICO, Y ESAS CANTIDADES SIEMPRE TIENEN PROBABILIDADES DE REPETIRSE.
+
+SUBIDEA2.1: PARA VER QUE TANTAS VECES SE REPITE UNA 'CANTIDAD DE PROCESOS' A LO LARGO DE LA SIMULACION, HACER UNA CORRIDA Y GUARDAR LOS DATOS,
+DESPUES HACER UN SCRIPT EN PYTHON QUE CUENTE. P.D: SE PUEDEN USAR LOS sr_logs QUE YA TENGO
+
+SUBIDEA2.2: DADO QUE PARA GRANDES CANTIDADES DE PROCESOS (1000, 10000) ES OBVIO QUE SE VA A HACER EN PARALELO, SOLO ARMAR
+EL ARRAY CON, DIGAMOS, HASTA 100 PROCESOS POR SCHEDULING ROUND.
 
 : Models used in the chord simulations
 : \begin{itemize}
