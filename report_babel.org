@@ -49,6 +49,7 @@ Simulators.
 Discrete Event Simulation of Distributed Applications classically alternates
 between simulation phases where the models compute the next event date, and
 phases where the application workload is executed.  We proposed
+
 in~\cite{previous} to not split the simulation model across several computing
 nodes, but instead to keep the model sequential and execute the application
 workload in parallel when possible. We hypothesized that this would help
@@ -78,15 +79,15 @@ and propose generic solutions that could be included in other similar simulators
 of large-scale distributed systems, be them P2P simulators of cloud, HPC or
 sensornets ones.
 
-This paper is organized as follows: Section~\ref{sec:context} recaps the SimGrid
+This paper is organized as follows: Section \ref{sec:context} recaps the SimGrid
 architecture and quickly presents the parallel execution schema detailed
-in~\cite{previous}. Section~\ref{sec:parallel} explores several trade-offs for
-the efficiency of the parallel sections. Section~\ref{sec:problem} analysis the
+in \cite{previous}. Section \ref{sec:problem} analysis the
 theoretical performance bound, and discusses the previous work at the light of
-the Amhdal law.  Section~\ref{sec:adaptative} proposes an algorithm to
-automatically tune the level of parallelism that is adapted to the simulated
-application. Section~\ref{sec:cc} concludes this paper and discusses some future
-work.
+the Amhdal law. Section \ref{sec:parallel} explores several trade-offs for
+the efficiency of the parallel sections. Section \ref{sec:adaptive} proposes
+an algorithm to automatically tune the level of parallelism that is adapted to
+the simulated application. Section \ref{sec:cc} concludes this paper and discusses
+some future work.
 
 
 #+LaTeX: \section{Context}\label{sec:context}
@@ -137,10 +138,9 @@ and the different synchronization modes (futex, POSIX primitives or busy waiters
 #+LaTeX: \section{Performance Analysis}\label{sec:problem}
 #+LaTeX: \subsection{Current speedup achieved} %Also, the benchmarking not intrusive is here.
 We want to find the maximum speedup achieved with our current parallel
-model. For that, a test a benchmark test is run to get the timings of a
-typical sequential and parallel executions. After that, and using
-the Amdahl's law, we can retrieve the real speedup achieved with
-our system.
+model. For that, a benchmark test is run to get the timings of
+typical sequential and parallel executions, so we can get the real speedup achieved with
+our system using the Amdahl's law.
 
 But first we want to prove that our benchmarks are not intrusive,
 that is, our measures do not really affect the overall performance
@@ -149,85 +149,14 @@ benchmarking, using the Precise mode, and then a comparation of
 both is made to find if there is a significative breach in the
 timings of both experiments.
 
+Using the Chord simulation, the experiment showed us that the maximum difference in the execution
+time of both versions is lesser than 10% in most of the cases, and is even lower with
+sizes bigger that 100000 nodes, which allow us to conclude that the benchmarking is,
+indeed, not intrusive.
 
-#+name: benchnotintr
-#+begin_src R :results output graphics :exports results :scale 1.8 :file bench-not-intrusive.pdf
-orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
-opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
-orig_data = as.data.frame.matrix(orig_data)
-opt_data = as.data.frame.matrix(opt_data)
-#TODO: make experiments with 25000, 50000 and 75000
-#Precise model, 2 threads (faster version with <10k nodes)
-data <- data.frame(nodes =  orig_data[1:5,1], 
-                   t2nobench = orig_data[1:5,9],
-                   t2bench = opt_data[1:5,9],
-		   t4nobench = orig_data[1:5,10],
-		   t4bench = opt_data[1:5,10],
-		   t16nobench = orig_data[1:5,12],
-		   t16bench = opt_data[1:5,12],
-                   t8nobench = orig_data[1:5,11],
-                   t8bench = opt_data[1:5,11])
-data[, "diff2"] <- abs(data$t2nobench - data$t2bench)
-data[, "diff8"] <- abs(data$t8nobench - data$t8bench)
-data[, "diff4"] <- abs(data$t4nobench - data$t4bench)
-data[, "diff16"] <- abs(data$t16nobench - data$t16bench)
-
-data[, "sum2"] <- data$t2nobench + data$t2bench
-data[, "sum8"] <- data$t8nobench + data$t8bench
-data[, "sum16"] <- data$t16nobench + data$t16bench
-data[, "sum4"] <- data$t4nobench + data$t4bench
-
-data[, "avg2"] <- data$sum2 / 2
-data[, "avg8"] <- data$sum8 / 2
-data[, "avg4"] <- data$sum4 / 2
-data[, "avg16"] <- data$sum16 / 2
-
-data[, "2 threads"] <- data$diff2 / data$avg2
-data[, "16 threads"] <- data$diff16 / data$avg16
-data[, "4 threads"] <- data$diff4 / data$avg4
-data[, "8 threads"] <- data$diff8 / data$avg8
-
-
-data[, "diff2"] <- NULL
-data[, "diff8"] <- NULL
-data[, "diff4"] <- NULL
-data[, "diff16"] <- NULL
-data[, "sum2"] <- NULL
-data[, "sum8"] <- NULL
-data[, "sum4"] <- NULL
-data[, "sum16"] <- NULL
-data[, "avg2"] <- NULL
-data[, "avg8"] <- NULL
-data[, "avg4"] <- NULL
-data[, "avg16"] <- NULL
-data[, "t2nobench"] <- NULL
-data[, "t8nobench"] <- NULL
-data[, "t4nobench"] <- NULL
-data[, "t16nobench"] <- NULL
-data[, "t2bench"] <- NULL
-data[, "t8bench"] <- NULL
-data[, "t4bench"] <- NULL
-data[, "t16bench"] <- NULL
-df <- melt(data ,  id = 'nodes', variable_name = 'difference')
-g <- ggplot(df, aes(x=nodes,y=value, group=difference, color=difference)) + geom_line() + scale_fill_hue() + ylim(0,0.3)
-plot(g)
-#+end_src
-
-#+attr_latex: width=0.1, height=0.1,placement=[p]
-#+label: fig:one
-#+caption: Percentage difference of time between benchmarked and original version.
-#+results: benchnotintr
-[[file:bench-not-intrusive.pdf]]
-
-As it can be seen in the Figure \ref{fig:one}, the maximum difference in the execution
-time of both versions is lesser than 15\%, and even lower with sizes bigger than 100000
-nodes. That allow us to conclude that the benchmarking done to calculate the speedup is
-not intrusive since it does not affect the parallel nor sequential executions of the simulation
-in a significant way.
-
-The experiment to calculate speedups involves the Chord simulation,
+The experiment to calculate speedups involves the Chord simulation as well,
 using the Precise model of our engine, and running it with 2,4,8,16 and 24 threads.
-The actual speedup obtained can be seen in the Figure \ref{fig:two}.
+The actual speedup obtained can be seen in the Figure \ref{fig:one}.
 It is clear from that graph that the real speedup with our parallel model is obtained
 when the size of the problem is bigger than 100000 nodes.
 This confirms what we have proved in ~\cite{previous}.
@@ -238,9 +167,9 @@ orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl
 opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
 orig_data = as.data.frame.matrix(orig_data)
 opt_data = as.data.frame.matrix(opt_data)
-data <- data.frame(nodes =  orig_data[1:5,1], seq = opt_data[1:5,8], t2 = opt_data[1:5,9],
-                   t4 = opt_data[1:5,10], t8 = opt_data[1:5,11], t16 = opt_data[1:5,12],
-                   t24 = opt_data[1:5,13])
+data <- data.frame(nodes =  orig_data[1:8,1], seq = opt_data[1:8,8], t2 = opt_data[1:8,9],
+                   t4 = opt_data[1:8,10], t8 = opt_data[1:8,11], t16 = opt_data[1:8,12],
+                   t24 = opt_data[1:8,13])
 # an extra seq column to average would be good too.
 data[, "speedup2"] <- data[, "seq"] / data[, "t2"]
 data[, "speedup4"] <- data[, "seq"] / data[, "t4"]
@@ -262,7 +191,7 @@ ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() 
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
-#+label: fig:two
+#+label: fig:one
 #+caption: Real speedup achieved using parallell mode in Chord simulation.
 #+results: amdahl-speedup
 [[file:amdahl-speedup.pdf]]
@@ -275,7 +204,7 @@ and number of process executed in each scheduling round.
 What we want to prove is that the limit on the speed up reached is due to the fact
 that we are very closer to the line that define what is parallelizable in our model
 and what is exeuted sequentially.
-As it can be seen in the Figure \ref{fig:three} , the amount of processes computed by each scheduling
+As it can be seen in the Figure \ref{fig:two} , the amount of processes computed by each scheduling
 round is only one most of the times, so the parallel execution is not possible in that
 instances. The remaining processes are executed in parallel due to the parallel
 execution threshold already setted up in SimGrid (which can be modified), but it only
@@ -298,15 +227,15 @@ ggplot(data=sr_data, geom="histogram", aes(x=V3)) + ylim(0,0.7)+ xlim(1,13) + ge
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
-#+label: fig:three
+#+label: fig:two
 #+caption: Proportion of scheduling rounds computing processes.
 #+results: sr-distribution
 [[file:sr-distribution.pdf]]
 
 
-Besides that, the Figure \ref{fig:four} show that when the amount of processes is biggger,
+Besides that, the Figure \ref{fig:three} show that when the amount of processes is bigger,
 then the sequential execution time is bigger. That means that parallelizing that remaining 31\%
-of processes is what gets the achieved speedup.
+of processes is what achieves the current speedup.
 
 #+name: sr-times
 #+begin_src R  :results output graphics :exports results  :file sr-times.pdf
@@ -323,23 +252,80 @@ ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlim(0,2000) + xlab
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
-#+label: fig:four
+#+label: fig:three
 #+caption: Mean of times depending on the amount of processes of each scheduling round.
 #+results: sr-times
 [[file:sr-times.pdf]]
 
 
-#+LaTeX: \section{Optimal threshold for parallel execution}
+
+
+#+LaTeX: \section{Optimizations}\label{sec:parallel}
+#+LaTeX: \subsection{Binding threads to physical cores}
+Regarding the multicore architectures (like almost every modern CPU),
+parallelization through threads is well proved to be a good optimization,
+as we said in the previous section \ref{sec:problem}. But there are still
+some improvements that can be done.
+
+Thread execution depends heavily on the operative system scheduler: when one
+thread is \emph{idle}, the scheduler may decide to switch it for another thread
+ready to work, so it can maximize the occupancy of the cpu cores, and probably,
+run a program in a faster way. Or it may just want to switch threads
+because their execution time quote is over.
+
+And when the first thread is ready to work again, the cpu core where it
+was before might be occupied, forcing the system to run the thread in
+another core. Of course this depend on which scheduler implementation we are using.
+
+Regardless of the situation, migration of threads between cores entails an
+increase of cache misses, and the amount of CPU migrations in a big size
+simulation can be detrimental for the performance.
+
+In order to avoid these CPU migrations produced by a constant context switching
+of threads, Glib offers a way to bind each thread to a physical core
+of the CPU. Note that this is only available in Linux platforms.
+
+A Chord simulation was run in a parapluie node, with 24 cores, binding the threads to
+physical cores. The CPU migration
+was drastically reduced (almost 97\% less migrations) in all the cases.
+The speedup obtained with few threads (2, 4 and 8) was not big enough: x1.63 in
+the best case, and x1.23 in average.
+But when the simulation is run with a bigger amount of threads (16 or 24), the
+impact of having less CPU migrations is notable, being obtained speedups between
+x2.44 and almost x15 (depending on the amount of threads and the size of the
+simulation).
+This proves that physical binding of threads to CPU cores can be useful when a
+big amount of threads is needed.
+
+
+#+LaTeX: \subsection{Parmap between N cores}
+
+Several optimizations regarding the distribution of work between threads were
+proposed: the first option is the default one, where maestro works with its
+threads and the processes are distributed equitably between each thread; the
+second one is to  send maestro to sleep and let the worker threads do all the
+computing; the last one involves the creation of one extra thread and make all
+this N threads work while maestro sleeps.
+
+The experiments were made using up to 75000 nodes in a Chord simulation with
+Precise and Constant modes, but no performance gain was achieved. In fact, the
+creation of one extra thread proved to be slightly more slower than the original
+version of parmap, while sending maestro to sleep and make its N-1 threads
+do the computation did not show any improvement or loss in performance.
+
+#+LaTeX: \subsection{Busy Waiters}
+
+#+LaTeX: \subsection{Performance Regression Testing}
+
+#+LaTeX: \section{Optimal threshold for parallel execution}\label{sec:adaptive}
 #+LaTeX: \subsection{Getting a real threshold over simulations}
 The threshold wanted is how many processes are the right amount to be executed
 in parallel when it is necessary, and when is it better to execute them in a
 sequential way.
 Initially, what we want is to find an optimal threshold for the beginning of
 any simulation.
-For that, a series of experiments have to be run using <version> of SimGrid.
-That is why we test the performance of the engine in an exhaustive way,
-benchmarking the scheduling rounds timings in parallel and sequential
-executions, and finding the best average option for a simulation.
+For that purpose, we have done a benchmark of the scheduling rounds timings in parallel and sequential
+executions, and have found the best average option for a simulation.
 
 #+name: sr-par-threshold
 #+begin_src R :results output graphics :exports results   :file sr-par-threshold.pdf
@@ -363,127 +349,20 @@ df2 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
 df3 = merge(df, df2, by.x = 'V3', by.y = 'V3', incomparables = NULL)
 df3[, 'speedup'] <- df3[,'mean_value.x'] / df3[, 'mean_value.y']
 #for the mean
-g <- ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line() + xlim(1,100)
+ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line() + xlim(1,100)
 
 #g <- ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line()
-plot(g)
 #+end_src
 
-#+attr_latex: width=0.8\textwidth,placement=[H]
-#+label: fig:five
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:four
 #+caption: Speedup obtained in relation with the amount of processes computed by scheduling round.
 #+results:sr-par-threshold
 [[file:sr-par-threshold.pdf]]
 
-As it can be seen in the Figure \ref{fig:five}, despite being in a
+As it can be seen in the Figure \ref{fig:four}, despite being in a
 constant or precise model, the speedup can be found starting from
 33 user processes.
-
-#+LaTeX: \section{Optimizations}\ref{sec:parallel}
-#+LaTeX: \subsection{Binding threads to physical cores}
-Regarding the multicore architectures (like almost every modern CPU),
-parallelization through threads is well proved to be a good optimization,
-as we said in the previous section \ref{sec:problem}, But there are still
-some improvements that can be done.
-
-Thread execution depends heavily on the operative system scheduler: when one
-thread is \emph{idle}, the scheduler may decide to switch it for another thread
-ready to work, so it can maximize the occupancy of the cpu cores, and probably,
-run a program in a faster way. Or it may just want to switch threads
-because their execution time quote is over.
-
-And when the first thread is ready to work again, the cpu core where it
-was before might be occupied, forcing the system to run the thread in
-another core. Of course this depend on which scheduler implementation we are using.
-
-Regardless of the situation, migration of threads between cores entails an
-increase of cache misses, and the amount of CPU migrations in a big size
-simulation can be detrimental for the performance.
-
-
-CONTEXT SWITCHES-CPU MIGRATIONS:
-%With optimization:
-100k nodes
-55,140,730 context-switches                                            
-719 cpu-migrations
-
-300k nodes
-149,137,600 context-switches                                            
-215 cpu-migrations
-
-500k nodes
-191,718,919 context-switches                                            
-428 cpu-migrations   
-
-%Without optimization:
-100k nodes
-54,486,113 context-switches                                            
-165 cpu-migrations
-
-300k nodes
-151,484,132 context-switches                                            
-9,227 cpu-migrations
-
-
-
-In order to avoid these CPU migrations produced by a constant context switching
-of threads, Glib offers a way to bind each thread to a physical core
-of the CPU. Note that this is only available in Linux platforms.
-
-A Chord simulation was run in a parapluie node, with 24 cores, binding the threads to
-physical cores. The CPU migration
-was drastically reduced (almost 97\% less migrations) and the speed up obtained
-was XXX as it can be seen in the Figure \ref{fig:six}.
-
-#+name: binding-speedup
-#+begin_src R  :results output graphics :exports results :file binding-speedup.pdf
-orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
-opt_data = read.table("./optimizations_experiments/binding_cores/timings_64be642.dat")
-orig_data = as.data.frame.matrix(orig_data)
-opt_data = as.data.frame.matrix(opt_data)
-#Legend: t2=time with binding; t2nb = time with No Binding
-data <- data.frame(nodes =  orig_data[1:5,1], t2nb = orig_data[1:5,3], t4nb = orig_data[1:5,4],
-                   t8nb = orig_data[1:5,5], t16nb = orig_data[1:5,6], t24nb = orig_data[1:5,7],
-                   t2 = opt_data[1:5,9],
-                   t4 = opt_data[1:5,10], t8 = opt_data[1:5,11], t16 = opt_data[1:5,12],
-                   t24 = opt_data[1:5,13])
-
-data[, "speedup2"] <- data[, "t2nb"] / data[, "t2"]
-data[, "speedup4"] <- data[, "t4nb"] / data[, "t4"]
-data[, "speedup8"] <- data[, "t8nb"] / data[, "t8"]
-data[, "speedup16"] <- data[, "t16nb"] / data[, "t16"]
-data[, "speedup24"] <- data[, "t24nb"] / data[, "t24"]
-data[, "base"] <- data[, "t2"] / data[, "t2"]
-data[, "t2"] <- NULL
-data[, "t4"] <- NULL
-data[, "t8"] <- NULL
-data[, "t16"] <- NULL
-data[, "t24"] <- NULL
-data[, "t2nb"] <- NULL
-data[, "t4nb"] <- NULL
-data[, "t8nb"] <- NULL
-data[, "t16nb"] <- NULL
-data[, "t24nb"] <- NULL
-
-df <- melt(data ,  id = 'nodes', variable_name = 'versions')
-ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() #+ scale_colour_continuous(guide=FALSE)
-#+end_src
-
-#+attr_latex: width=0.8\textwidth,placement=[p]
-#+label: fig:two
-#+caption: Speedup achieved binding threads to physical CPU cores.
-#+results: binding-speedup
-[[file:binding-speedup.pdf]]
-
-
-
-#+LaTeX: \subsection{Parmap between N cores}
-
-(Results are stored in optimizations_experiments/parmap)
-
-#+LaTeX: \subsection{Busy Waiters}
-
-#+LaTeX: \subsection{Performance Regression Testing}
 
 #+LaTeX: \subsection{Adaptive algorithm to calculate threshold}
 Finding an optimal threshold and keep it during all the simulation might not
@@ -498,38 +377,18 @@ The main idea behind this heuristic is to calculate the optimal number
 of processes that can be run in parallel during the execution of the
 simulation.
 
+For that purpose, the times of five scheduling round are measured.
+A performance ratio for both of the possible parallel and sequential executions is
+calculated, simply by dividing the time taken by the amount of processes
+computed.
+If the sequential ratio turns to be bigger than the parallel one, then the 
+threshold is decreased, and increased otherwise.
 
-TODO: DECIDE WHICH VERSION OF ADAPTIVE ALGORITHM USE. THE ORIGINAL ONE
-THE IDEA1 OR THE IDEA2.2. 
+This results in a slight improve of performance, as it can be seen on
+Figure \ref{fig:five}. This optimization, however, seems to be effective
+when the amount of nodes is bigger than XXXXX.
 
-For that purpose, the time of five parallel scheduling rounds (and five
-sequential) are  measured. At the end, both performances are compared according
-to the time spent in each scheduling round and the amount of processes
-computed. If the sequential version turned to be better, the 
 
-IDEA1: NO CORRER CADA 5 SCHEDULING ROUNDS SOLAMENTE, SINO QUE SEAN 5 EN PARALELO Y 5 EN SECUENCIAL, ASI
-SE TIENE UN MEJOR CALCULO DE LOS SPEEDUPS.
-
-IDEA 2: TENER EN CUENTA TAMBIEN LA CANTIDAD DE LOS PROCESOS DE CADA SCHEDULING ROUND A LA HORA DE HACER LA
-MEDICION DE PERFORMANCE? POR EJEMPLO CORRER DOS VECES UNA SCHEDULING ROUND, EN PARALELO Y SECUENCIAL, Y VER CUAL
-FUE LA MAS RAPIDO. OTRA ES GUARDAR EN ALGUN LADO LOS DATOS DE CUANTOS PROCESOS HUBO Y QUE VELOCIDAD TUVO ESA CANTIDAD
-DE PROCESOS EN PARALELO O EN SECUENCIAL, Y CUANDO SE VUELVE A EJECUTAR ESA CANTIDAD DE PROCESOS, NO ELEGIR LA QUE YA SE PROBO: POR EJEMPLO,
-SI CON 20 PROCESOS SE HIZO PARALELA, LA SIGUIENTE HACERLO EN SECUENCIAL. Y EN BASE A ESO ELEGIR EL NUEVO THRESHOLD.
-LA VERDAD NO ME PARECE LA MEJOR OPCION, PORQUE NUNCA SE SABE CUANDO SE VAN A VOLVER A REPETIR LAS CANTIDADES DE PROCESOS,
-PERO CAPAZ QUE SIRVE, PUES EL THRESHOLD SIEMPRE ES CHICO, Y ESAS CANTIDADES SIEMPRE TIENEN PROBABILIDADES DE REPETIRSE.
-
-SUBIDEA2.1: PARA VER QUE TANTAS VECES SE REPITE UNA 'CANTIDAD DE PROCESOS' A LO LARGO DE LA SIMULACION, HACER UNA CORRIDA Y GUARDAR LOS DATOS,
-DESPUES HACER UN SCRIPT EN PYTHON QUE CUENTE. P.D: SE PUEDEN USAR LOS sr_logs QUE YA TENGO
-
-SUBIDEA2.2: DADO QUE PARA GRANDES CANTIDADES DE PROCESOS (1000, 10000) ES OBVIO QUE SE VA A HACER EN PARALELO, SOLO ARMAR
-EL ARRAY CON, DIGAMOS, HASTA 100 PROCESOS POR SCHEDULING ROUND.
-
-: Models used in the chord simulations
-: \begin{itemize}
-: \item Workstation model: Default vm workstation model (as it appears on ./chord --help)
-: \item Network Model: LV08 (or Constant)
-: \item Cpu Model: Cas01
-: \end{itemize}
 
 #+name: adapt-algorithm
 #+begin_src R  :results output graphics :exports results  :file adapt-algorithm.pdf
@@ -545,7 +404,7 @@ ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() 
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
-#+label: fig:seven
+#+label: fig:five
 #+caption: Chord simulation, Precise Model. Original version vs. Adaptative algorithm.
 #+results: adapt-algorithm
 [[file:adapt-algorithm.pdf]]
