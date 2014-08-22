@@ -206,26 +206,33 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
    - [X] Fix deadlock: delete SIMIX_process_cleanup(smx_proc) from src/msg/msg_process.c, why is that there?
    - [X] Do timings with maestro sleep+(N-1)
  
-** 14 [50%]
+** 14 [100%]
    - [X] Timings maestrosleeps + (N-1) with 100k, 300k
-** 18 [0%]
-   - [ ] Exp. intrusiveness with 3k, 5k, 10k, 25k, 50k, 75k nodes.
-   - [ ] Amdahl speedup with 25k, 50k, 75k, 300k, 500k, 1m.
-   - [ ] Core binding exp with 25k, 50k, 75k, and 300k.
-   - [ ] Timings with maestrosleeps + (N)
+** 18 [100%]
+   - [X] Put code of bindings in order.
+   - [X] Exp. intrusiveness with 3k, 5k, 10k, 25k, 50k, 75k nodes. (in progress)
+** 19 [100%]
+   - [X] Work with ideas of adaptative algorithm. Do some meditions if have time.
+   - [X] Tons of meditions and benchmarks of parmap opt., intrusiveness, amdahl speedup.
+
+** 20 [100%]
+   - [X] Amdahl speedup with 300k, 500k
+   - [X] Short tests with adaptive algorithm in cluster.
+   - [X] graph to show times of parmapN, parmapN-1 and original (al)
+   - [X] Polish some things in report, like the plots with newer data, and some numbers using that data.
+** 21 [100%]
+   - [X] Write down things about binding threads.
+   - [X] Run a new benchmark with the adaptive algorithm
+** 22 [100%]
+   - [X] Significant improve on adaptive algorithm plot. Write conclusions of this.
+   - [X] Run remaining Amdahl experiments.
+** 25 [%]
+   - [ ] Try a plot Constant vs. Precise with sr-par-threshold plot.
+   - [ ] Start busy waiters optimization.
+
    - [ ] Correr SR en paralelo bien, (fijarse si el secuencial tambien necesita)
-
-
-
- parmap between N cores: maestroawake+(N-1)(default);
-                                       The key for the next 2 optimizations relies on finding how to sleep master,
-                                       the rest involves only creating N threads or N-1 threads:
-                                           maestrosleep+(N)
-                                           maestro sleep+(N-1)
-     I guess I already have this, only need to check when the master is not working. 
   HOW TO SCHEDULE A SIMULATION FOR A NIGHT, A WEEKEND
    - [ ] make tests with 500000, 1000000 nodes (schedule for a night, weekend).
-   - [ ] maybe try with 75000, 50000 nodes as well.
 * TODO Experiment of Section I [0%]
 ** TODO Benchmark: before Amdahl benchmark, do experiments with the optimized version without benchmark and save those timings. Thats is for the comparation of timings to say that our benchmark is not intrusive.
 *** DONE modify scripts for this.
