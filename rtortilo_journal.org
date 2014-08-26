@@ -226,13 +226,17 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
 ** 22 [100%]
    - [X] Significant improve on adaptive algorithm plot. Write conclusions of this.
    - [X] Run remaining Amdahl experiments.
-** 25 [%]
-   - [ ] Try a plot Constant vs. Precise with sr-par-threshold plot.
-   - [ ] Start busy waiters optimization.
-
-   - [ ] Correr SR en paralelo bien, (fijarse si el secuencial tambien necesita)
+** 25 [100%]
+   - [X] Finally, got a nicer dataset/plot of sr-par-threshold.
+   - [X] Start Busy Waiters exp.
+** 26 [100%]
+   - [X] Constant vs. Precise with sr-par-threshold plot.(use a node or something, this TAKES time)
+   - [X] Keep w/busy waiters optimization.
+   - [X] Amdahl: Do plot with data gathered
+** 27 [%]
+   - [ ] plot busy_waiters vs. futex,check if there is some improvement.
   HOW TO SCHEDULE A SIMULATION FOR A NIGHT, A WEEKEND
-   - [ ] make tests with 500000, 1000000 nodes (schedule for a night, weekend).
+   - [ ] make tests with 500000(24 threads precise), 1m nodes (schedule for a night, weekend).
 * TODO Experiment of Section I [0%]
 ** TODO Benchmark: before Amdahl benchmark, do experiments with the optimized version without benchmark and save those timings. Thats is for the comparation of timings to say that our benchmark is not intrusive.
 *** DONE modify scripts for this.
@@ -300,6 +304,8 @@ repository: git+ssh://rtortilo@scm.gforge.inria.fr//gitroot/simgrid/simgrid-perf
 ** Pinpoint tests
 1) To get a list of specific commits (and count them,etc) git log 772d63c..ce1289d --pretty=oneline | head -n570 | less 
 2) If compilaton of chord fails for version 3.10 (or whatever else), try copying the content of folder src/ to usr/local/src
+** Useful commands
+- To rename bunch of files (useful for organizing logs): rename 's/^/2_/' sr_5000_threads* (rename <pattern_prefix> <pattern_group_files>)
 * Paper
 ** Problem Analysis
   1) Optimal threshold for Amdhal. Which portion of the problem is paralellizable. Which not. Why is hard?(a)

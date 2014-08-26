@@ -21,9 +21,8 @@ library('gridExtra')
 library('reshape')
 library('plyr')
 library('data.table')
-#+end_src
 
-#+begin_src R :exports none
+#Helper function to plot several ggplot in one window.
 require(grid)
 vp.layout <- function(x, y) viewport(layout.pos.row=x, layout.pos.col=y)
 arrange_ggplot2 <- function(..., nrow=NULL, ncol=NULL, as.table=FALSE) {
@@ -189,31 +188,54 @@ This confirms what we have proved in ~\cite{previous}.
 
 #+name: amdahl-speedup
 #+begin_src R  :results output graphics :exports results :file amdahl-speedup.pdf
-orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
+#orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
+
+#CONSTANT MODE
 opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
-orig_data = as.data.frame.matrix(orig_data)
+#orig_data = as.data.frame.matrix(orig_data)
 opt_data = as.data.frame.matrix(opt_data)
-data <- data.frame(nodes =  orig_data[1:8,1], seq = opt_data[1:8,8], t2 = opt_data[1:8,9],
-                   t4 = opt_data[1:8,10], t8 = opt_data[1:8,11], t16 = opt_data[1:8,12],
-                   t24 = opt_data[1:8,13])
+data <- data.frame(nodes =  opt_data[1:10,1], seq = opt_data[1:10,2], t2 = opt_data[1:10,3],
+                   t4 = opt_data[1:10,4], t8 = opt_data[1:10,5], t16 = opt_data[1:10,6])
+                   #t24 = opt_data[1:10,13])
 # an extra seq column to average would be good too.
+data[, "1"] <- data[, "seq"] / data[, "seq"]
 data[, "speedup2"] <- data[, "seq"] / data[, "t2"]
 data[, "speedup4"] <- data[, "seq"] / data[, "t4"]
 data[, "speedup8"] <- data[, "seq"] / data[, "t8"]
 data[, "speedup16"] <- data[, "seq"] / data[, "t16"]
-data[, "speedup24"] <- data[, "seq"] / data[, "t24"]
-data[, "base"] <- data[, "seq"] / data[, "seq"]
-
+#data[, "speedup24"] <- data[, "seq"] / data[, "t24"]
 
 data[, "t2"] <- NULL
 data[, "t4"] <- NULL
 data[, "t8"] <- NULL
 data[, "t16"] <- NULL
-data[, "t24"] <- NULL
+#data[, "t24"] <- NULL
 data[, "seq"] <- NULL
 
 df <- melt(data ,  id = 'nodes', variable_name = 'versions')
-ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() #+ scale_colour_continuous(guide=FALSE)
+g1<-ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(), legend.position="none") + ggtitle("Constant Mode") + ylab("speedup")
+
+
+#PRECISE MODE
+data2 <- data.frame(nodes =  opt_data[1:10,1], seq = opt_data[1:10,7], t2 = opt_data[1:10,8],
+                   t4 = opt_data[1:10,9], t8 = opt_data[1:10,10], t16 = opt_data[1:10,11])
+data2[, "1"] <- data2[, "seq"] / data2[, "seq"]
+data2[, "2"] <- data2[, "seq"] / data2[, "t2"]
+data2[, "4"] <- data2[, "seq"] / data2[, "t4"]
+data2[, "8"] <- data2[, "seq"] / data2[, "t8"]
+data2[, "16"] <- data2[, "seq"] / data2[, "t16"]
+
+data2[, "t2"] <- NULL
+data2[, "t4"] <- NULL
+data2[, "t8"] <- NULL
+data2[, "t16"] <- NULL
+data2[, "seq"] <- NULL
+
+df2 <- melt(data2 ,  id = 'nodes', variable_name = 'threads')
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) + ggtitle("Precise Mode") + scale_fill_discrete(name="threads")
+arrange_ggplot2(g1,g2,nrow=1)
+
+
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
@@ -355,8 +377,10 @@ executions, and have found the best average option for a simulation.
 
 #+name: sr-par-threshold
 #+begin_src R :results output graphics :exports results   :file sr-par-threshold.pdf
+#PRECISE MODE
 #SEQUENTIAL
-temp = list.files(path='./optimizations_experiments/sr_counts/sequential2', pattern="*.log", full.names = TRUE)
+temp = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*5000*", full.names = TRUE)
+temp <- temp[grepl("precise", temp)]
 flist <- lapply(temp, read.table)
 sr_data <- rbindlist(flist) #TODO: SE PUEDE SACAR, CREO
 sr_data[, "V1"] <- NULL
@@ -364,19 +388,44 @@ sr_data = as.data.frame.matrix(sr_data)
 df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
 
 #PARALLEL:
-temp2 = list.files(path='./optimizations_experiments/sr_counts/parallel', pattern="*.log", full.names = TRUE)
+temp2 = list.files(path='./optimizations_experiments/sr_counts/parallel', pattern="*5000*", full.names = TRUE)
+temp2 <- temp2[grepl("precise", temp2)]
 flist2 <- lapply(temp2, read.table)
 sr_data2 <- rbindlist(flist2) #TODO: SE PUEDE SACAR, CREO
 sr_data2[, "V1"] <- NULL
 sr_data2 = as.data.frame.matrix(sr_data2)
 df2 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
 
-#merge this two datasets
-df3 = merge(df, df2, by.x = 'V3', by.y = 'V3', incomparables = NULL)
-df3[, 'speedup'] <- df3[,'mean_value.x'] / df3[, 'mean_value.y']
-#for the mean
-ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line() + xlim(1,100)
+#CONSTANT MODE
+#SEQUENTIAL
+temp3 = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*5000*", full.names = TRUE)
+temp3 <- temp3[grepl("constant", temp3)]
+flist <- lapply(temp3, read.table)
+sr_data <- rbindlist(flist) #TODO: SE PUEDE SACAR, CREO
+sr_data[, "V1"] <- NULL
+sr_data = as.data.frame.matrix(sr_data)
+df3 <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
 
+#PARALLEL:
+temp4 = list.files(path='./optimizations_experiments/sr_counts/parallel', pattern="*5000*", full.names = TRUE)
+temp4 <- temp4[grepl("constant", temp4)]
+flist2 <- lapply(temp4, read.table)
+sr_data2 <- rbindlist(flist2) #TODO: SE PUEDE SACAR, CREO
+sr_data2[, "V1"] <- NULL
+sr_data2 = as.data.frame.matrix(sr_data2)
+df4 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
+
+
+#Merge PRECISE datasets
+df5 = merge(df, df2, by.x = 'V3', by.y = 'V3', incomparables = NULL)
+df5[, 'speedup'] <- df5[,'mean_value.x'] / df5[, 'mean_value.y']
+g1<- ggplot(data=df5, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,400) + stat_smooth(st=FALSE)
+
+#Merge CONSTANT datasets
+df6 = merge(df3, df4, by.x = 'V3', by.y = 'V3', incomparables = NULL)
+df6[, 'speedup'] <- df6[,'mean_value.x'] / df6[, 'mean_value.y']
+g2<-ggplot(data=df6, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,400) + stat_smooth(st=FALSE)
+arrange_ggplot2(g2,g1,ncol=1)
 #g <- ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line()
 #+end_src
 
