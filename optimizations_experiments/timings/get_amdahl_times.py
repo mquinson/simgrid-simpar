@@ -1,7 +1,7 @@
 DIR = "log_amdahl"
-SIZES = ['1000', '3000', '5000' ,'10000', '100000', '300000']
+SIZES = ['1000', '3000', '5000' ,'10000', '25000', '50000', '75000', '100000', '300000', '500000'] #, '300000']
 MODES = ['constant', 'precise']
-THREADS = ['1', '2', '4', '8', '16', '24']
+THREADS = ['1', '2', '4', '8', '16'] #, '24']
 output_file = "total_seq-par_times_amdahl2.log"
 output_sum_file = "total_sum_times_amdahl2.log"
 input_seq = ['']

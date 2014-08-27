@@ -262,14 +262,15 @@ represents the 31\% of the total amount of user processes in a typical run.
 #+begin_src R  :results output graphics :exports results  :file sr-distribution.pdf
 
 #temp = list.files(path='./optimizations_experiments/sr_counts', pattern="*precise*", full.names = TRUE)
-temp = list.files(path='./optimizations_experiments/sr_counts', pattern="sr_3000_threads24_constant.log", full.names = TRUE)
-flist <- lapply(temp, read.table)
-sr_data <- rbindlist(flist)
-sr_data[, "V1"] <- NULL
-sr_data = as.data.frame.matrix(sr_data)
+#temp = list.files(path='./optimizations_experiments/sr_counts/parallel', pattern="*precise*", full.names = TRUE)
+#flist <- lapply(temp, read.table)
+#sr_data <- rbindlist(flist)
+#sr_data[, "V1"] <- NULL
+#sr_data = as.data.frame.matrix(sr_data)
 
 #ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,15) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds")
 #ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(1,15) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + scale_x_continuous(breaks=c(1:15), labels=c(1:15),limits=c(1,15))
+sr_data <- readRDS(file="./optimizations_experiments/sr_counts/sr-distribution.Rda")
 ggplot(data=sr_data, geom="histogram", aes(x=V3)) + ylim(0,0.7)+ xlim(1,13) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..)), origin=-0.5) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + scale_x_continuous(breaks=c(1:13), labels=c(1:13),limits=c(1,13)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank()) #, axis.line = element_line(colour = "black"))
 
 #+end_src
@@ -288,15 +289,15 @@ of processes is what achieves the current speedup.
 #+name: sr-times
 #+begin_src R  :results output graphics :exports results  :file sr-times.pdf
 
-temp = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
+#temp = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
 
-flist <- lapply(temp, read.table)
-sr_data <- rbindlist(flist)
-sr_data[, "V1"] <- NULL
-sr_data = as.data.frame.matrix(sr_data)
-#for the mean
-df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
-ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlim(0,2000) + xlab("") + ylab("") + ylim(0,0.005) + geom_point(size = 1)
+#flist <- lapply(temp, read.table)
+#sr_data <- rbindlist(flist)
+#sr_data[, "V1"] <- NULL
+#sr_data = as.data.frame.matrix(sr_data)
+#df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
+#sr_data <- readRDS(file="./optimizations_experiments/sr_counts/sr-times.Rda")
+#ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlim(0,2000) + xlab("") + ylab("") + ylim(0,0.005) + geom_point(size = 1)
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
@@ -361,7 +362,69 @@ creation of one extra thread proved to be slightly more slower than the original
 version of parmap, while sending maestro to sleep and make its N-1 threads
 do the computation did not show any improvement or loss in performance.
 
-#+LaTeX: \subsection{Busy Waiters}
+#+LaTeX: \subsection{Busy Waiting versus Futexes}
+
+#+name: busy
+#+begin_src R :results output graphics :exports results :file busy.pdf
+orig_data = read.table("./optimizations_experiments/busy_waiters/total_times_original.log")
+opt_data = read.table("./optimizations_experiments/busy_waiters/total_times_busy_waiters.log")
+orig_data = as.data.frame.matrix(orig_data)
+opt_data = as.data.frame.matrix(opt_data)
+dataconst <- data.frame(nodes =  orig_data[1:7,1],
+                   thr2const=orig_data[1:7,2],
+                   thr4const=orig_data[1:7,3],
+		   thr8const=orig_data[1:7,4],
+		   thr16const=orig_data[1:7,5],
+		   thr24const=orig_data[1:7,6],
+		   optthr2const=opt_data[1:7,2],
+		   optthr4const=opt_data[1:7,3],
+		   optthr8const=opt_data[1:7,4],
+		   optthr16const=opt_data[1:7,5],
+		   optthr24const=opt_data[1:7,6])
+
+dataprec <- data.frame(nodes =  orig_data[1:7,1],
+                   thr2pre=orig_data[1:7,7],
+                   thr4pre=orig_data[1:7,8],
+		   thr8pre=orig_data[1:7,9],
+		   thr16pre=orig_data[1:7,10],
+		   thr24pre=orig_data[1:7,11],
+		   optthr2pre=opt_data[1:7,7],
+		   optthr4pre=opt_data[1:7,8],
+		   optthr8pre=opt_data[1:7,9],
+		   optthr16pre=opt_data[1:7,10],
+		   optthr24pre=opt_data[1:7,11])
+dataconst[, "1"] <- dataconst[, "thr16const"] / dataconst[, "thr16const"]
+dataconst[, "2"]   <- dataconst[, "thr2const"]  / dataconst[, "optthr2const"]
+dataconst[, "4"]   <- dataconst[, "thr4const"]  / dataconst[, "optthr4const"]
+dataconst[, "8"]   <- dataconst[, "thr8const"]  / dataconst[, "optthr8const"]
+dataconst[, "16"]  <- dataconst[, "thr16const"] / dataconst[, "optthr16const"]
+dataconst[, "24"]  <- dataconst[, "thr24const"] / dataconst[, "optthr24const"]
+
+dataprec[, "1"]  <- dataprec[, "thr2pre"]     / dataprec[, "thr2pre"]
+dataprec[, "2"]    <- dataprec[, "thr2pre"]     / dataprec[, "optthr2pre"]
+dataprec[, "4"]    <- dataprec[, "thr4pre"]     / dataprec[, "optthr4pre"]
+dataprec[, "8"]    <- dataprec[, "thr8pre"]     / dataprec[, "optthr8pre"]
+dataprec[, "16"]   <- dataprec[, "thr16pre"]    / dataprec[, "optthr16pre"]
+dataprec[, "24"]   <- dataprec[, "thr24pre"]    / dataprec[, "optthr24pre"]
+
+dataprec <- dataprec[, -grep("thr", colnames(dataprec))]
+dataconst <- dataconst[, -grep("thr", colnames(dataconst))]
+
+df <- melt(dataconst ,  id = 'nodes', variable_name = 'threads')
+df2 <- melt(dataprec ,  id = 'nodes', variable_name = 'threads')
+g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position="none") +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Constant")
+
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(axis.text.x = element_text(angle = -45, hjust = 0), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(),  legend.position="bottom") + scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000)) +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Precise")
+arrange_ggplot2(g1,g2,ncol=1)
+#+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:four
+#+caption: Relative speedup of busy waiters upon futexes in Chord simulation.
+#+results:busy
+[[file:busy.pdf]]
+
+
 
 #+LaTeX: \subsection{Performance Regression Testing}
 
@@ -377,67 +440,22 @@ executions, and have found the best average option for a simulation.
 
 #+name: sr-par-threshold
 #+begin_src R :results output graphics :exports results   :file sr-par-threshold.pdf
-#PRECISE MODE
-#SEQUENTIAL
-temp = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*5000*", full.names = TRUE)
-temp <- temp[grepl("precise", temp)]
-flist <- lapply(temp, read.table)
-sr_data <- rbindlist(flist) #TODO: SE PUEDE SACAR, CREO
-sr_data[, "V1"] <- NULL
-sr_data = as.data.frame.matrix(sr_data)
-df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
-
-#PARALLEL:
-temp2 = list.files(path='./optimizations_experiments/sr_counts/parallel', pattern="*5000*", full.names = TRUE)
-temp2 <- temp2[grepl("precise", temp2)]
-flist2 <- lapply(temp2, read.table)
-sr_data2 <- rbindlist(flist2) #TODO: SE PUEDE SACAR, CREO
-sr_data2[, "V1"] <- NULL
-sr_data2 = as.data.frame.matrix(sr_data2)
-df2 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
-
-#CONSTANT MODE
-#SEQUENTIAL
-temp3 = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*5000*", full.names = TRUE)
-temp3 <- temp3[grepl("constant", temp3)]
-flist <- lapply(temp3, read.table)
-sr_data <- rbindlist(flist) #TODO: SE PUEDE SACAR, CREO
-sr_data[, "V1"] <- NULL
-sr_data = as.data.frame.matrix(sr_data)
-df3 <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
-
-#PARALLEL:
-temp4 = list.files(path='./optimizations_experiments/sr_counts/parallel', pattern="*5000*", full.names = TRUE)
-temp4 <- temp4[grepl("constant", temp4)]
-flist2 <- lapply(temp4, read.table)
-sr_data2 <- rbindlist(flist2) #TODO: SE PUEDE SACAR, CREO
-sr_data2[, "V1"] <- NULL
-sr_data2 = as.data.frame.matrix(sr_data2)
-df4 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
-
-
-#Merge PRECISE datasets
-df5 = merge(df, df2, by.x = 'V3', by.y = 'V3', incomparables = NULL)
-df5[, 'speedup'] <- df5[,'mean_value.x'] / df5[, 'mean_value.y']
-g1<- ggplot(data=df5, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,400) + stat_smooth(st=FALSE)
-
-#Merge CONSTANT datasets
-df6 = merge(df3, df4, by.x = 'V3', by.y = 'V3', incomparables = NULL)
-df6[, 'speedup'] <- df6[,'mean_value.x'] / df6[, 'mean_value.y']
-g2<-ggplot(data=df6, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,400) + stat_smooth(st=FALSE)
-arrange_ggplot2(g2,g1,ncol=1)
-#g <- ggplot(data=df3, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_line()
+precise <- readRDS(file="./optimizations_experiments/sr_counts/sr-par-threshold-precise.Rda")
+constant <- readRDS(file="./optimizations_experiments/sr_counts/sr-par-threshold-constant.Rda")
+g1<- ggplot(data=constant, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
+g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
+arrange_ggplot2(g1,g2,ncol=1)
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
-#+label: fig:four
+#+label: fig:five
 #+caption: Speedup obtained in relation with the amount of processes computed by scheduling round.
 #+results:sr-par-threshold
 [[file:sr-par-threshold.pdf]]
 
-As it can be seen in the Figure \ref{fig:four}, despite being in a
-constant or precise model, the speedup can be found starting from
-33 user processes.
+As it can be seen in the Figure \ref{fig:five}, the optimal threshold starts at 28 user processes
+for the Precise mode, while with Constant mode, the speedup of parallel vs. sequential execution of
+scheduling rounds is immediate.
 
 #+LaTeX: \subsection{Adaptive algorithm to calculate threshold}
 Finding an optimal threshold and keep it during all the simulation might not
@@ -524,7 +542,7 @@ arrange_ggplot2(g1,g2,ncol=1)
 #+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
-#+label: fig:five
+#+label: fig:six
 #+caption: Speedup achieved with Adaptive Algorithm. Chord simulation, Precise and Constant modes.
 #+results: adapt-algorithm
 [[file:adapt-algorithm.pdf]]
