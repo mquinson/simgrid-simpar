@@ -1,19 +1,11 @@
 #+TITLE: Parallel and Distributed Simulation of Large-Scale Distributed Applications
-#+AUTHOR: 
+#+AUTHOR:  Ezequiel Torti Lòpez, Martin Quinson
 #+OPTIONS: num:nil ^:nil f:nil
-#+LATEX_HEADER: \documentclass{article}
+#+LATEX_class: article
 #+LATEX_HEADER: \usepackage{amscd}
 #+LATEX_HEADER: \usepackage{wrapfig}
 #+STARTUP: hideblocks
 #+PROPERTY: session *R* 
-
-#+begin_LaTeX
-  \hypersetup{
-    linkcolor=blue,
-    pdfborder={0 0 0 0}
-  }
-  \lstset{basicstyle=\ttfamily\bfseries\small}
-#+end_LaTeX
 
 #+begin_src R  :exports none
 library('ggplot2')
@@ -48,10 +40,7 @@ ii.p <- ii.p + 1
 }
 #+end_src
 
-#+LaTeX: \begin{document}
-
-
-#+LaTeX: \section{Motivation and Problem Statement}
+* Motivation and Problem Statement
 
 Simulation is the third pillar of science, allowing to study complicated
 phenomenons through complex models. When the size or complexity of the studied
@@ -114,8 +103,8 @@ an algorithm to automatically tune the level of parallelism that is adapted to
 the simulated application. Section \ref{sec:cc} concludes this paper and discusses
 some future work.
 
-
-#+LaTeX: \section{Context}\label{sec:context}
+* Context
+#+LaTeX: \label{sec:context}
 
 In the previous work ~\cite{previous} we proposed to parallelize the execution
 of the user code while keeping the simulation engine sequential.
@@ -160,8 +149,10 @@ parallel threshold dynamically depending on the simulation, and better
 performance of the threads taking in count their distribution on the CPU cores
 and the different synchronization modes (futex, POSIX primitives or busy waiters).
 
-#+LaTeX: \section{Performance Analysis}\label{sec:problem}
-#+LaTeX: \subsection{Current speedup achieved} %Also, the benchmarking not intrusive is here.
+* Performance Analysis
+#+LaTeX: \label{sec:problem}
+** Current speedup achieved
+# Also, the benchmarking not intrusive is here.
 We want to find the maximum speedup achieved with our current parallel
 model. For that, a benchmark test is run to get the timings of
 typical sequential and parallel executions, so we can get the real speedup achieved with
@@ -244,7 +235,7 @@ arrange_ggplot2(g1,g2,nrow=1)
 #+results: amdahl-speedup
 [[file:amdahl-speedup.pdf]]
 
-#+LaTeX: \subsection{Parallelizable portions of the problem}
+** Parallelizable portions of the problem
 This experiment is based on a typical Chord simulation, and the data wanted
 is the following: ID of each Scheduling Round, time taken by each Scheduling Round
 and number of process executed in each scheduling round.
@@ -308,9 +299,9 @@ of processes is what achieves the current speedup.
 
 
 
-
-#+LaTeX: \section{Optimizations}\label{sec:parallel}
-#+LaTeX: \subsection{Binding threads to physical cores}
+* Optimizations
+#+LaTeX: \label{sec:parallel}
+** Binding threads to physical cores
 Regarding the multicore architectures (like almost every modern CPU),
 parallelization through threads is well proved to be a good optimization,
 as we said in the previous section \ref{sec:problem}. But there are still
@@ -347,7 +338,7 @@ This proves that physical binding of threads to CPU cores can be useful when a
 big amount of threads is needed.
 
 
-#+LaTeX: \subsection{Parmap between N cores}
+** Parmap between N cores
 
 Several optimizations regarding the distribution of work between threads were
 proposed: the first option is the default one, where maestro works with its
@@ -362,7 +353,7 @@ creation of one extra thread proved to be slightly more slower than the original
 version of parmap, while sending maestro to sleep and make its N-1 threads
 do the computation did not show any improvement or loss in performance.
 
-#+LaTeX: \subsection{Busy Waiting versus Futexes}
+** Busy Waiting versus Futexes
 
 #+name: busy
 #+begin_src R :results output graphics :exports results :file busy.pdf
@@ -426,10 +417,11 @@ arrange_ggplot2(g1,g2,ncol=1)
 
 
 
-#+LaTeX: \subsection{Performance Regression Testing}
+** Performance Regression Testing
 
-#+LaTeX: \section{Optimal threshold for parallel execution}\label{sec:adaptive}
-#+LaTeX: \subsection{Getting a real threshold over simulations}
+* Optimal threshold for parallel execution
+#+LaTeX: \label{sec:adaptive}
+** Getting a real threshold over simulations
 The threshold wanted is how many processes are the right amount to be executed
 in parallel when it is necessary, and when is it better to execute them in a
 sequential way.
@@ -457,7 +449,7 @@ As it can be seen in the Figure \ref{fig:five}, the optimal threshold starts at 
 for the Precise mode, while with Constant mode, the speedup of parallel vs. sequential execution of
 scheduling rounds is immediate.
 
-#+LaTeX: \subsection{Adaptive algorithm to calculate threshold}
+** Adaptive algorithm to calculate threshold
 Finding an optimal threshold and keep it during all the simulation might not
 always be the best option: some simulations can take more or less time in
 the execution of user processes. If a simulation has
@@ -548,8 +540,7 @@ arrange_ggplot2(g1,g2,ncol=1)
 [[file:adapt-algorithm.pdf]]
 
 
-#+LaTeX: \section{Conclusion}\label{sec:cc}
+* Conclusion
+#+LaTeX: \label{sec:cc}
 
-#+LaTeX: \section{References}\label{sec:ref}
 
-#+LaTeX: \end{document}
