@@ -6,7 +6,6 @@
 *.tex
 *.toc
 *.jpg
-*.pdf
 .*
 *.JPG
 code_binding_cores/
