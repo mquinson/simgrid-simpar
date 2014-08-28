@@ -374,7 +374,7 @@ do the computation did not show any improvement or loss in performance.
 ** Busy Waiting versus Futexes
 
 #+name: busy
-#+begin_src R :results output graphics :exports results :file busy.pdf
+#+begin_src R :results output graphics :exports results :file fig/busy.pdf
 orig_data = read.table("./optimizations_experiments/busy_waiters/total_times_original.log")
 opt_data = read.table("./optimizations_experiments/busy_waiters/total_times_busy_waiters.log")
 orig_data = as.data.frame.matrix(orig_data)
@@ -427,11 +427,14 @@ g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line
 arrange_ggplot2(g1,g2,ncol=1)
 #+end_src
 
+#+RESULTS: busy
+[[file:fig/busy.pdf]]
+
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:four
 #+caption: Relative speedup of busy waiters upon futexes in Chord simulation.
 #+results:busy
-[[file:busy.pdf]]
+[[file:fig/busy.pdf]]
 
 
 
@@ -449,7 +452,7 @@ For that purpose, we have done a benchmark of the scheduling rounds timings in p
 executions, and have found the best average option for a simulation.
 
 #+name: sr-par-threshold
-#+begin_src R :results output graphics :exports results   :file sr-par-threshold.pdf
+#+begin_src R :results output graphics :exports results   :file fig/sr-par-threshold.pdf
 precise <- readRDS(file="./optimizations_experiments/sr_counts/sr-par-threshold-precise.Rda")
 constant <- readRDS(file="./optimizations_experiments/sr_counts/sr-par-threshold-constant.Rda")
 g1<- ggplot(data=constant, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
@@ -457,11 +460,14 @@ g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + yl
 arrange_ggplot2(g1,g2,ncol=1)
 #+end_src
 
+#+RESULTS: sr-par-threshold
+[[file:fig/sr-par-threshold.pdf]]
+
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:five
 #+caption: Speedup obtained in relation with the amount of processes computed by scheduling round.
 #+results:sr-par-threshold
-[[file:sr-par-threshold.pdf]]
+[[file:fig/sr-par-threshold.pdf]]
 
 As it can be seen in the Figure \ref{fig:five}, the optimal threshold starts at 28 user processes
 for the Precise mode, while with Constant mode, the speedup of parallel vs. sequential execution of
@@ -498,7 +504,7 @@ the costs of synchronization, an intelligent choice of when to launch them will
 reduce that cost.
 
 #+name: adapt-algorithm
-#+begin_src R  :results output graphics :exports results  :file adapt-algorithm.pdf
+#+begin_src R  :results output graphics :exports results  :file fig/adapt-algorithm.pdf
 orig_data = read.table("./optimizations_experiments/dynamic_threshold/total_times_original.log")
 opt_data = read.table("./optimizations_experiments/dynamic_threshold/total_times_adaptive.log")
 orig_data = as.data.frame.matrix(orig_data)
@@ -555,7 +561,7 @@ arrange_ggplot2(g1,g2,ncol=1)
 #+label: fig:six
 #+caption: Speedup achieved with Adaptive Algorithm. Chord simulation, Precise and Constant modes.
 #+results: adapt-algorithm
-[[file:adapt-algorithm.pdf]]
+[[file:fig/adapt-algorithm.pdf]]
 
 
 * Conclusion
