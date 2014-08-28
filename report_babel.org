@@ -22,6 +22,7 @@
 #+LATEX_HEADER: \usepackage{wrapfig}
 
 #+begin_src R  :exports none
+# If you miss the libraries, try typing >>>install.packages("data.table")<<< in a R console
 library('ggplot2')
 library('gridExtra')
 library('reshape')
@@ -53,6 +54,8 @@ ii.p <- ii.p + 1
 }
 }
 #+end_src
+
+#+RESULTS:
 
 * Motivation and Problem Statement
 
