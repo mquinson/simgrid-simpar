@@ -1,13 +1,28 @@
 #+TITLE: Parallel and Distributed Simulation of Large-Scale Distributed Applications
 #+AUTHOR:  Ezequiel Torti Lòpez, Martin Quinson
-#+OPTIONS: num:nil ^:nil f:nil
-#+LATEX_class: article
-#+LATEX_HEADER: \usepackage{amscd}
-#+LATEX_HEADER: \usepackage{wrapfig}
-#+STARTUP: hideblocks
+#+OPTIONS: H:5 title:nil date:nil author:nil email:nil creator:nil timestamp:nil skip:nil toc:nil
+#+STARTUP: indent hideblocks
+#+TAGS: noexport(n)
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
 #+PROPERTY: session *R* 
 
+#+LATEX_class: article
+#+LATEX_HEADER: \usepackage[T1]{fontenc}
+#+LATEX_HEADER: \usepackage[utf8]{inputenc}
+#+LATEX_HEADER: \usepackage{ifthen,figlatex}
+#+LATEX_HEADER: \usepackage{longtable}
+#+LATEX_HEADER: \usepackage{float}
+#+LATEX_HEADER: \usepackage{wrapfig}
+#+LATEX_HEADER: \usepackage{subfigure}
+#+LATEX_HEADER: \usepackage{xspace}
+#+LATEX_HEADER: \usepackage[american]{babel}
+#+LATEX_HEADER: \usepackage{url}\urlstyle{sf}
+#+LATEX_HEADER: \usepackage{amscd}
+#+LATEX_HEADER: \usepackage{wrapfig}
+
 #+begin_src R  :exports none
+# If you miss the libraries, try typing >>>install.packages("data.table")<<< in a R console
 library('ggplot2')
 library('gridExtra')
 library('reshape')
@@ -39,6 +54,8 @@ ii.p <- ii.p + 1
 }
 }
 #+end_src
+
+#+RESULTS:
 
 * Motivation and Problem Statement
 
@@ -178,7 +195,7 @@ when the size of the problem is bigger than 100000 nodes.
 This confirms what we have proved in ~\cite{previous}.
 
 #+name: amdahl-speedup
-#+begin_src R  :results output graphics :exports results :file amdahl-speedup.pdf
+#+begin_src R  :results output graphics :exports results :file fig/amdahl-speedup.pdf
 #orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
 
 #CONSTANT MODE
@@ -233,7 +250,7 @@ arrange_ggplot2(g1,g2,nrow=1)
 #+label: fig:one
 #+caption: Real speedup achieved using parallell mode in Chord simulation.
 #+results: amdahl-speedup
-[[file:amdahl-speedup.pdf]]
+[[file:fig/amdahl-speedup.pdf]]
 
 ** Parallelizable portions of the problem
 This experiment is based on a typical Chord simulation, and the data wanted
@@ -250,7 +267,7 @@ execution threshold already setted up in SimGrid (which can be modified), but it
 represents the 31\% of the total amount of user processes in a typical run.
 
 #+name: sr-distribution
-#+begin_src R  :results output graphics :exports results  :file sr-distribution.pdf
+#+begin_src R  :results output graphics :exports results  :file fig/sr-distribution.pdf
 
 #temp = list.files(path='./optimizations_experiments/sr_counts', pattern="*precise*", full.names = TRUE)
 #temp = list.files(path='./optimizations_experiments/sr_counts/parallel', pattern="*precise*", full.names = TRUE)
@@ -270,7 +287,7 @@ ggplot(data=sr_data, geom="histogram", aes(x=V3)) + ylim(0,0.7)+ xlim(1,13) + ge
 #+label: fig:two
 #+caption: Proportion of scheduling rounds computing processes.
 #+results: sr-distribution
-[[file:sr-distribution.pdf]]
+[[file:fig/sr-distribution.pdf]]
 
 
 Besides that, the Figure \ref{fig:three} show that when the amount of processes is bigger,
@@ -278,7 +295,7 @@ then the sequential execution time is bigger. That means that parallelizing that
 of processes is what achieves the current speedup.
 
 #+name: sr-times
-#+begin_src R  :results output graphics :exports results  :file sr-times.pdf
+#+begin_src R  :results output graphics :exports results  :file fig/sr-times.pdf
 
 temp = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
 
@@ -296,7 +313,7 @@ ggplot(data=sr_data, geom="histogram", aes(x=V3, y=V2)) + xlim(0,500) + xlab("")
 #+label: fig:three
 #+caption: Execution times scheduling rounds depending on the amount of processes.
 #+results: sr-times
-[[file:sr-times.pdf]]
+[[file:fig/sr-times.pdf]]
 
 
 
@@ -545,3 +562,23 @@ arrange_ggplot2(g1,g2,ncol=1)
 #+LaTeX: \label{sec:cc}
 
 
+* Emacs Setup    :noexport:
+  This document has local variables in its postembule, which should
+  allow org-mode to work seamlessly without any setup. If you're
+  uncomfortable using such variables, you can safely ignore them at
+  startup. Exporting may require that you copy them in your .emacs.
+
+# Local Variables:
+# eval:    (org-babel-do-load-languages 'org-babel-load-languages '( (sh . t) (R . t) (perl . t) (ditaa . t) ))
+# eval:    (setq org-confirm-babel-evaluate nil)
+# eval:    (setq org-alphabetical-lists t)
+# eval:    (setq org-src-fontify-natively t)
+# eval:    (add-hook 'org-babel-after-execute-hook 'org-display-inline-images) 
+# eval:    (add-hook 'org-mode-hook 'org-display-inline-images)
+# eval:    (add-hook 'org-mode-hook 'org-babel-result-hide-all)
+# eval:   (setq org-babel-default-header-args:R '((:session . "org-R")))
+# eval:   (setq org-export-babel-evaluate nil)
+# eval:   (setq org-latex-to-pdf-process '("pdflatex -interaction nonstopmode -output-directory %o %f ; bibtex `basename %f | sed 's/\.tex//'` ; pdflatex -interaction nonstopmode -output-directory  %o %f ; pdflatex -interaction nonstopmode -output-directory %o %f"))
+# eval:   (setq ispell-local-dictionary "american")
+# eval:   (eval (flyspell-mode t))
+# End:
