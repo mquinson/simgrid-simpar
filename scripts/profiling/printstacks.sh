@@ -11,9 +11,9 @@
 ### How to use:
 # To run the script with default arguments: start the simulation and
 # immediately after run this script.
-# Example: (<command> &) && ./printstacks.sh
+# Example: (<command> &) && ./printstacks.sh -p <pid_of_command>
 
-### Parameters:
+### Available parameters:
 # -n : amount of times the script will sample the stacks. 
 # -s : amount of seconds the script will sleep between each sample.
 # -p : this stores the current pid of the simulation. If not set, then 
@@ -55,22 +55,21 @@ do
     esac
 done
 
-# Regular expresion used to check if some argument is/is not a number.
-re='^[0-9]+$'
+# Regular expresion used to check if some argument is not a number.
+re=^[0-9]+$
 if [ -z "$nsamples" ]; then nsamples=10; fi
 if [ -z "$sleeptime" ]; then sleeptime=1; fi
 if [ -z "$pid" ]; then echo "pid of the current simulation missing"; exit 1; fi
-
-if  ! [ $nsamples=~$re ] ||  [ $sleeptime=~$re ] || [ ! $pid=~$re ]
+if [[ ! "$nsamples" =~ $re ]] ||  [[ ! "$sleeptime" =~ $re ]] || [[ ! "$pid" =~ $re ]]
 then
-    echo "Some of your arguments are not valid numbers" >&2
-    exit 1
+    echo "Some of your arguments are not valid numbers" >&2; exit 1;
 fi
 
-echo "THE PID IS:"
-echo $pid
+output_file="backtrace.log"
+rm -rf $output_file 
+
 for x in $(seq 1 $nsamples)
 do
-  gdb -ex "set pagination 0" -ex "thread apply all bt full" -batch -p $pid &>> backtrace.log
+  gdb -ex "set pagination 0" -ex "thread apply all bt full" -batch -p $pid &>> $output_file
   sleep $sleeptime
 done 
