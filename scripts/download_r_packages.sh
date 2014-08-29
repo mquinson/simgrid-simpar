@@ -35,5 +35,5 @@ R CMD INSTALL proto_0.3-9.tar.gz
 R CMD INSTALL reshape2_1.2.tar.gz
 R CMD INSTALL ggplot2_0.9.3.tar.gz
 R CMD INSTALL reshape_0.8.5.tar.gz
-R CMD INSTALL data.table_1.8.10.tar.gz
-R CMD INSTALL gridExtra_0.9.tar.gz
+R CMD INSTALL data.table_1.9.2.tar.gz
+R CMD INSTALL gridExtra_0.9.1.tar.gz

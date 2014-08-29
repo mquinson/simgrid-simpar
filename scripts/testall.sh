@@ -1,5 +1,5 @@
 #!/bin/bash
-SGPATH=$1
+SGPATH=$1 #Installation path
 SGHASH=$2 #This should be the commit short hash
 
 my_date=`date +%Y-%m-%d`

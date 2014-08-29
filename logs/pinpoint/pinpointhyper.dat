@@ -1,0 +1,107 @@
+#The problem is in 'hypervisor' branch. Check surf_solve() function. models_lists variable.
+#             constant        precise
+#hash\thread 	4     8       4     8
+04f1985        32    37      34    41   #october 7 rapido
+54d4db7        22    24      36    41   #octubre 9
+7ac272e        27    28      44    51   #october 24
+756023d        33    35      38    42   #november 4
+9d0cbea       segfault                  #november 7 
+9b73466       segfault                  #november 8, merge tag 3_9_90 into hypervisor THIS MIGHT BE THE PROBLEM
+ef70fe0       SLOW                      #after merge w/ hypervisor
+4871b54       SLOW                      #december 5 2013    
+0adb1d0       SLOW
+
+estos son los archivos de surf.cpp, chequear velocidad aca:
+4871b54 Restructure surf++ workstation vmworkstation LENTO
+
+5e2c8aeab0ec45fb9945018b9de3cab5c1019875 Restructure surf++ cpu and network
+0adb1d0d9e235da476b2b0c3f2923f8c8759829e Fix memleak
+d8a5b514344c5163ba3eb24efdf347e1af4d0af0 no need to protect surf_mins by ifdef, allocated
+b458e6e72708bd5aa00d9b5b6f1c46fa942b2894 Fix network constant issues
+2f2ce19fcb66a634c19de8dda2dc4b4896203537 Fix Memleaks
+52089b08b629d77bce06104b92bf99fecaf0349b Resolve memory leaks
+723d711ccfc8caac549ac6cf78da12233f98c777 Initialize another bunch of variables.
+0c43de62fbe4bfc243d6512296e09207e80bcd54 Fix initialization order.
+2280006bb5c1597cbf4d6212b1f5fba9a6713d58 Remove unused variables.
+b6e0974be6616f62aa724f7ec7ad1cff1b421e1e Comment unused parameters.
+
+ef70fe0e745f7125accbcc1c076c2ef082bc3f98 Initialize variables.
+
+eee21ec5f99218189fc98898a09150294cd0fbf4 Merge branch 'hypervisor' into surf++
+Files modified:
+src/simix/smx_global.c           |
+src/simix/smx_host.c             |
+src/simix/smx_host_private.h     |
+src/simix/smx_io.c               |
+src/simix/smx_network.c          |--> not the problem (maybe)  
+src/simix/smx_new_api.c          |
+src/simix/smx_process.c          |
+src/simix/smx_smurf_private.h    |
+src/simix/smx_synchro.c          |
+
+src/surf/cpu_cas01.c
+src/surf/cpu_cas01_private.h
+src/surf/cpu_ti.c
+src/surf/network.c
+src/surf/network_constant.c
+src/surf/network_gtnets.c
+src/surf/new_model.c
+src/surf/storage.c
+src/surf/surf.c
+src/surf/surf_action.c
+src/surf/surf_private.h
+src/surf/workstation.c
+
+Ver que somos cpu_model o el network_model, que son los que estan en models_list_invoke, sino estoy en un problema.
+Tal vez haya codigo que se llama dos veces, y eso rompe mi performance.
+
+
+95f98f86ddeb28cea15e126929f48d196160a316 Remove unnecessry files
+
+d0ffc37686edcc803601f76ab51fdfed5fc2f241 Merge commit '045db1657e870c721be490b411868f4181a12ced'
+7ac272e25e5f27abe5c854124acb21a2d9bcc435 Remove c surf files
+192462d51b69f727a7f16cf83223831f75ed254b Fix simdag issue
+c978b9fe22c4e00793169fbe9d5f22825b96f894 Fix tests
+399e4077a352ec6e0ad4134e5645a29d0d241c88 Fix msg-start-kill-time
+283236f8e2414d7c30d46e6d1aea0e8882699dd1 Fix surf_usage
+5faf49c Replace surf by surf++ and make it compile
+
+83ff63f9a846dd01995a4bbb8979d2fa909ed34b CpuCas01 in C++
+de74e33ac31948d22f805fed0807be831cb8fdbd CpuTi in c++
+51f8d73fe7373b7b04bc2727ff9ef61272dce9a9 Add squeletons for models
+
+
+Commits used for {Fast,Slow}log:
+SLOW: ef70fe0e745f7125accbcc1c076c2ef082bc3f98. 50842e8 is the closest commit (that actually compile/works) to the merge of hypervisor into surf, and the merge of surf into MASTER.
+
+FAST: aff40f1 on surf++.  edd6d5b is the closest commit before that series of merges. It works fast and ok.
+
+-------------------------------------------------------------------------------
+Since hypervisor only touches c files (not c++), and in surf++ there are only
+c++ files, and the general performance of the hypervisor is good, the problem
+might be in the merge of hypervisor with tag 3.9.90, commit "9b73466ada27682d1729f394549479da83ef4a99 Merge tag 'v3_9_90'.
+After this commit, there is a segfault.
+Now I have to check what C files were merged with the merge of
+hypervisor/surf++, since not all files are in C++. Tests with simix files,
+since the performance drop seems to be here.
+
+git log --pretty=oneline --since=9/1/2013 -- src/simix/*.c | less
+
+#             constant        precise
+#hash\thread 	4     8       4     8
+01d1fb6         FAST                    #sep 10 2013
+9dc2163         33   35     197   201   #oct 28 2013
+661875a         34   39     188   199   #oct 29 2013, belongs to hypervisor branch
+0e9c04 FREE INVALID POINTER .merge      #before the merge into surf, nov 8
+50d520          segfault                #after the merge in 0e9c04, on hypervisor branch
+bb3d1fe         segfault                #dec 2013
+3b8ab73         signal 6/11             #testing this, but this was some weeks after the merge
+
+
+Testing tag v3_9_90
+#             constant        precise
+#hash\thread 	4     8       4     8
+54d4db7        22    23      35    39     # oct 9 2013
+0872a14          segfault                 # oct 10 2013
+d1fe791          segfault                 # oct 10 2013 'oops'
+

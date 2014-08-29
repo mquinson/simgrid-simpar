@@ -1,0 +1,739 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" width="1200" height="290" onload="init(evt)" viewBox="0 0 1200 290" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs >
+	<linearGradient id="background" y1="0" y2="1" x1="0" x2="0" >
+		<stop stop-color="#eeeeee" offset="5%" />
+		<stop stop-color="#eeeeb0" offset="95%" />
+	</linearGradient>
+</defs>
+<style type="text/css">
+	.func_g:hover { stroke:black; stroke-width:0.5; }
+</style>
+<script type="text/ecmascript">
+<![CDATA[
+	var details;
+	function init(evt) { details = document.getElementById("details").firstChild; }
+	function s(info) { details.nodeValue = "Function: " + info; }
+	function c() { details.nodeValue = ' '; }
+]]>
+</script>
+<rect x="0.0" y="0" width="1200.0" height="290.0" fill="url(#background)"  />
+<text text-anchor="middle" x="600" y="24" font-size="17" font-family="Verdana" fill="rgb(0,0,0)"  >Flame Graph</text>
+<text text-anchor="" x="10" y="273" font-size="12" font-family="Verdana" fill="rgb(0,0,0)" id="details" > </text>
+<g class="func_g" onmouseover="s('SIMIX_comm_destroy.part.10 (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_comm_destroy.part.10 (1 samples, 0.93%)</title><rect x="407.0" y="145" width="11.0" height="15.0" fill="rgb(208,26,18)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('strchrnul (1 samples, 0.93%)')" onmouseout="c()">
+<title>strchrnul (1 samples, 0.93%)</title><rect x="373.9" y="65" width="11.1" height="15.0" fill="rgb(210,32,30)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_dict_get_or_null (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_dict_get_or_null (1 samples, 0.93%)</title><rect x="263.6" y="49" width="11.1" height="15.0" fill="rgb(234,200,35)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('simcall_rdv_get_by_name (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_rdv_get_by_name (1 samples, 0.93%)</title><rect x="131.3" y="129" width="11.0" height="15.0" fill="rgb(246,192,37)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('*__GI___libc_realloc (1 samples, 0.93%)')" onmouseout="c()">
+<title>*__GI___libc_realloc (1 samples, 0.93%)</title><rect x="462.1" y="97" width="11.1" height="15.0" fill="rgb(239,140,42)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('lmm_variable_free (3 samples, 2.80%)')" onmouseout="c()">
+<title>lmm_variable_free (3 samples, 2.80%)</title><rect x="572.4" y="113" width="33.1" height="15.0" fill="rgb(247,69,35)" rx="2" ry="2" />
+<text text-anchor="" x="575.429906542056" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >lm..</text>
+</g>
+<g class="func_g" onmouseover="s('update_resource_energy (4 samples, 3.74%)')" onmouseout="c()">
+<title>update_resource_energy (4 samples, 3.74%)</title><rect x="991.5" y="145" width="44.1" height="15.0" fill="rgb(210,58,21)" rx="2" ry="2" />
+<text text-anchor="" x="994.495327102804" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >upda..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_get_running_context (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_process_get_running_context (1 samples, 0.93%)</title><rect x="318.8" y="129" width="11.0" height="15.0" fill="rgb(213,197,52)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_simcall_post (19 samples, 17.76%)')" onmouseout="c()">
+<title>SIMIX_simcall_post (19 samples, 17.76%)</title><rect x="550.4" y="177" width="209.5" height="15.0" fill="rgb(252,62,0)" rx="2" ry="2" />
+<text text-anchor="" x="553.373831775701" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMIX_simcall_post</text>
+</g>
+<g class="func_g" onmouseover="s('_IO_vfprintf_internal (1 samples, 0.93%)')" onmouseout="c()">
+<title>_IO_vfprintf_internal (1 samples, 0.93%)</title><rect x="241.6" y="81" width="11.0" height="15.0" fill="rgb(236,44,30)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_shift_item (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_fifo_shift_item (1 samples, 0.93%)</title><rect x="748.9" y="129" width="11.0" height="15.0" fill="rgb(243,87,51)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('lmm_var_free (2 samples, 1.87%)')" onmouseout="c()">
+<title>lmm_var_free (2 samples, 1.87%)</title><rect x="583.5" y="97" width="22.0" height="15.0" fill="rgb(227,210,48)" rx="2" ry="2" />
+<text text-anchor="" x="586.457943925234" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >l..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_heap_pop (5 samples, 4.67%)')" onmouseout="c()">
+<title>xbt_heap_pop (5 samples, 4.67%)</title><rect x="1035.6" y="145" width="55.1" height="15.0" fill="rgb(228,181,53)" rx="2" ry="2" />
+<text text-anchor="" x="1038.60747663551" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >xbt_h..</text>
+</g>
+<g class="func_g" onmouseover="s('simcall_comm_isend (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_comm_isend (1 samples, 0.93%)</title><rect x="351.9" y="129" width="11.0" height="15.0" fill="rgb(229,85,11)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('simcall_BODY_comm_isend (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_BODY_comm_isend (1 samples, 0.93%)</title><rect x="230.6" y="81" width="11.0" height="15.0" fill="rgb(254,110,26)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('fifo_item_mallocator_reset_f.36766 (1 samples, 0.93%)')" onmouseout="c()">
+<title>fifo_item_mallocator_reset_f.36766 (1 samples, 0.93%)</title><rect x="936.4" y="65" width="11.0" height="15.0" fill="rgb(229,218,35)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('main (73 samples, 68.22%)')" onmouseout="c()">
+<title>main (73 samples, 68.22%)</title><rect x="385.0" y="225" width="805.0" height="15.0" fill="rgb(222,222,34)" rx="2" ry="2" />
+<text text-anchor="" x="387.953271028037" y="235.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >main</text>
+</g>
+<g class="func_g" onmouseover="s('*__GI___backtrace (1 samples, 0.93%)')" onmouseout="c()">
+<title>*__GI___backtrace (1 samples, 0.93%)</title><rect x="671.7" y="113" width="11.0" height="15.0" fill="rgb(222,32,8)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_dict_get_elm_or_null (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_dict_get_elm_or_null (1 samples, 0.93%)</title><rect x="153.4" y="81" width="11.0" height="15.0" fill="rgb(232,121,33)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_swag_extract (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_swag_extract (1 samples, 0.93%)</title><rect x="1123.8" y="97" width="11.1" height="15.0" fill="rgb(227,165,43)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_task_irecv (5 samples, 4.67%)')" onmouseout="c()">
+<title>MSG_task_irecv (5 samples, 4.67%)</title><rect x="54.1" y="177" width="55.2" height="15.0" fill="rgb(235,162,34)" rx="2" ry="2" />
+<text text-anchor="" x="57.1121495327103" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >MSG_t..</text>
+</g>
+<g class="func_g" onmouseover="s('find_successor (13 samples, 12.15%)')" onmouseout="c()">
+<title>find_successor (13 samples, 12.15%)</title><rect x="164.4" y="161" width="143.4" height="15.0" fill="rgb(210,229,32)" rx="2" ry="2" />
+<text text-anchor="" x="167.392523364486" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >find_successor</text>
+</g>
+<g class="func_g" onmouseover="s('__find_specmb (1 samples, 0.93%)')" onmouseout="c()">
+<title>__find_specmb (1 samples, 0.93%)</title><rect x="340.8" y="81" width="11.1" height="15.0" fill="rgb(207,34,45)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('lmm_remove_all_modified_set (1 samples, 0.93%)')" onmouseout="c()">
+<title>lmm_remove_all_modified_set (1 samples, 0.93%)</title><rect x="1123.8" y="113" width="11.1" height="15.0" fill="rgb(223,69,52)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_fifo_get_comm.13619 (3 samples, 2.80%)')" onmouseout="c()">
+<title>SIMIX_fifo_get_comm.13619 (3 samples, 2.80%)</title><rect x="892.2" y="129" width="33.1" height="15.0" fill="rgb(247,177,53)" rx="2" ry="2" />
+<text text-anchor="" x="895.242990654206" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SI..</text>
+</g>
+<g class="func_g" onmouseover="s('ws_communicate.31131 (2 samples, 1.87%)')" onmouseout="c()">
+<title>ws_communicate.31131 (2 samples, 1.87%)</title><rect x="815.0" y="113" width="22.1" height="15.0" fill="rgb(211,35,54)" rx="2" ry="2" />
+<text text-anchor="" x="818.046728971963" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >w..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_context_runall (2 samples, 1.87%)')" onmouseout="c()">
+<title>SIMIX_context_runall (2 samples, 1.87%)</title><rect x="528.3" y="161" width="22.1" height="15.0" fill="rgb(247,41,37)" rx="2" ry="2" />
+<text text-anchor="" x="531.317757009346" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >S..</text>
+</g>
+<g class="func_g" onmouseover="s('stabilize (7 samples, 6.54%)')" onmouseout="c()">
+<title>stabilize (7 samples, 6.54%)</title><rect x="307.8" y="177" width="77.2" height="15.0" fill="rgb(206,150,46)" rx="2" ry="2" />
+<text text-anchor="" x="310.757009345794" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >stabilize</text>
+</g>
+<g class="func_g" onmouseover="s('__strcmp_sse42 (1 samples, 0.93%)')" onmouseout="c()">
+<title>__strcmp_sse42 (1 samples, 0.93%)</title><rect x="76.2" y="81" width="11.0" height="15.0" fill="rgb(253,141,21)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('netcste_share_resources.21935 (4 samples, 3.74%)')" onmouseout="c()">
+<title>netcste_share_resources.21935 (4 samples, 3.74%)</title><rect x="1134.9" y="145" width="44.1" height="15.0" fill="rgb(217,70,33)" rx="2" ry="2" />
+<text text-anchor="" x="1137.85981308411" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >netc..</text>
+</g>
+<g class="func_g" onmouseover="s('lmm_variable_new (2 samples, 1.87%)')" onmouseout="c()">
+<title>lmm_variable_new (2 samples, 1.87%)</title><rect x="484.2" y="113" width="22.1" height="15.0" fill="rgb(226,153,26)" rx="2" ry="2" />
+<text text-anchor="" x="487.205607476636" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >l..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_comm_finish (4 samples, 3.74%)')" onmouseout="c()">
+<title>SIMIX_comm_finish (4 samples, 3.74%)</title><rect x="385.0" y="177" width="44.1" height="15.0" fill="rgb(239,15,16)" rx="2" ry="2" />
+<text text-anchor="" x="387.953271028037" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMI..</text>
+</g>
+<g class="func_g" onmouseover="s('MSG_comm_wait (4 samples, 3.74%)')" onmouseout="c()">
+<title>MSG_comm_wait (4 samples, 3.74%)</title><rect x="175.4" y="129" width="44.1" height="15.0" fill="rgb(250,164,33)" rx="2" ry="2" />
+<text text-anchor="" x="178.420560747664" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >MSG_..</text>
+</g>
+<g class="func_g" onmouseover="s('simcall_rdv_get_by_name (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_rdv_get_by_name (1 samples, 0.93%)</title><rect x="153.4" y="129" width="11.0" height="15.0" fill="rgb(238,175,43)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('_IO_vsnprintf (2 samples, 1.87%)')" onmouseout="c()">
+<title>_IO_vsnprintf (2 samples, 1.87%)</title><rect x="329.8" y="113" width="22.1" height="15.0" fill="rgb(205,106,43)" rx="2" ry="2" />
+<text text-anchor="" x="332.81308411215" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >_..</text>
+</g>
+<g class="func_g" onmouseover="s('all (107 samples, 100%)')" onmouseout="c()">
+<title>all (107 samples, 100%)</title><rect x="10.0" y="241" width="1180.0" height="15.0" fill="rgb(226,144,27)" rx="2" ry="2" />
+<text text-anchor="" x="13" y="251.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</g>
+<g class="func_g" onmouseover="s('MSG_task_dsend (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_task_dsend (1 samples, 0.93%)</title><rect x="263.6" y="113" width="11.1" height="15.0" fill="rgb(250,167,31)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_heap_max_heapify (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_heap_max_heapify (1 samples, 0.93%)</title><rect x="638.6" y="97" width="11.0" height="15.0" fill="rgb(232,55,51)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_mallocator_get (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_mallocator_get (1 samples, 0.93%)</title><rect x="936.4" y="81" width="11.0" height="15.0" fill="rgb(230,219,45)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_pre_comm_wait (4 samples, 3.74%)')" onmouseout="c()">
+<title>SIMIX_pre_comm_wait (4 samples, 3.74%)</title><rect x="440.1" y="177" width="44.1" height="15.0" fill="rgb(230,173,29)" rx="2" ry="2" />
+<text text-anchor="" x="443.093457943925" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMI..</text>
+</g>
+<g class="func_g" onmouseover="s('simcall_comm_isend (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_comm_isend (1 samples, 0.93%)</title><rect x="230.6" y="97" width="11.0" height="15.0" fill="rgb(205,140,19)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_comm_isend (9 samples, 8.41%)')" onmouseout="c()">
+<title>SIMIX_comm_isend (9 samples, 8.41%)</title><rect x="848.1" y="145" width="99.3" height="15.0" fill="rgb(241,151,0)" rx="2" ry="2" />
+<text text-anchor="" x="851.130841121495" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMIX_comm_i..</text>
+</g>
+<g class="func_g" onmouseover="s('lmm_variable_disable.isra.4 (1 samples, 0.93%)')" onmouseout="c()">
+<title>lmm_variable_disable.isra.4 (1 samples, 0.93%)</title><rect x="726.8" y="81" width="11.1" height="15.0" fill="rgb(237,89,19)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('smx_ctx_raw_suspend_serial.10297 (1 samples, 0.93%)')" onmouseout="c()">
+<title>smx_ctx_raw_suspend_serial.10297 (1 samples, 0.93%)</title><rect x="21.0" y="113" width="11.1" height="15.0" fill="rgb(237,147,51)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_heap_max_heapify (4 samples, 3.74%)')" onmouseout="c()">
+<title>xbt_heap_max_heapify (4 samples, 3.74%)</title><rect x="1046.6" y="129" width="44.1" height="15.0" fill="rgb(213,169,32)" rx="2" ry="2" />
+<text text-anchor="" x="1049.63551401869" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >xbt_..</text>
+</g>
+<g class="func_g" onmouseover="s('surf_action_lmm_update_index_heap (1 samples, 0.93%)')" onmouseout="c()">
+<title>surf_action_lmm_update_index_heap (1 samples, 0.93%)</title><rect x="1035.6" y="129" width="11.0" height="15.0" fill="rgb(212,146,4)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('simcall_rdv_get_by_name (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_rdv_get_by_name (1 samples, 0.93%)</title><rect x="263.6" y="81" width="11.1" height="15.0" fill="rgb(238,74,46)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_simcall_pre (17 samples, 15.89%)')" onmouseout="c()">
+<title>SIMIX_simcall_pre (17 samples, 15.89%)</title><rect x="759.9" y="177" width="187.5" height="15.0" fill="rgb(227,166,52)" rx="2" ry="2" />
+<text text-anchor="" x="762.906542056075" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMIX_simcall_pre</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_rdv_get_by_name (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_rdv_get_by_name (1 samples, 0.93%)</title><rect x="131.3" y="113" width="11.0" height="15.0" fill="rgb(227,50,19)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('surf_action_unref (7 samples, 6.54%)')" onmouseout="c()">
+<title>surf_action_unref (7 samples, 6.54%)</title><rect x="572.4" y="129" width="77.2" height="15.0" fill="rgb(231,50,44)" rx="2" ry="2" />
+<text text-anchor="" x="575.429906542056" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >surf_act..</text>
+</g>
+<g class="func_g" onmouseover="s('get_mailbox (2 samples, 1.87%)')" onmouseout="c()">
+<title>get_mailbox (2 samples, 1.87%)</title><rect x="329.8" y="145" width="22.1" height="15.0" fill="rgb(228,105,34)" rx="2" ry="2" />
+<text text-anchor="" x="332.81308411215" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >g..</text>
+</g>
+<g class="func_g" onmouseover="s('_IO_vfprintf_internal (1 samples, 0.93%)')" onmouseout="c()">
+<title>_IO_vfprintf_internal (1 samples, 0.93%)</title><rect x="362.9" y="97" width="11.0" height="15.0" fill="rgb(205,142,3)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_mailbox_get_by_alias (2 samples, 1.87%)')" onmouseout="c()">
+<title>MSG_mailbox_get_by_alias (2 samples, 1.87%)</title><rect x="65.1" y="161" width="22.1" height="15.0" fill="rgb(246,188,28)" rx="2" ry="2" />
+<text text-anchor="" x="68.1401869158879" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >M..</text>
+</g>
+<g class="func_g" onmouseover="s('_Unwind_Backtrace (1 samples, 0.93%)')" onmouseout="c()">
+<title>_Unwind_Backtrace (1 samples, 0.93%)</title><rect x="671.7" y="97" width="11.0" height="15.0" fill="rgb(210,21,11)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_mallocator_get (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_mallocator_get (1 samples, 0.93%)</title><rect x="506.3" y="97" width="11.0" height="15.0" fill="rgb(253,53,47)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('ws_update_actions_state.31029 (1 samples, 0.93%)')" onmouseout="c()">
+<title>ws_update_actions_state.31029 (1 samples, 0.93%)</title><rect x="1179.0" y="161" width="11.0" height="15.0" fill="rgb(229,181,49)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('lmm_solve (1 samples, 0.93%)')" onmouseout="c()">
+<title>lmm_solve (1 samples, 0.93%)</title><rect x="1123.8" y="129" width="11.1" height="15.0" fill="rgb(239,15,39)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_rdv_get_by_name (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_rdv_get_by_name (1 samples, 0.93%)</title><rect x="153.4" y="113" width="11.0" height="15.0" fill="rgb(211,135,24)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('__find_specmb (1 samples, 0.93%)')" onmouseout="c()">
+<title>__find_specmb (1 samples, 0.93%)</title><rect x="373.9" y="81" width="11.1" height="15.0" fill="rgb(237,109,52)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('simcall_process_sleep (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_process_sleep (1 samples, 0.93%)</title><rect x="43.1" y="161" width="11.0" height="15.0" fill="rgb(216,20,16)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('cpu_execute.18536 (3 samples, 2.80%)')" onmouseout="c()">
+<title>cpu_execute.18536 (3 samples, 2.80%)</title><rect x="440.1" y="129" width="33.1" height="15.0" fill="rgb(225,184,15)" rx="2" ry="2" />
+<text text-anchor="" x="443.093457943925" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >cp..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_dict_get_elm_or_null (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_dict_get_elm_or_null (1 samples, 0.93%)</title><rect x="263.6" y="33" width="11.1" height="15.0" fill="rgb(234,69,43)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('__memcpy_ssse3_back (2 samples, 1.87%)')" onmouseout="c()">
+<title>__memcpy_ssse3_back (2 samples, 1.87%)</title><rect x="958.4" y="161" width="22.1" height="15.0" fill="rgb(220,140,21)" rx="2" ry="2" />
+<text text-anchor="" x="961.411214953271" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >_..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_remove (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_fifo_remove (1 samples, 0.93%)</title><rect x="704.8" y="145" width="11.0" height="15.0" fill="rgb(240,209,16)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('lmm_expand (1 samples, 0.93%)')" onmouseout="c()">
+<title>lmm_expand (1 samples, 0.93%)</title><rect x="440.1" y="113" width="11.0" height="15.0" fill="rgb(230,45,38)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('get_mailbox (1 samples, 0.93%)')" onmouseout="c()">
+<title>get_mailbox (1 samples, 0.93%)</title><rect x="362.9" y="145" width="11.0" height="15.0" fill="rgb(234,12,8)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('__libc_calloc (1 samples, 0.93%)')" onmouseout="c()">
+<title>__libc_calloc (1 samples, 0.93%)</title><rect x="219.5" y="113" width="11.1" height="15.0" fill="rgb(249,58,7)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_sleep (3 samples, 2.80%)')" onmouseout="c()">
+<title>SIMIX_process_sleep (3 samples, 2.80%)</title><rect x="484.2" y="161" width="33.1" height="15.0" fill="rgb(218,61,10)" rx="2" ry="2" />
+<text text-anchor="" x="487.205607476636" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SI..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_self (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_process_self (1 samples, 0.93%)</title><rect x="318.8" y="113" width="11.0" height="15.0" fill="rgb(218,51,22)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_pre_comm_isend (9 samples, 8.41%)')" onmouseout="c()">
+<title>SIMIX_pre_comm_isend (9 samples, 8.41%)</title><rect x="848.1" y="161" width="99.3" height="15.0" fill="rgb(222,55,31)" rx="2" ry="2" />
+<text text-anchor="" x="851.130841121495" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMIX_pre_co..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_swag_insert_at_head (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_swag_insert_at_head (1 samples, 0.93%)</title><rect x="473.2" y="129" width="11.0" height="15.0" fill="rgb(240,103,28)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_comm_destroy_internal_actions (7 samples, 6.54%)')" onmouseout="c()">
+<title>SIMIX_comm_destroy_internal_actions (7 samples, 6.54%)</title><rect x="572.4" y="145" width="77.2" height="15.0" fill="rgb(240,119,52)" rx="2" ry="2" />
+<text text-anchor="" x="575.429906542056" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMIX_co..</text>
+</g>
+<g class="func_g" onmouseover="s('_IO_vsnprintf (1 samples, 0.93%)')" onmouseout="c()">
+<title>_IO_vsnprintf (1 samples, 0.93%)</title><rect x="241.6" y="97" width="11.0" height="15.0" fill="rgb(220,102,8)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('handle_task (5 samples, 4.67%)')" onmouseout="c()">
+<title>handle_task (5 samples, 4.67%)</title><rect x="252.6" y="129" width="55.2" height="15.0" fill="rgb(235,71,37)" rx="2" ry="2" />
+<text text-anchor="" x="255.616822429907" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >handl..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_comm_destroy (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_comm_destroy (1 samples, 0.93%)</title><rect x="407.0" y="161" width="11.0" height="15.0" fill="rgb(227,130,41)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('simcall_comm_irecv (2 samples, 1.87%)')" onmouseout="c()">
+<title>simcall_comm_irecv (2 samples, 1.87%)</title><rect x="87.2" y="161" width="22.1" height="15.0" fill="rgb(217,50,45)" rx="2" ry="2" />
+<text text-anchor="" x="90.196261682243" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >s..</text>
+</g>
+<g class="func_g" onmouseover="s('MSG_comm_destroy (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_comm_destroy (1 samples, 0.93%)</title><rect x="109.3" y="161" width="11.0" height="15.0" fill="rgb(250,60,28)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('surf_share_resources.isra.3 (5 samples, 4.67%)')" onmouseout="c()">
+<title>surf_share_resources.isra.3 (5 samples, 4.67%)</title><rect x="1123.8" y="161" width="55.2" height="15.0" fill="rgb(210,127,8)" rx="2" ry="2" />
+<text text-anchor="" x="1126.83177570093" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >surf_..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_pre_comm_irecv@plt (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_pre_comm_irecv@plt (1 samples, 0.93%)</title><rect x="837.1" y="161" width="11.0" height="15.0" fill="rgb(231,61,50)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_lib_get_level (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_lib_get_level (1 samples, 0.93%)</title><rect x="737.9" y="113" width="11.0" height="15.0" fill="rgb(224,174,15)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_comm_wait (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_comm_wait (1 samples, 0.93%)</title><rect x="120.3" y="161" width="11.0" height="15.0" fill="rgb(205,189,34)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('smx_ctx_raw_resume_serial.isra.0 (1 samples, 0.93%)')" onmouseout="c()">
+<title>smx_ctx_raw_resume_serial.isra.0 (1 samples, 0.93%)</title><rect x="539.3" y="113" width="11.1" height="15.0" fill="rgb(245,93,16)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('cpu_get_state.18544 (2 samples, 1.87%)')" onmouseout="c()">
+<title>cpu_get_state.18544 (2 samples, 1.87%)</title><rect x="649.6" y="129" width="22.1" height="15.0" fill="rgb(214,68,19)" rx="2" ry="2" />
+<text text-anchor="" x="652.626168224299" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >c..</text>
+</g>
+<g class="func_g" onmouseover="s('netcste_update_actions_state.21976 (3 samples, 2.80%)')" onmouseout="c()">
+<title>netcste_update_actions_state.21976 (3 samples, 2.80%)</title><rect x="1090.7" y="161" width="33.1" height="15.0" fill="rgb(254,158,12)" rx="2" ry="2" />
+<text text-anchor="" x="1093.7476635514" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >ne..</text>
+</g>
+<g class="func_g" onmouseover="s('smx_ctx_raw_runall_serial.10343 (1 samples, 0.93%)')" onmouseout="c()">
+<title>smx_ctx_raw_runall_serial.10343 (1 samples, 0.93%)</title><rect x="539.3" y="129" width="11.1" height="15.0" fill="rgb(236,18,54)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('__snprintf (2 samples, 1.87%)')" onmouseout="c()">
+<title>__snprintf (2 samples, 1.87%)</title><rect x="329.8" y="129" width="22.1" height="15.0" fill="rgb(248,86,24)" rx="2" ry="2" />
+<text text-anchor="" x="332.81308411215" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >_..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_comm_irecv (5 samples, 4.67%)')" onmouseout="c()">
+<title>SIMIX_comm_irecv (5 samples, 4.67%)</title><rect x="782.0" y="145" width="55.1" height="15.0" fill="rgb(230,9,8)" rx="2" ry="2" />
+<text text-anchor="" x="784.96261682243" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMIX..</text>
+</g>
+<g class="func_g" onmouseover="s('smx_ctx_raw_wrapper.10294 (34 samples, 31.78%)')" onmouseout="c()">
+<title>smx_ctx_raw_wrapper.10294 (34 samples, 31.78%)</title><rect x="10.0" y="209" width="375.0" height="15.0" fill="rgb(242,9,25)" rx="2" ry="2" />
+<text text-anchor="" x="13" y="219.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >smx_ctx_raw_wrapper.10294</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_yield (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_process_yield (1 samples, 0.93%)</title><rect x="21.0" y="129" width="11.1" height="15.0" fill="rgb(219,59,40)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_push (2 samples, 1.87%)')" onmouseout="c()">
+<title>xbt_fifo_push (2 samples, 1.87%)</title><rect x="925.3" y="113" width="22.1" height="15.0" fill="rgb(231,43,29)" rx="2" ry="2" />
+<text text-anchor="" x="928.327102803738" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >x..</text>
+</g>
+<g class="func_g" onmouseover="s('simcall_comm_test (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_comm_test (1 samples, 0.93%)</title><rect x="21.0" y="161" width="11.1" height="15.0" fill="rgb(242,52,3)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_task_send_with_timeout (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_task_send_with_timeout (1 samples, 0.93%)</title><rect x="230.6" y="129" width="11.0" height="15.0" fill="rgb(238,165,33)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_pre_comm_test (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_pre_comm_test (1 samples, 0.93%)</title><rect x="429.1" y="177" width="11.0" height="15.0" fill="rgb(249,127,1)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('_IO_vsnprintf (1 samples, 0.93%)')" onmouseout="c()">
+<title>_IO_vsnprintf (1 samples, 0.93%)</title><rect x="362.9" y="113" width="11.0" height="15.0" fill="rgb(228,225,1)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_get_running_context (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_process_get_running_context (1 samples, 0.93%)</title><rect x="32.1" y="161" width="11.0" height="15.0" fill="rgb(249,22,51)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_yield (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_process_yield (1 samples, 0.93%)</title><rect x="208.5" y="113" width="11.0" height="15.0" fill="rgb(219,226,26)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_task_send_with_timeout (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_task_send_with_timeout (1 samples, 0.93%)</title><rect x="131.3" y="161" width="11.0" height="15.0" fill="rgb(235,107,54)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_run (73 samples, 68.22%)')" onmouseout="c()">
+<title>SIMIX_run (73 samples, 68.22%)</title><rect x="385.0" y="193" width="805.0" height="15.0" fill="rgb(232,94,38)" rx="2" ry="2" />
+<text text-anchor="" x="387.953271028037" y="203.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMIX_run</text>
+</g>
+<g class="func_g" onmouseover="s('MSG_task_dsend (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_task_dsend (1 samples, 0.93%)</title><rect x="351.9" y="145" width="11.0" height="15.0" fill="rgb(234,103,47)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_rdv_get_by_name (2 samples, 1.87%)')" onmouseout="c()">
+<title>SIMIX_rdv_get_by_name (2 samples, 1.87%)</title><rect x="65.1" y="129" width="22.1" height="15.0" fill="rgb(233,211,29)" rx="2" ry="2" />
+<text text-anchor="" x="68.1401869158879" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >S..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_pre_comm_irecv (5 samples, 4.67%)')" onmouseout="c()">
+<title>SIMIX_pre_comm_irecv (5 samples, 4.67%)</title><rect x="782.0" y="161" width="55.1" height="15.0" fill="rgb(207,163,21)" rx="2" ry="2" />
+<text text-anchor="" x="784.96261682243" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMIX..</text>
+</g>
+<g class="func_g" onmouseover="s('*__GI___libc_free (1 samples, 0.93%)')" onmouseout="c()">
+<title>*__GI___libc_free (1 samples, 0.93%)</title><rect x="164.4" y="113" width="11.0" height="15.0" fill="rgb(243,171,47)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('simcall_BODY_comm_isend (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_BODY_comm_isend (1 samples, 0.93%)</title><rect x="351.9" y="113" width="11.0" height="15.0" fill="rgb(230,64,14)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('simcall_BODY_comm_test (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_BODY_comm_test (1 samples, 0.93%)</title><rect x="21.0" y="145" width="11.1" height="15.0" fill="rgb(212,98,26)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_shift_item (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_fifo_shift_item (1 samples, 0.93%)</title><rect x="693.7" y="113" width="11.1" height="15.0" fill="rgb(240,165,45)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_post_process_sleep (4 samples, 3.74%)')" onmouseout="c()">
+<title>SIMIX_post_process_sleep (4 samples, 3.74%)</title><rect x="715.8" y="161" width="44.1" height="15.0" fill="rgb(236,199,15)" rx="2" ry="2" />
+<text text-anchor="" x="718.794392523365" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMI..</text>
+</g>
+<g class="func_g" onmouseover="s('smx_ctx_base_get_data (1 samples, 0.93%)')" onmouseout="c()">
+<title>smx_ctx_base_get_data (1 samples, 0.93%)</title><rect x="32.1" y="129" width="11.0" height="15.0" fill="rgb(217,207,30)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('*__GI___libc_free (1 samples, 0.93%)')" onmouseout="c()">
+<title>*__GI___libc_free (1 samples, 0.93%)</title><rect x="109.3" y="145" width="11.0" height="15.0" fill="rgb(252,115,10)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_mailbox_get_by_alias (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_mailbox_get_by_alias (1 samples, 0.93%)</title><rect x="263.6" y="97" width="11.1" height="15.0" fill="rgb(252,185,26)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('lmm_get_cnst_from_var (1 samples, 0.93%)')" onmouseout="c()">
+<title>lmm_get_cnst_from_var (1 samples, 0.93%)</title><rect x="1024.6" y="113" width="11.0" height="15.0" fill="rgb(206,58,52)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_backtrace_current (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_backtrace_current (1 samples, 0.93%)</title><rect x="671.7" y="129" width="11.0" height="15.0" fill="rgb(210,144,52)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_swag_remove (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_swag_remove (1 samples, 0.93%)</title><rect x="726.8" y="65" width="11.1" height="15.0" fill="rgb(209,131,31)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('handle_task (2 samples, 1.87%)')" onmouseout="c()">
+<title>handle_task (2 samples, 1.87%)</title><rect x="142.3" y="177" width="22.1" height="15.0" fill="rgb(223,70,25)" rx="2" ry="2" />
+<text text-anchor="" x="145.336448598131" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >h..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_dict_get_or_null (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_dict_get_or_null (1 samples, 0.93%)</title><rect x="153.4" y="97" width="11.0" height="15.0" fill="rgb(245,131,9)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('_IO_default_xsputn (1 samples, 0.93%)')" onmouseout="c()">
+<title>_IO_default_xsputn (1 samples, 0.93%)</title><rect x="362.9" y="81" width="11.0" height="15.0" fill="rgb(247,195,45)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_rdv_push (2 samples, 1.87%)')" onmouseout="c()">
+<title>SIMIX_rdv_push (2 samples, 1.87%)</title><rect x="925.3" y="129" width="22.1" height="15.0" fill="rgb(211,118,52)" rx="2" ry="2" />
+<text text-anchor="" x="928.327102803738" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >S..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_push (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_fifo_push (1 samples, 0.93%)</title><rect x="517.3" y="161" width="11.0" height="15.0" fill="rgb(231,189,3)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_shift (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_fifo_shift (1 samples, 0.93%)</title><rect x="693.7" y="129" width="11.1" height="15.0" fill="rgb(250,143,5)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('lmm_variable_new (2 samples, 1.87%)')" onmouseout="c()">
+<title>lmm_variable_new (2 samples, 1.87%)</title><rect x="451.1" y="113" width="22.1" height="15.0" fill="rgb(208,120,15)" rx="2" ry="2" />
+<text text-anchor="" x="454.121495327103" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >l..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_context_runall.part.4 (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_context_runall.part.4 (1 samples, 0.93%)</title><rect x="539.3" y="145" width="11.1" height="15.0" fill="rgb(245,173,16)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_main (73 samples, 68.22%)')" onmouseout="c()">
+<title>MSG_main (73 samples, 68.22%)</title><rect x="385.0" y="209" width="805.0" height="15.0" fill="rgb(250,215,38)" rx="2" ry="2" />
+<text text-anchor="" x="387.953271028037" y="219.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >MSG_main</text>
+</g>
+<g class="func_g" onmouseover="s('MSG_task_dsend (2 samples, 1.87%)')" onmouseout="c()">
+<title>MSG_task_dsend (2 samples, 1.87%)</title><rect x="142.3" y="161" width="22.1" height="15.0" fill="rgb(235,43,48)" rx="2" ry="2" />
+<text text-anchor="" x="145.336448598131" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >M..</text>
+</g>
+<g class="func_g" onmouseover="s('check_predecessor (3 samples, 2.80%)')" onmouseout="c()">
+<title>check_predecessor (3 samples, 2.80%)</title><rect x="109.3" y="177" width="33.0" height="15.0" fill="rgb(212,186,37)" rx="2" ry="2" />
+<text text-anchor="" x="112.252336448598" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >ch..</text>
+</g>
+<g class="func_g" onmouseover="s('_IO_vsnprintf (1 samples, 0.93%)')" onmouseout="c()">
+<title>_IO_vsnprintf (1 samples, 0.93%)</title><rect x="373.9" y="113" width="11.1" height="15.0" fill="rgb(239,167,54)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('simcall_BODY_process_sleep (1 samples, 0.93%)')" onmouseout="c()">
+<title>simcall_BODY_process_sleep (1 samples, 0.93%)</title><rect x="43.1" y="145" width="11.0" height="15.0" fill="rgb(213,66,19)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('__snprintf (1 samples, 0.93%)')" onmouseout="c()">
+<title>__snprintf (1 samples, 0.93%)</title><rect x="373.9" y="129" width="11.1" height="15.0" fill="rgb(249,145,7)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('surf_action_lmm_update_index_heap (2 samples, 1.87%)')" onmouseout="c()">
+<title>surf_action_lmm_update_index_heap (2 samples, 1.87%)</title><rect x="616.5" y="65" width="22.1" height="15.0" fill="rgb(234,28,19)" rx="2" ry="2" />
+<text text-anchor="" x="619.542056074766" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >s..</text>
+</g>
+<g class="func_g" onmouseover="s('update_resource_energy.part.2 (4 samples, 3.74%)')" onmouseout="c()">
+<title>update_resource_energy.part.2 (4 samples, 3.74%)</title><rect x="991.5" y="129" width="44.1" height="15.0" fill="rgb(250,61,10)" rx="2" ry="2" />
+<text text-anchor="" x="994.495327102804" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >upda..</text>
+</g>
+<g class="func_g" onmouseover="s('surf_action_lmm_heap_remove (3 samples, 2.80%)')" onmouseout="c()">
+<title>surf_action_lmm_heap_remove (3 samples, 2.80%)</title><rect x="605.5" y="113" width="33.1" height="15.0" fill="rgb(208,166,3)" rx="2" ry="2" />
+<text text-anchor="" x="608.514018691589" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >su..</text>
+</g>
+<g class="func_g" onmouseover="s('surf_action_new (1 samples, 0.93%)')" onmouseout="c()">
+<title>surf_action_new (1 samples, 0.93%)</title><rect x="506.3" y="113" width="11.0" height="15.0" fill="rgb(214,226,7)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_yield (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_process_yield (1 samples, 0.93%)</title><rect x="230.6" y="65" width="11.0" height="15.0" fill="rgb(242,94,7)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('get_mailbox (1 samples, 0.93%)')" onmouseout="c()">
+<title>get_mailbox (1 samples, 0.93%)</title><rect x="373.9" y="145" width="11.1" height="15.0" fill="rgb(249,131,8)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_lib_get_level (2 samples, 1.87%)')" onmouseout="c()">
+<title>xbt_lib_get_level (2 samples, 1.87%)</title><rect x="815.0" y="81" width="22.1" height="15.0" fill="rgb(241,113,12)" rx="2" ry="2" />
+<text text-anchor="" x="818.046728971963" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >x..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_dict_get_elm_or_null (2 samples, 1.87%)')" onmouseout="c()">
+<title>xbt_dict_get_elm_or_null (2 samples, 1.87%)</title><rect x="65.1" y="97" width="22.1" height="15.0" fill="rgb(244,187,20)" rx="2" ry="2" />
+<text text-anchor="" x="68.1401869158879" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >x..</text>
+</g>
+<g class="func_g" onmouseover="s('remote_notify.isra.3 (2 samples, 1.87%)')" onmouseout="c()">
+<title>remote_notify.isra.3 (2 samples, 1.87%)</title><rect x="351.9" y="161" width="22.0" height="15.0" fill="rgb(237,133,19)" rx="2" ry="2" />
+<text text-anchor="" x="354.869158878505" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >r..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_mallocator_get (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_mallocator_get (1 samples, 0.93%)</title><rect x="517.3" y="129" width="11.0" height="15.0" fill="rgb(209,182,53)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('__snprintf (3 samples, 2.80%)')" onmouseout="c()">
+<title>__snprintf (3 samples, 2.80%)</title><rect x="274.7" y="97" width="33.1" height="15.0" fill="rgb(243,71,19)" rx="2" ry="2" />
+<text text-anchor="" x="277.672897196262" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >__..</text>
+</g>
+<g class="func_g" onmouseover="s('?? (1 samples, 0.93%)')" onmouseout="c()">
+<title>?? (1 samples, 0.93%)</title><rect x="671.7" y="81" width="11.0" height="15.0" fill="rgb(209,182,4)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_comm_destroy (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_comm_destroy (1 samples, 0.93%)</title><rect x="164.4" y="129" width="11.0" height="15.0" fill="rgb(217,111,46)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_comm_destroy_internal_actions (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_comm_destroy_internal_actions (1 samples, 0.93%)</title><rect x="407.0" y="129" width="11.0" height="15.0" fill="rgb(254,81,3)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_task_irecv (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_task_irecv (1 samples, 0.93%)</title><rect x="219.5" y="129" width="11.1" height="15.0" fill="rgb(219,201,19)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('strchrnul (1 samples, 0.93%)')" onmouseout="c()">
+<title>strchrnul (1 samples, 0.93%)</title><rect x="340.8" y="65" width="11.1" height="15.0" fill="rgb(229,53,45)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_self (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_process_self (1 samples, 0.93%)</title><rect x="32.1" y="145" width="11.0" height="15.0" fill="rgb(214,71,21)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('get_mailbox (1 samples, 0.93%)')" onmouseout="c()">
+<title>get_mailbox (1 samples, 0.93%)</title><rect x="241.6" y="129" width="11.0" height="15.0" fill="rgb(237,168,27)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('generic_share_resources_lazy (1 samples, 0.93%)')" onmouseout="c()">
+<title>generic_share_resources_lazy (1 samples, 0.93%)</title><rect x="1123.8" y="145" width="11.1" height="15.0" fill="rgb(250,147,34)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('node.2375 (34 samples, 31.78%)')" onmouseout="c()">
+<title>node.2375 (34 samples, 31.78%)</title><rect x="10.0" y="193" width="375.0" height="15.0" fill="rgb(207,164,51)" rx="2" ry="2" />
+<text text-anchor="" x="13" y="203.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >node.2375</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_dict_get_elm_or_null (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_dict_get_elm_or_null (1 samples, 0.93%)</title><rect x="131.3" y="81" width="11.0" height="15.0" fill="rgb(215,150,36)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_remove (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_fifo_remove (1 samples, 0.93%)</title><rect x="418.0" y="161" width="11.1" height="15.0" fill="rgb(241,103,46)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('remote_get_predecessor (4 samples, 3.74%)')" onmouseout="c()">
+<title>remote_get_predecessor (4 samples, 3.74%)</title><rect x="307.8" y="161" width="44.1" height="15.0" fill="rgb(231,183,13)" rx="2" ry="2" />
+<text text-anchor="" x="310.757009345794" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >remo..</text>
+</g>
+<g class="func_g" onmouseover="s('?? (1 samples, 0.93%)')" onmouseout="c()">
+<title>?? (1 samples, 0.93%)</title><rect x="671.7" y="65" width="11.0" height="15.0" fill="rgb(241,92,7)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('remote_find_successor (13 samples, 12.15%)')" onmouseout="c()">
+<title>remote_find_successor (13 samples, 12.15%)</title><rect x="164.4" y="145" width="143.4" height="15.0" fill="rgb(216,52,8)" rx="2" ry="2" />
+<text text-anchor="" x="167.392523364486" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >remote_find_succes..</text>
+</g>
+<g class="func_g" onmouseover="s('ws_communicate.31131 (2 samples, 1.87%)')" onmouseout="c()">
+<title>ws_communicate.31131 (2 samples, 1.87%)</title><rect x="870.2" y="113" width="22.0" height="15.0" fill="rgb(241,86,54)" rx="2" ry="2" />
+<text text-anchor="" x="873.186915887851" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >w..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_remove (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_fifo_remove (1 samples, 0.93%)</title><rect x="682.7" y="129" width="11.0" height="15.0" fill="rgb(237,219,42)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('_IO_vfprintf_internal (2 samples, 1.87%)')" onmouseout="c()">
+<title>_IO_vfprintf_internal (2 samples, 1.87%)</title><rect x="329.8" y="97" width="22.1" height="15.0" fill="rgb(231,198,3)" rx="2" ry="2" />
+<text text-anchor="" x="332.81308411215" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >_..</text>
+</g>
+<g class="func_g" onmouseover="s('MSG_process_sleep (2 samples, 1.87%)')" onmouseout="c()">
+<title>MSG_process_sleep (2 samples, 1.87%)</title><rect x="32.1" y="177" width="22.0" height="15.0" fill="rgb(250,37,26)" rx="2" ry="2" />
+<text text-anchor="" x="35.0560747663551" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >M..</text>
+</g>
+<g class="func_g" onmouseover="s('*__GI___libc_realloc (1 samples, 0.93%)')" onmouseout="c()">
+<title>*__GI___libc_realloc (1 samples, 0.93%)</title><rect x="495.2" y="97" width="11.1" height="15.0" fill="rgb(247,173,15)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('__snprintf (1 samples, 0.93%)')" onmouseout="c()">
+<title>__snprintf (1 samples, 0.93%)</title><rect x="362.9" y="129" width="11.0" height="15.0" fill="rgb(241,45,17)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('get_mailbox (3 samples, 2.80%)')" onmouseout="c()">
+<title>get_mailbox (3 samples, 2.80%)</title><rect x="274.7" y="113" width="33.1" height="15.0" fill="rgb(223,154,23)" rx="2" ry="2" />
+<text text-anchor="" x="277.672897196262" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >ge..</text>
+</g>
+<g class="func_g" onmouseover="s('smx_ctx_base_get_data (1 samples, 0.93%)')" onmouseout="c()">
+<title>smx_ctx_base_get_data (1 samples, 0.93%)</title><rect x="318.8" y="97" width="11.0" height="15.0" fill="rgb(233,118,35)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('__snprintf (1 samples, 0.93%)')" onmouseout="c()">
+<title>__snprintf (1 samples, 0.93%)</title><rect x="241.6" y="113" width="11.0" height="15.0" fill="rgb(207,95,5)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_dict_get_or_null (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_dict_get_or_null (1 samples, 0.93%)</title><rect x="131.3" y="97" width="11.0" height="15.0" fill="rgb(251,70,11)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_mailbox_get_by_alias (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_mailbox_get_by_alias (1 samples, 0.93%)</title><rect x="131.3" y="145" width="11.0" height="15.0" fill="rgb(213,167,32)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('random_lookup (13 samples, 12.15%)')" onmouseout="c()">
+<title>random_lookup (13 samples, 12.15%)</title><rect x="164.4" y="177" width="143.4" height="15.0" fill="rgb(213,202,42)" rx="2" ry="2" />
+<text text-anchor="" x="167.392523364486" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >random_lookup</text>
+</g>
+<g class="func_g" onmouseover="s('simcall_rdv_get_by_name (2 samples, 1.87%)')" onmouseout="c()">
+<title>simcall_rdv_get_by_name (2 samples, 1.87%)</title><rect x="65.1" y="145" width="22.1" height="15.0" fill="rgb(231,215,42)" rx="2" ry="2" />
+<text text-anchor="" x="68.1401869158879" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >s..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_post_comm (15 samples, 14.02%)')" onmouseout="c()">
+<title>SIMIX_post_comm (15 samples, 14.02%)</title><rect x="550.4" y="161" width="165.4" height="15.0" fill="rgb(252,100,9)" rx="2" ry="2" />
+<text text-anchor="" x="553.373831775701" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMIX_post_comm</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_dict_get_or_null (2 samples, 1.87%)')" onmouseout="c()">
+<title>xbt_dict_get_or_null (2 samples, 1.87%)</title><rect x="65.1" y="113" width="22.1" height="15.0" fill="rgb(225,75,36)" rx="2" ry="2" />
+<text text-anchor="" x="68.1401869158879" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >x..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_yield (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_process_yield (1 samples, 0.93%)</title><rect x="351.9" y="97" width="11.0" height="15.0" fill="rgb(248,39,6)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_comm_test (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_comm_test (1 samples, 0.93%)</title><rect x="21.0" y="177" width="11.1" height="15.0" fill="rgb(251,135,30)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_pre_comm_wait.part.12 (4 samples, 3.74%)')" onmouseout="c()">
+<title>SIMIX_pre_comm_wait.part.12 (4 samples, 3.74%)</title><rect x="440.1" y="161" width="44.1" height="15.0" fill="rgb(206,46,3)" rx="2" ry="2" />
+<text text-anchor="" x="443.093457943925" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMI..</text>
+</g>
+<g class="func_g" onmouseover="s('cpu_execute.18536 (3 samples, 2.80%)')" onmouseout="c()">
+<title>cpu_execute.18536 (3 samples, 2.80%)</title><rect x="484.2" y="129" width="33.1" height="15.0" fill="rgb(220,114,28)" rx="2" ry="2" />
+<text text-anchor="" x="487.205607476636" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >cp..</text>
+</g>
+<g class="func_g" onmouseover="s('surf_solve (19 samples, 17.76%)')" onmouseout="c()">
+<title>surf_solve (19 samples, 17.76%)</title><rect x="980.5" y="177" width="209.5" height="15.0" fill="rgb(205,168,18)" rx="2" ry="2" />
+<text text-anchor="" x="983.467289719626" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >surf_solve</text>
+</g>
+<g class="func_g" onmouseover="s('MSG_mailbox_get_by_alias (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_mailbox_get_by_alias (1 samples, 0.93%)</title><rect x="153.4" y="145" width="11.0" height="15.0" fill="rgb(247,28,54)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('cpu_action_sleep.18540 (4 samples, 3.74%)')" onmouseout="c()">
+<title>cpu_action_sleep.18540 (4 samples, 3.74%)</title><rect x="440.1" y="145" width="44.1" height="15.0" fill="rgb(224,80,36)" rx="2" ry="2" />
+<text text-anchor="" x="443.093457943925" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >cpu_..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_comm_start (2 samples, 1.87%)')" onmouseout="c()">
+<title>SIMIX_comm_start (2 samples, 1.87%)</title><rect x="815.0" y="129" width="22.1" height="15.0" fill="rgb(225,126,9)" rx="2" ry="2" />
+<text text-anchor="" x="818.046728971963" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >S..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_shift (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_fifo_shift (1 samples, 0.93%)</title><rect x="748.9" y="145" width="11.0" height="15.0" fill="rgb(251,16,10)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_comm_wait (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_comm_wait (1 samples, 0.93%)</title><rect x="318.8" y="145" width="11.0" height="15.0" fill="rgb(238,102,47)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_new_item (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_fifo_new_item (1 samples, 0.93%)</title><rect x="517.3" y="145" width="11.0" height="15.0" fill="rgb(250,28,7)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('lmm_var_free (1 samples, 0.93%)')" onmouseout="c()">
+<title>lmm_var_free (1 samples, 0.93%)</title><rect x="726.8" y="97" width="11.1" height="15.0" fill="rgb(235,52,18)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('set_finger.isra.2 (1 samples, 0.93%)')" onmouseout="c()">
+<title>set_finger.isra.2 (1 samples, 0.93%)</title><rect x="373.9" y="161" width="11.1" height="15.0" fill="rgb(249,190,26)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('generic_update_actions_state_lazy (9 samples, 8.41%)')" onmouseout="c()">
+<title>generic_update_actions_state_lazy (9 samples, 8.41%)</title><rect x="991.5" y="161" width="99.2" height="15.0" fill="rgb(238,162,21)" rx="2" ry="2" />
+<text text-anchor="" x="994.495327102804" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >generic_upda..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_heap_remove (3 samples, 2.80%)')" onmouseout="c()">
+<title>xbt_heap_remove (3 samples, 2.80%)</title><rect x="605.5" y="97" width="33.1" height="15.0" fill="rgb(226,186,1)" rx="2" ry="2" />
+<text text-anchor="" x="608.514018691589" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >xb..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_fifo_new_item (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_fifo_new_item (1 samples, 0.93%)</title><rect x="936.4" y="97" width="11.0" height="15.0" fill="rgb(247,142,1)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('surf_workstation_resource_priv (2 samples, 1.87%)')" onmouseout="c()">
+<title>surf_workstation_resource_priv (2 samples, 1.87%)</title><rect x="815.0" y="97" width="22.1" height="15.0" fill="rgb(205,220,6)" rx="2" ry="2" />
+<text text-anchor="" x="818.046728971963" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >s..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_comm_copy_data (2 samples, 1.87%)')" onmouseout="c()">
+<title>SIMIX_comm_copy_data (2 samples, 1.87%)</title><rect x="385.0" y="161" width="22.0" height="15.0" fill="rgb(217,66,51)" rx="2" ry="2" />
+<text text-anchor="" x="387.953271028037" y="171.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >S..</text>
+</g>
+<g class="func_g" onmouseover="s('_IO_vfprintf_internal (3 samples, 2.80%)')" onmouseout="c()">
+<title>_IO_vfprintf_internal (3 samples, 2.80%)</title><rect x="274.7" y="65" width="33.1" height="15.0" fill="rgb(215,124,44)" rx="2" ry="2" />
+<text text-anchor="" x="277.672897196262" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >_I..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_runall (2 samples, 1.87%)')" onmouseout="c()">
+<title>SIMIX_process_runall (2 samples, 1.87%)</title><rect x="528.3" y="177" width="22.1" height="15.0" fill="rgb(208,154,36)" rx="2" ry="2" />
+<text text-anchor="" x="531.317757009346" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >S..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_process_sleep_destroy (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_process_sleep_destroy (1 samples, 0.93%)</title><rect x="726.8" y="145" width="11.1" height="15.0" fill="rgb(253,3,24)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('_IO_vsnprintf (3 samples, 2.80%)')" onmouseout="c()">
+<title>_IO_vsnprintf (3 samples, 2.80%)</title><rect x="274.7" y="81" width="33.1" height="15.0" fill="rgb(214,172,3)" rx="2" ry="2" />
+<text text-anchor="" x="277.672897196262" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >_I..</text>
+</g>
+<g class="func_g" onmouseover="s('?? (34 samples, 31.78%)')" onmouseout="c()">
+<title>?? (34 samples, 31.78%)</title><rect x="10.0" y="225" width="375.0" height="15.0" fill="rgb(228,57,16)" rx="2" ry="2" />
+<text text-anchor="" x="13" y="235.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >??</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_pre_process_sleep (4 samples, 3.74%)')" onmouseout="c()">
+<title>SIMIX_pre_process_sleep (4 samples, 3.74%)</title><rect x="484.2" y="177" width="44.1" height="15.0" fill="rgb(246,201,33)" rx="2" ry="2" />
+<text text-anchor="" x="487.205607476636" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMI..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_heap_pop (1 samples, 0.93%)')" onmouseout="c()">
+<title>xbt_heap_pop (1 samples, 0.93%)</title><rect x="638.6" y="113" width="11.0" height="15.0" fill="rgb(207,43,2)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('_IO_vfprintf_internal (1 samples, 0.93%)')" onmouseout="c()">
+<title>_IO_vfprintf_internal (1 samples, 0.93%)</title><rect x="373.9" y="97" width="11.1" height="15.0" fill="rgb(241,37,15)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('cpu_get_state.18544 (1 samples, 0.93%)')" onmouseout="c()">
+<title>cpu_get_state.18544 (1 samples, 0.93%)</title><rect x="737.9" y="145" width="11.0" height="15.0" fill="rgb(206,122,22)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('xbt_swag_remove (2 samples, 1.87%)')" onmouseout="c()">
+<title>xbt_swag_remove (2 samples, 1.87%)</title><rect x="583.5" y="65" width="22.0" height="15.0" fill="rgb(240,56,17)" rx="2" ry="2" />
+<text text-anchor="" x="586.457943925234" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >x..</text>
+</g>
+<g class="func_g" onmouseover="s('SIMIX_comm_start (4 samples, 3.74%)')" onmouseout="c()">
+<title>SIMIX_comm_start (4 samples, 3.74%)</title><rect x="848.1" y="129" width="44.1" height="15.0" fill="rgb(223,81,50)" rx="2" ry="2" />
+<text text-anchor="" x="851.130841121495" y="139.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMI..</text>
+</g>
+<g class="func_g" onmouseover="s('xbt_heap_increase_key.isra.0 (3 samples, 2.80%)')" onmouseout="c()">
+<title>xbt_heap_increase_key.isra.0 (3 samples, 2.80%)</title><rect x="605.5" y="81" width="33.1" height="15.0" fill="rgb(242,37,50)" rx="2" ry="2" />
+<text text-anchor="" x="608.514018691589" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >xb..</text>
+</g>
+<g class="func_g" onmouseover="s('surf_cpu_resource_priv (1 samples, 0.93%)')" onmouseout="c()">
+<title>surf_cpu_resource_priv (1 samples, 0.93%)</title><rect x="737.9" y="129" width="11.0" height="15.0" fill="rgb(213,60,25)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_comm_finish (5 samples, 4.67%)')" onmouseout="c()">
+<title>SIMIX_comm_finish (5 samples, 4.67%)</title><rect x="649.6" y="145" width="55.2" height="15.0" fill="rgb(233,53,7)" rx="2" ry="2" />
+<text text-anchor="" x="652.626168224299" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >SIMIX..</text>
+</g>
+<g class="func_g" onmouseover="s('_itoa_word (1 samples, 0.93%)')" onmouseout="c()">
+<title>_itoa_word (1 samples, 0.93%)</title><rect x="296.7" y="49" width="11.1" height="15.0" fill="rgb(214,149,51)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('SIMIX_rdv_get_by_name (1 samples, 0.93%)')" onmouseout="c()">
+<title>SIMIX_rdv_get_by_name (1 samples, 0.93%)</title><rect x="263.6" y="65" width="11.1" height="15.0" fill="rgb(235,134,24)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('_xbt_dynar_cursor_get (3 samples, 2.80%)')" onmouseout="c()">
+<title>_xbt_dynar_cursor_get (3 samples, 2.80%)</title><rect x="947.4" y="177" width="33.1" height="15.0" fill="rgb(206,105,46)" rx="2" ry="2" />
+<text text-anchor="" x="950.383177570093" y="187.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >_x..</text>
+</g>
+<g class="func_g" onmouseover="s('lmm_variable_disable.isra.4 (2 samples, 1.87%)')" onmouseout="c()">
+<title>lmm_variable_disable.isra.4 (2 samples, 1.87%)</title><rect x="583.5" y="81" width="22.0" height="15.0" fill="rgb(222,187,23)" rx="2" ry="2" />
+<text text-anchor="" x="586.457943925234" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >l..</text>
+</g>
+<g class="func_g" onmouseover="s('smx_ctx_raw_suspend_serial.10297 (1 samples, 0.93%)')" onmouseout="c()">
+<title>smx_ctx_raw_suspend_serial.10297 (1 samples, 0.93%)</title><rect x="208.5" y="97" width="11.0" height="15.0" fill="rgb(225,116,33)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('cpu_action_sleep.18540 (3 samples, 2.80%)')" onmouseout="c()">
+<title>cpu_action_sleep.18540 (3 samples, 2.80%)</title><rect x="484.2" y="145" width="33.1" height="15.0" fill="rgb(234,73,21)" rx="2" ry="2" />
+<text text-anchor="" x="487.205607476636" y="155.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >cp..</text>
+</g>
+<g class="func_g" onmouseover="s('surf_action_unref (1 samples, 0.93%)')" onmouseout="c()">
+<title>surf_action_unref (1 samples, 0.93%)</title><rect x="726.8" y="129" width="11.1" height="15.0" fill="rgb(237,10,41)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('lmm_variable_free (1 samples, 0.93%)')" onmouseout="c()">
+<title>lmm_variable_free (1 samples, 0.93%)</title><rect x="726.8" y="113" width="11.1" height="15.0" fill="rgb(239,105,45)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('MSG_mailbox_put_with_timeout (1 samples, 0.93%)')" onmouseout="c()">
+<title>MSG_mailbox_put_with_timeout (1 samples, 0.93%)</title><rect x="230.6" y="113" width="11.0" height="15.0" fill="rgb(254,152,48)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('_itoa_word (1 samples, 0.93%)')" onmouseout="c()">
+<title>_itoa_word (1 samples, 0.93%)</title><rect x="241.6" y="65" width="11.0" height="15.0" fill="rgb(243,17,2)" rx="2" ry="2" />
+</g>
+<g class="func_g" onmouseover="s('smx_ctx_raw_suspend_serial.10297 (1 samples, 0.93%)')" onmouseout="c()">
+<title>smx_ctx_raw_suspend_serial.10297 (1 samples, 0.93%)</title><rect x="351.9" y="81" width="11.0" height="15.0" fill="rgb(208,12,15)" rx="2" ry="2" />
+</g>
+</svg>

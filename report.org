@@ -1,0 +1,584 @@
+#+TITLE: Parallel and Distributed Simulation of Large-Scale Distributed Applications
+#+AUTHOR:  Ezequiel Torti Lòpez, Martin Quinson
+#+OPTIONS: H:5 title:nil date:nil author:nil email:nil creator:nil timestamp:nil skip:nil toc:nil
+#+STARTUP: indent hideblocks
+#+TAGS: noexport(n)
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+PROPERTY: session *R* 
+
+#+LATEX_class: article
+#+LATEX_HEADER: \usepackage[T1]{fontenc}
+#+LATEX_HEADER: \usepackage[utf8]{inputenc}
+#+LATEX_HEADER: \usepackage{ifthen,figlatex}
+#+LATEX_HEADER: \usepackage{longtable}
+#+LATEX_HEADER: \usepackage{float}
+#+LATEX_HEADER: \usepackage{wrapfig}
+#+LATEX_HEADER: \usepackage{subfigure}
+#+LATEX_HEADER: \usepackage{xspace}
+#+LATEX_HEADER: \usepackage[american]{babel}
+#+LATEX_HEADER: \usepackage{url}\urlstyle{sf}
+#+LATEX_HEADER: \usepackage{amscd}
+#+LATEX_HEADER: \usepackage{wrapfig}
+
+#+begin_src R  :exports none
+# If you miss the libraries, try typing >>>install.packages("data.table")<<< in a R console
+library('ggplot2')
+library('gridExtra')
+library('reshape')
+library('plyr')
+library('data.table')
+
+#Helper function to plot several ggplot in one window.
+require(grid)
+vp.layout <- function(x, y) viewport(layout.pos.row=x, layout.pos.col=y)
+arrange_ggplot2 <- function(..., nrow=NULL, ncol=NULL, as.table=FALSE) {
+dots <- list(...)
+n <- length(dots)
+if(is.null(nrow) & is.null(ncol)) { nrow = floor(n/2) ; ncol = ceiling(n/nrow)}
+if(is.null(nrow)) { nrow = ceiling(n/ncol)}
+if(is.null(ncol)) { ncol = ceiling(n/nrow)}
+## NOTE see n2mfrow in grDevices for possible alternative
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(nrow,ncol) ) )
+ii.p <- 1
+for(ii.row in seq(1, nrow)){
+ii.table.row <- ii.row
+if(as.table) {ii.table.row <- nrow - ii.table.row + 1}
+for(ii.col in seq(1, ncol)){
+ii.table <- ii.p
+if(ii.p > n) break
+print(dots[[ii.table]], vp=vp.layout(ii.table.row, ii.col))
+ii.p <- ii.p + 1
+}
+}
+}
+#+end_src
+
+#+RESULTS:
+
+* Motivation and Problem Statement
+
+Simulation is the third pillar of science, allowing to study complicated
+phenomenons through complex models. When the size or complexity of the studied
+models becomes too large, it is classical to leverage more resources through
+Parallel Discrete-Event Simulation (PDES).  
+
+Still, the parallel simulation of very fine grained applications deployed on
+large-scale distributed systems (LSDS) remains challenging. As a matter of fact,
+most simulators of Peer-to-Peer systems are sequential, despite the vast
+literature on PDES over the last three decades.
+
+dPeerSim is one of the very few existing PDES for P2P systems, but it presents
+deceiving performance: it can achieve a decent speedup when increasing the
+amount of logical processes (LP): from 4h with 2 LPs down to 1h with 16 LPs.
+But it remains vastly inefficient when compared to sequential version of
+PeerSim, that performs the same experiment in 50 seconds only. This calls for a
+new parallel schema specifically tailored to this category of Discrete Event
+Simulators.
+
+Discrete Event Simulation of Distributed Applications classically alternates
+between simulation phases where the models compute the next event date, and
+phases where the application workload is executed.  We proposed
+
+in~\cite{previous} to not split the simulation model across several computing
+nodes, but instead to keep the model sequential and execute the application
+workload in parallel when possible. We hypothesized that this would help
+reducing the synchronization costs. We evaluate our contribution with very fine
+grained workloads such as P2P protocols. These workloads are the most difficult
+to execute efficiently in parallel because execution times are very short,
+making it very difficult to amortize the synchronization times.
+
+We implemented this parallel schema within the SimGrid framework, and showed
+that the extra complexity does not endangers the performance since the
+sequential version of SimGrid still outperforms several competing solutions when
+our addition are present but disabled at run time.
+
+To the best of our knowledge, it is the first time that a parallel simulation of
+P2P system proves to be faster that the best known sequential execution. Yet,
+the parallel simulation only outperforms sequential one when the amount of
+processes becomes large enough. This is because of the pigonhole principle: when
+the amount of processes increases, the average amount of processes that are
+ready to run at each simulated timestamp (and can thus run in parallel)
+increases. When simulating the Chord protocol, it takes 500,000 processes or
+more to amortizing the synchronization costs, while the classical studies of the
+literature usually involve less processes.
+
+The current work aims at further improving the performance of our PDES, using
+several P2P protocols as a workload. We investigate the possible inefficiency
+and propose generic solutions that could be included in other similar simulators
+of large-scale distributed systems, be them P2P simulators of cloud, HPC or
+sensornets ones.
+
+This paper is organized as follows: Section \ref{sec:context} recaps the SimGrid
+architecture and quickly presents the parallel execution schema detailed
+in \cite{previous}. Section \ref{sec:problem} analysis the
+theoretical performance bound, and discusses the previous work at the light of
+the Amhdal law. Section \ref{sec:parallel} explores several trade-offs for
+the efficiency of the parallel sections. Section \ref{sec:adaptive} proposes
+an algorithm to automatically tune the level of parallelism that is adapted to
+the simulated application. Section \ref{sec:cc} concludes this paper and discusses
+some future work.
+
+* Context
+#+LaTeX: \label{sec:context}
+
+In the previous work ~\cite{previous} we proposed to parallelize the execution
+of the user code while keeping the simulation engine sequential.
+This is enabled by applying classical concepts of OS design to this new context:
+every interaction between the user processes (from now on, user processes and
+processes mean the same thing) and the simulated environment passes
+through a specific layer that act as an OS kernel.
+
+A novel way to virtualize user processes (\emph{raw contexts}) was
+crafted to improve efficiency and avoid unnecesary system calls, 
+but other ways to do this can be found for the sake of portability, such as full
+featured threads, or POSIX ucontexts. A new data structure to store the shared
+state of the system and synchronize the process execution was
+implemented as well.
+
+A new specific layer that acts as the OS kernel was implemented in SimGrid to
+emulate systems calls, called \emph{requests}, and each time a user process
+want to interact with other process, or the kernel itself, it raises
+a \emph{request}.
+After that, the engine takes control of the program and answer the
+\emph{requests} of each process. This way the user processes can be parallelized
+in a safe manner.
+
+Experimental results showed that the new design does not hinder the tool
+scalability. In fact, the sequential version of SimGrid remains orders of
+magnitude more scalable than state of the art simulators.
+The difficulty to get a parallel version of a P2P simulator faster than its
+sequential counterpart was also revealed in ~\cite{previous}, being the first
+time that a parallel simulation of Chord runs faster than the best known
+sequential implementation.
+
+An interesting result showed in the previous work is that the speedups only
+increased up to a certain point when increasing the amount of working threads.
+We also have proved that for small instances, parallelism actually hinders the
+performance, and that the relative gain of parallelism seems even strictly
+increasing with the system size.
+
+Now we are closer to the optimal Amdahl's law threshold, that means that we have
+reach a limit on the parallelizable portions of the code in our proposed model.
+The remaining optimizations seek for a final speedup, trying to get a better
+parallel threshold dynamically depending on the simulation, and better
+performance of the threads taking in count their distribution on the CPU cores
+and the different synchronization modes (futex, POSIX primitives or busy waiters).
+
+* Performance Analysis
+#+LaTeX: \label{sec:problem}
+** Current speedup achieved
+# Also, the benchmarking not intrusive is here.
+We want to find the maximum speedup achieved with our current parallel
+model. For that, a benchmark test is run to get the timings of
+typical sequential and parallel executions, so we can get the real speedup achieved with
+our system using the Amdahl's law.
+
+But first we want to prove that our benchmarks are not intrusive,
+that is, our measures do not really affect the overall performance
+of the system. For that, the experiments are run with and without
+benchmarking, using the Precise mode, and then a comparation of
+both is made to find if there is a significative breach in the
+timings of both experiments.
+
+Using the Chord simulation, the experiment showed us that the maximum difference in the execution
+time of both versions is lesser than 10% in most of the cases, and is even lower with
+sizes bigger that 100000 nodes, which allow us to conclude that the benchmarking is,
+indeed, not intrusive.
+
+The experiment to calculate speedups involves the Chord simulation as well,
+using the Precise model of our engine, and running it with 2,4,8,16 and 24 threads.
+The actual speedup obtained can be seen in the Figure \ref{fig:one}.
+It is clear from that graph that the real speedup with our parallel model is obtained
+when the size of the problem is bigger than 100000 nodes.
+This confirms what we have proved in ~\cite{previous}.
+
+#+name: amdahl-speedup
+#+begin_src R  :results output graphics :exports results :file fig/amdahl-speedup.pdf
+#orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
+
+#CONSTANT MODE
+opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
+#orig_data = as.data.frame.matrix(orig_data)
+opt_data = as.data.frame.matrix(opt_data)
+data <- data.frame(nodes =  opt_data[1:10,1], seq = opt_data[1:10,2], t2 = opt_data[1:10,3],
+                   t4 = opt_data[1:10,4], t8 = opt_data[1:10,5], t16 = opt_data[1:10,6])
+                   #t24 = opt_data[1:10,13])
+# an extra seq column to average would be good too.
+data[, "1"] <- data[, "seq"] / data[, "seq"]
+data[, "speedup2"] <- data[, "seq"] / data[, "t2"]
+data[, "speedup4"] <- data[, "seq"] / data[, "t4"]
+data[, "speedup8"] <- data[, "seq"] / data[, "t8"]
+data[, "speedup16"] <- data[, "seq"] / data[, "t16"]
+#data[, "speedup24"] <- data[, "seq"] / data[, "t24"]
+
+data[, "t2"] <- NULL
+data[, "t4"] <- NULL
+data[, "t8"] <- NULL
+data[, "t16"] <- NULL
+#data[, "t24"] <- NULL
+data[, "seq"] <- NULL
+
+df <- melt(data ,  id = 'nodes', variable_name = 'versions')
+g1<-ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(), legend.position="none") + ggtitle("Constant Mode") + ylab("speedup")
+
+
+#PRECISE MODE
+data2 <- data.frame(nodes =  opt_data[1:10,1], seq = opt_data[1:10,7], t2 = opt_data[1:10,8],
+                   t4 = opt_data[1:10,9], t8 = opt_data[1:10,10], t16 = opt_data[1:10,11])
+data2[, "1"] <- data2[, "seq"] / data2[, "seq"]
+data2[, "2"] <- data2[, "seq"] / data2[, "t2"]
+data2[, "4"] <- data2[, "seq"] / data2[, "t4"]
+data2[, "8"] <- data2[, "seq"] / data2[, "t8"]
+data2[, "16"] <- data2[, "seq"] / data2[, "t16"]
+
+data2[, "t2"] <- NULL
+data2[, "t4"] <- NULL
+data2[, "t8"] <- NULL
+data2[, "t16"] <- NULL
+data2[, "seq"] <- NULL
+
+df2 <- melt(data2 ,  id = 'nodes', variable_name = 'threads')
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) + ggtitle("Precise Mode") + scale_fill_discrete(name="threads")
+arrange_ggplot2(g1,g2,nrow=1)
+
+
+#+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:one
+#+caption: Real speedup achieved using parallell mode in Chord simulation.
+#+results: amdahl-speedup
+[[file:fig/amdahl-speedup.pdf]]
+
+** Parallelizable portions of the problem
+This experiment is based on a typical Chord simulation, and the data wanted
+is the following: ID of each Scheduling Round, time taken by each Scheduling Round
+and number of process executed in each scheduling round.
+
+What we want to prove is that the limit on the speed up reached is due to the fact
+that we are very closer to the line that define what is parallelizable in our model
+and what is exeuted sequentially.
+As it can be seen in the Figure \ref{fig:two} , the amount of processes computed by each scheduling
+round is only one most of the times, so the parallel execution is not possible in that
+instances. The remaining processes are executed in parallel due to the parallel
+execution threshold already setted up in SimGrid (which can be modified), but it only
+represents the 31\% of the total amount of user processes in a typical run.
+
+#+name: sr-distribution
+#+begin_src R  :results output graphics :exports results  :file fig/sr-distribution.pdf
+
+#temp = list.files(path='./optimizations_experiments/sr_counts', pattern="*precise*", full.names = TRUE)
+#temp = list.files(path='./optimizations_experiments/sr_counts/parallel', pattern="*precise*", full.names = TRUE)
+#flist <- lapply(temp, read.table)
+#sr_data <- rbindlist(flist)
+#sr_data[, "V1"] <- NULL
+#sr_data = as.data.frame.matrix(sr_data)
+
+#ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,15) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds")
+#ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(1,15) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + scale_x_continuous(breaks=c(1:15), labels=c(1:15),limits=c(1,15))
+sr_data <- readRDS(file="./optimizations_experiments/sr_counts/sr-distribution.Rda")
+ggplot(data=sr_data, geom="histogram", aes(x=V3)) + ylim(0,0.7)+ xlim(1,13) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..)), origin=-0.5) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + scale_x_continuous(breaks=c(1:13), labels=c(1:13),limits=c(1,13)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank()) #, axis.line = element_line(colour = "black"))
+
+#+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:two
+#+caption: Proportion of scheduling rounds computing processes.
+#+results: sr-distribution
+[[file:fig/sr-distribution.pdf]]
+
+
+Besides that, the Figure \ref{fig:three} show that when the amount of processes is bigger,
+then the sequential execution time is bigger. That means that parallelizing that remaining 31\%
+of processes is what achieves the current speedup.
+
+#+name: sr-times
+#+begin_src R  :results output graphics :exports results  :file fig/sr-times.pdf
+
+temp = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
+
+flist <- lapply(temp, read.table)
+sr_data <- rbindlist(flist)
+sr_data[, "V1"] <- NULL
+sr_data = as.data.frame.matrix(sr_data)
+#df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
+#sr_data <- readRDS(file="./optimizations_experiments/sr_counts/sr-times.Rda")
+#ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlim(0,100) + xlab("") + ylab("") + ylim(0,0.005) + geom_point(size = 1)
+ggplot(data=sr_data, geom="histogram", aes(x=V3, y=V2)) + xlim(0,500) + xlab("") + ylab("") + ylim(0,0.005) + geom_point(size = 1)
+#+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:three
+#+caption: Execution times scheduling rounds depending on the amount of processes.
+#+results: sr-times
+[[file:fig/sr-times.pdf]]
+
+
+
+* Optimizations
+#+LaTeX: \label{sec:parallel}
+** Binding threads to physical cores
+Regarding the multicore architectures (like almost every modern CPU),
+parallelization through threads is well proved to be a good optimization,
+as we said in the previous section \ref{sec:problem}. But there are still
+some improvements that can be done.
+
+Thread execution depends heavily on the operative system scheduler: when one
+thread is \emph{idle}, the scheduler may decide to switch it for another thread
+ready to work, so it can maximize the occupancy of the cpu cores, and probably,
+run a program in a faster way. Or it may just want to switch threads
+because their execution time quote is over.
+
+And when the first thread is ready to work again, the cpu core where it
+was before might be occupied, forcing the system to run the thread in
+another core. Of course this depend on which scheduler implementation we are using.
+
+Regardless of the situation, migration of threads between cores entails an
+increase of cache misses, and the amount of CPU migrations in a big size
+simulation can be detrimental for the performance.
+
+In order to avoid these CPU migrations produced by a constant context switching
+of threads, Glib offers a way to bind each thread to a physical core
+of the CPU. Note that this is only available in Linux platforms.
+
+A Chord simulation was run in a parapluie node, with 24 cores, binding the threads to
+physical cores. The CPU migration
+was drastically reduced (almost 97\% less migrations) in all the cases.
+The speedup obtained with few threads (2, 4 and 8) was not big enough: x1.63 in
+the best case, and x1.23 in average.
+But when the simulation is run with a bigger amount of threads (16 or 24), the
+impact of having less CPU migrations is notable, being obtained speedups between
+x2.44 and almost x15 (depending on the amount of threads and the size of the
+simulation).
+This proves that physical binding of threads to CPU cores can be useful when a
+big amount of threads is needed.
+
+
+** Parmap between N cores
+
+Several optimizations regarding the distribution of work between threads were
+proposed: the first option is the default one, where maestro works with its
+threads and the processes are distributed equitably between each thread; the
+second one is to  send maestro to sleep and let the worker threads do all the
+computing; the last one involves the creation of one extra thread and make all
+this N threads work while maestro sleeps.
+
+The experiments were made using up to 75000 nodes in a Chord simulation with
+Precise and Constant modes, but no performance gain was achieved. In fact, the
+creation of one extra thread proved to be slightly more slower than the original
+version of parmap, while sending maestro to sleep and make its N-1 threads
+do the computation did not show any improvement or loss in performance.
+
+** Busy Waiting versus Futexes
+
+#+name: busy
+#+begin_src R :results output graphics :exports results :file busy.pdf
+orig_data = read.table("./optimizations_experiments/busy_waiters/total_times_original.log")
+opt_data = read.table("./optimizations_experiments/busy_waiters/total_times_busy_waiters.log")
+orig_data = as.data.frame.matrix(orig_data)
+opt_data = as.data.frame.matrix(opt_data)
+dataconst <- data.frame(nodes =  orig_data[1:7,1],
+                   thr2const=orig_data[1:7,2],
+                   thr4const=orig_data[1:7,3],
+		   thr8const=orig_data[1:7,4],
+		   thr16const=orig_data[1:7,5],
+		   thr24const=orig_data[1:7,6],
+		   optthr2const=opt_data[1:7,2],
+		   optthr4const=opt_data[1:7,3],
+		   optthr8const=opt_data[1:7,4],
+		   optthr16const=opt_data[1:7,5],
+		   optthr24const=opt_data[1:7,6])
+
+dataprec <- data.frame(nodes =  orig_data[1:7,1],
+                   thr2pre=orig_data[1:7,7],
+                   thr4pre=orig_data[1:7,8],
+		   thr8pre=orig_data[1:7,9],
+		   thr16pre=orig_data[1:7,10],
+		   thr24pre=orig_data[1:7,11],
+		   optthr2pre=opt_data[1:7,7],
+		   optthr4pre=opt_data[1:7,8],
+		   optthr8pre=opt_data[1:7,9],
+		   optthr16pre=opt_data[1:7,10],
+		   optthr24pre=opt_data[1:7,11])
+dataconst[, "1"] <- dataconst[, "thr16const"] / dataconst[, "thr16const"]
+dataconst[, "2"]   <- dataconst[, "thr2const"]  / dataconst[, "optthr2const"]
+dataconst[, "4"]   <- dataconst[, "thr4const"]  / dataconst[, "optthr4const"]
+dataconst[, "8"]   <- dataconst[, "thr8const"]  / dataconst[, "optthr8const"]
+dataconst[, "16"]  <- dataconst[, "thr16const"] / dataconst[, "optthr16const"]
+dataconst[, "24"]  <- dataconst[, "thr24const"] / dataconst[, "optthr24const"]
+
+dataprec[, "1"]  <- dataprec[, "thr2pre"]     / dataprec[, "thr2pre"]
+dataprec[, "2"]    <- dataprec[, "thr2pre"]     / dataprec[, "optthr2pre"]
+dataprec[, "4"]    <- dataprec[, "thr4pre"]     / dataprec[, "optthr4pre"]
+dataprec[, "8"]    <- dataprec[, "thr8pre"]     / dataprec[, "optthr8pre"]
+dataprec[, "16"]   <- dataprec[, "thr16pre"]    / dataprec[, "optthr16pre"]
+dataprec[, "24"]   <- dataprec[, "thr24pre"]    / dataprec[, "optthr24pre"]
+
+dataprec <- dataprec[, -grep("thr", colnames(dataprec))]
+dataconst <- dataconst[, -grep("thr", colnames(dataconst))]
+
+df <- melt(dataconst ,  id = 'nodes', variable_name = 'threads')
+df2 <- melt(dataprec ,  id = 'nodes', variable_name = 'threads')
+g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position="none") +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Constant")
+
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(axis.text.x = element_text(angle = -45, hjust = 0), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(),  legend.position="bottom") + scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000)) +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Precise")
+arrange_ggplot2(g1,g2,ncol=1)
+#+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:four
+#+caption: Relative speedup of busy waiters upon futexes in Chord simulation.
+#+results:busy
+[[file:busy.pdf]]
+
+
+
+** Performance Regression Testing
+
+* Optimal threshold for parallel execution
+#+LaTeX: \label{sec:adaptive}
+** Getting a real threshold over simulations
+The threshold wanted is how many processes are the right amount to be executed
+in parallel when it is necessary, and when is it better to execute them in a
+sequential way.
+Initially, what we want is to find an optimal threshold for the beginning of
+any simulation.
+For that purpose, we have done a benchmark of the scheduling rounds timings in parallel and sequential
+executions, and have found the best average option for a simulation.
+
+#+name: sr-par-threshold
+#+begin_src R :results output graphics :exports results   :file sr-par-threshold.pdf
+precise <- readRDS(file="./optimizations_experiments/sr_counts/sr-par-threshold-precise.Rda")
+constant <- readRDS(file="./optimizations_experiments/sr_counts/sr-par-threshold-constant.Rda")
+g1<- ggplot(data=constant, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
+g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
+arrange_ggplot2(g1,g2,ncol=1)
+#+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:five
+#+caption: Speedup obtained in relation with the amount of processes computed by scheduling round.
+#+results:sr-par-threshold
+[[file:sr-par-threshold.pdf]]
+
+As it can be seen in the Figure \ref{fig:five}, the optimal threshold starts at 28 user processes
+for the Precise mode, while with Constant mode, the speedup of parallel vs. sequential execution of
+scheduling rounds is immediate.
+
+** Adaptive algorithm to calculate threshold
+Finding an optimal threshold and keep it during all the simulation might not
+always be the best option: some simulations can take more or less time in
+the execution of user processes. If a simulation has
+very efficient processes, or processes that don't work too much, then the
+threshold could be inapropiate, leading to parallelize scheduling rounds
+that would run more efficiently in a sequential way.
+That's why an algorithm for a dynamic threshold calculation is proposed.
+
+The main idea behind this heuristic is to calculate the optimal number
+of processes that can be run in parallel during the execution of the
+simulation.
+
+For that purpose, the times of five scheduling round are measured.
+A performance ratio for both of the possible parallel and sequential executions is
+calculated, simply by dividing the time taken by the amount of processes
+computed.
+If the sequential ratio turns to be bigger than the parallel one, then the 
+threshold is decreased, and increased otherwise.
+
+This results in a relative improvement in performance. As it can be seen on
+Figure \ref{fig:five}, the speedup is important in the 16 and 24 threads cases,
+reaching levels between 11 and 47 with small sizes (1000, 5000, and 10000 nodes),
+while with fewer amounts of threads (2,4,8) the speedup is not big, between 1.28 
+and 4.62.
+This can be explained by the fact that the algorithm choose more efficiently when
+to launch a scheduling round in parallel, and while having a lot of threads increases
+the costs of synchronization, an intelligent choice of when to launch them will
+reduce that cost.
+
+#+name: adapt-algorithm
+#+begin_src R  :results output graphics :exports results  :file adapt-algorithm.pdf
+orig_data = read.table("./optimizations_experiments/dynamic_threshold/total_times_original.log")
+opt_data = read.table("./optimizations_experiments/dynamic_threshold/total_times_adaptive.log")
+orig_data = as.data.frame.matrix(orig_data)
+opt_data = as.data.frame.matrix(opt_data)
+dataconst <- data.frame(nodes =  orig_data[1:6,1],
+                   thr2const=orig_data[1:6,2],
+                   thr4const=orig_data[1:6,3],
+		   thr8const=orig_data[1:6,4],
+		   thr16const=orig_data[1:6,5],
+		   thr24const=orig_data[1:6,6],
+		   optthr2const=opt_data[1:6,2],
+		   optthr4const=opt_data[1:6,3],
+		   optthr8const=opt_data[1:6,4],
+		   optthr16const=opt_data[1:6,5],
+		   optthr24const=opt_data[1:6,6])
+
+dataprec <- data.frame(nodes =  orig_data[1:6,1],
+                   thr2pre=orig_data[1:6,7],
+                   thr4pre=orig_data[1:6,8],
+		   thr8pre=orig_data[1:6,9],
+		   thr16pre=orig_data[1:6,10],
+		   thr24pre=orig_data[1:6,11],
+		   optthr2pre=opt_data[1:6,7],
+		   optthr4pre=opt_data[1:6,8],
+		   optthr8pre=opt_data[1:6,9],
+		   optthr16pre=opt_data[1:6,10],
+		   optthr24pre=opt_data[1:6,11])
+dataconst[, "1"] <- dataconst[, "thr24const"] / dataconst[, "thr24const"]
+dataconst[, "2"]   <- dataconst[, "thr2const"]  / dataconst[, "optthr2const"]
+dataconst[, "4"]   <- dataconst[, "thr4const"]  / dataconst[, "optthr4const"]
+dataconst[, "8"]   <- dataconst[, "thr8const"]  / dataconst[, "optthr8const"]
+dataconst[, "16"]  <- dataconst[, "thr16const"] / dataconst[, "optthr16const"]
+dataconst[, "24"]  <- dataconst[, "thr24const"] / dataconst[, "optthr24const"]
+
+dataprec[, "1"]  <- dataprec[, "thr2pre"]     / dataprec[, "thr2pre"]
+dataprec[, "t2"]    <- dataprec[, "thr2pre"]     / dataprec[, "optthr2pre"]
+dataprec[, "t4"]    <- dataprec[, "thr4pre"]     / dataprec[, "optthr4pre"]
+dataprec[, "t8"]    <- dataprec[, "thr8pre"]     / dataprec[, "optthr8pre"]
+dataprec[, "t16"]   <- dataprec[, "thr16pre"]    / dataprec[, "optthr16pre"]
+dataprec[, "t24"]   <- dataprec[, "thr24pre"]    / dataprec[, "optthr24pre"]
+
+dataprec <- dataprec[, -grep("thr", colnames(dataprec))]
+dataconst <- dataconst[, -grep("thr", colnames(dataconst))]
+
+df <- melt(dataconst ,  id = 'nodes', variable_name = 'threads')
+df2 <- melt(dataprec ,  id = 'nodes', variable_name = 'threads')
+g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position="none") +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Constant")
+
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(axis.text.x = element_text(angle = -45, hjust = 0), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(),  legend.position="bottom") + scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000)) +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Precise")
+arrange_ggplot2(g1,g2,ncol=1)
+#+end_src
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:six
+#+caption: Speedup achieved with Adaptive Algorithm. Chord simulation, Precise and Constant modes.
+#+results: adapt-algorithm
+[[file:adapt-algorithm.pdf]]
+
+
+* Conclusion
+#+LaTeX: \label{sec:cc}
+
+
+* Emacs Setup    :noexport:
+  This document has local variables in its postembule, which should
+  allow org-mode to work seamlessly without any setup. If you're
+  uncomfortable using such variables, you can safely ignore them at
+  startup. Exporting may require that you copy them in your .emacs.
+
+# Local Variables:
+# eval:    (org-babel-do-load-languages 'org-babel-load-languages '( (sh . t) (R . t) (perl . t) (ditaa . t) ))
+# eval:    (setq org-confirm-babel-evaluate nil)
+# eval:    (setq org-alphabetical-lists t)
+# eval:    (setq org-src-fontify-natively t)
+# eval:    (add-hook 'org-babel-after-execute-hook 'org-display-inline-images) 
+# eval:    (add-hook 'org-mode-hook 'org-display-inline-images)
+# eval:    (add-hook 'org-mode-hook 'org-babel-result-hide-all)
+# eval:   (setq org-babel-default-header-args:R '((:session . "org-R")))
+# eval:   (setq org-export-babel-evaluate nil)
+# eval:   (setq org-latex-to-pdf-process '("pdflatex -interaction nonstopmode -output-directory %o %f ; bibtex `basename %f | sed 's/\.tex//'` ; pdflatex -interaction nonstopmode -output-directory  %o %f ; pdflatex -interaction nonstopmode -output-directory %o %f"))
+# eval:   (setq ispell-local-dictionary "american")
+# eval:   (eval (flyspell-mode t))
+# End:
