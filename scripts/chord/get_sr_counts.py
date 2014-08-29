@@ -1,4 +1,14 @@
+# This script is used by testall_sr.sh to filter the output data of
+# SimGrid when TIME_BENCH_PER_SR is enabled.
+# Observation: due to the giant amount of logs that XBT_VERB generates, I
+# recommend to change the printing statements related to TIME_BENCH_PER_SR to
+# 'CRITICAL' and set the threshold of logs to 'critical' (this threshold is
+# already setted in testall*.sh, so you want to check there to know how to
+# do it by yourself). That workaround gives less logs to analyze and
+# accelerates the simulation.
+
 import sys
+
 
 def parse_critical_output(filename, output):
     file = open(filename, "r")

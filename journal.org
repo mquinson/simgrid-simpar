@@ -237,9 +237,22 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
    - [X] Make more Constant mode experiments with sr-speedup to get better shape in plot
    - [X] plot busy_waiters vs. futex,check if there is some improvement.
    - [X] Use node to process the data of sr-counts
-** 28 [%]
-   - [ ] Process tables of sr-times plot and save them to generate latex faster.
-   - [ ] make tests with 500000(24 threads precise), 1m nodes (schedule for a night, weekend).
+** 28 [100%]
+   - [X] Process tables of sr-times plot and save them to generate latex faster.
+   - Work on report (organize plots, sections)
+
+** 29 [100%]
+   - [X] General cleanup of repository: erase old folders, update scripts, organize everything.
+   - [X] Add documentation to scripts.
+
+* September
+** 1 [%]
+   - [ ] comments about how to regenerate data in report.
+   - [ ] add units/labels to plots. Add conclusions to plot
+   - [ ] Re-run busy-waiters. Re-check speedup of scheduling rounds.
+   - [ ] run for once and all speedups with 1000000 and 2000000 nodes.
+
+
 * TODO Experiment of Section I [0%]
 ** TODO Benchmark: before Amdahl benchmark, do experiments with the optimized version without benchmark and save those timings. Thats is for the comparation of timings to say that our benchmark is not intrusive.
 *** DONE modify scripts for this.
@@ -347,8 +360,7 @@ SimGrid3.10   772d63cca583f5d16096fa9f487b4ab07d9af8f0
                                            maestrosleep+(N)
                                            maestro sleep+(N-1)
   3) parmap next. Not now.
-  4) Ask: busy waiters with different #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).[X]
-     Speedup is the same as parallel?
+  4) busy waiters with different #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).[X]
   Performance regression testing
   
 ** Hot topics task 5

@@ -2,10 +2,10 @@
 
 # This is a personalized script used sometimes to setup a node in Grid5000.
 # A typical configuration of a node involves installing the required
-# packages trhough apt-get and then compiling a version of SimGrid.
+# packages through apt-get and then compiling a version of SimGrid.
 
 # It can be adapted, for sure, but it has so many links to personal stuff,
-# like deployment/platform files, access to personal account (trhough ssh)
+# like deployment/platform files, access to personal account (through ssh)
 # that it's probably useless to someone else. Anyway, I leave this here if
 # it is useful in some way to someone.
 
