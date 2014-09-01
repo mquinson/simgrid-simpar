@@ -246,12 +246,14 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
    - [X] Add documentation to scripts.
 
 * September
-** 1 [%]
-   - [ ] comments about how to regenerate data in report.
-   - [ ] add units/labels to plots. Add conclusions to plot
-   - [ ] Re-run busy-waiters. Re-check speedup of scheduling rounds.
-   - [ ] run for once and all speedups with 1000000 and 2000000 nodes.
+** 1 [100%]
+   - [X] comments about how to regenerate data in report.
+   - [X] Re-run busy-waiters. Re-run speedup of scheduling rounds.
 
+** 2 [%]
+1000 nodes, precise model, 16 threads failed (SR exp.)
+   - [ ] add units/labels to plots. Add conclusions to plots. Recheck plots, redo the sr-times, sr-speedup, and sr-distribution. Redo busy-waiters.
+   - [ ] run for once and all speedups with 1000000 and 2000000 nodes.
 
 * TODO Experiment of Section I [0%]
 ** TODO Benchmark: before Amdahl benchmark, do experiments with the optimized version without benchmark and save those timings. Thats is for the comparation of timings to say that our benchmark is not intrusive.

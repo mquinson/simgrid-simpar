@@ -1,8 +1,8 @@
-DIR = "log_amdahl"
-SIZES = ['1000', '3000', '5000', '10000', '25000', '50000', '75000', '100000'] #, '300000']
+DIR = "log"
 MODES = ['constant', 'precise']
-THREADS = ['1', '2', '4', '8', '16', '24']
-output_file = "total_sum_times_amdahl2.log"
+SIZES = ['1000', '3000', '10000', '30000', '100000'] #, '100000'] #, '300000']
+THREADS = ['2', '4', '8', '16', '24']
+output_file = "total_times_noamdahl2.log"
 input_seq = ['']
 
 
