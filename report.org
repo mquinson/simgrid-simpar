@@ -7,7 +7,7 @@
 #+EXPORT_EXCLUDE_TAGS: noexport
 #+PROPERTY: session *R* 
 
-#+LATEX_class: article
+#+LATEX_class: sigalt
 #+LATEX_HEADER: \usepackage[T1]{fontenc}
 #+LATEX_HEADER: \usepackage[utf8]{inputenc}
 #+LATEX_HEADER: \usepackage{ifthen,figlatex}
@@ -674,6 +674,9 @@ The benchmark is done using testall.sh and the tables generated using get_times.
 # eval:    (setq org-confirm-babel-evaluate nil)
 # eval:    (setq org-alphabetical-lists t)
 # eval:    (setq org-src-fontify-natively t)
+# eval:    (unless (boundp 'org-latex-classes) (setq org-latex-classes nil))
+# eval:    (add-to-list 'org-latex-classes 
+#                       '("sigalt" "\\documentclass{sig-alternate}"  ("\\section{%s}" . "\\section*{%s}") ("\\subsection{%s}" . "\\subsection*{%s}")))
 # eval:    (add-hook 'org-babel-after-execute-hook 'org-display-inline-images) 
 # eval:    (add-hook 'org-mode-hook 'org-display-inline-images)
 # eval:    (add-hook 'org-mode-hook 'org-babel-result-hide-all)
