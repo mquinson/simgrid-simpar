@@ -10,6 +10,10 @@
 # personal frontend-node in Grid5000. This should be modified in the near
 # future.
 
+###############################################################################
+# MODIFIABLE PARAMETERS: SGPATH, SGHASH, sizes, threads, log_folder, file_table
+# host_info, timefmt, cp_cmd, dest.
+
 # Path to installation folder needed to recompile chord
 # If it is not set, assume that the path is '/usr/local'
 if [ -z "$1" ]
@@ -24,13 +28,31 @@ SGHASH=$(git rev-parse --short HEAD)
 
 # List of sizes to test. Modify this to add different sizes.
 sizes=(1000) # 3000 5000 10000 25000 50000 75000)
+
 # Number of threads to test. 
 threads=(2) # 4 8 16 24)
 
-log_folder="log_orig_vs_busy/orig"
-#The las %U is just to ease parsing for table
+# Path where to store logs, and filenames of times table, host info
+log_folder="log/"
+if [ ! -d "$log_folder" ]; then
+    echo "Please create $log_folder directory before."
+    exit 1
+fi
+
+file_table="timings_$SGHASH.dat"
+host_info="host_info.org"
+rm -rf $host_info
+
+# The las %U is just to ease the parsing for table
 timefmt="clock:%e user:%U sys:%S telapsed:%E swapped:%W exitval:%x max:%Mk avg:%Kk %U"
 
+# Copy command. This way one can use cp, scp and a local folder or a folder in 
+# a cluster.
+cp_cmd='cp'
+dest=$log_folder # change for <user>@<node>.grid5000.fr:~/$log_folder if necessary
+###############################################################################
+
+###############################################################################
 echo "Recompile the binary against $SGPATH"
 export LD_LIBRARY_PATH="$SGPATH/lib"
 rm -rf chord
@@ -40,34 +62,63 @@ if [ ! -e "chord" ]; then
     echo "chord does not exist"
     exit;
 fi
+###############################################################################
 
-test -e tmp || mkdir tmp
-me=tmp/`hostname -s`
-file_table="timings_$SGHASH.dat"
+###############################################################################
+# PRINT HOST INFORMATION IN DIFFERENT FILE
+set +e
+echo "#+TITLE: Chord experiment on $(eval hostname)" >> $host_info
+echo "#+DATE: $(eval date)" >> $host_info
+echo "#+AUTHOR: $(eval whoami)" >> $host_info
+echo " " >> $host_info 
 
-# Print host information in different file
-host_info="host_info.org"
-rm -rf $host_info
-echo "* Host" >> $host_info
+echo "* People logged when experiment started:" >> $host_info
+who >> $host_info
+echo "* Hostname" >> $host_info
+hostname >> $host_info
+echo "* System information" >> $host_info
 uname -a >> $host_info
 echo "* CPU info" >> $host_info
 cat /proc/cpuinfo >> $host_info
-echo "* Mem info" >> $host_info
+echo "* CPU governor" >> $host_info
+if [ -f /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ];
+then
+    cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor >> $host_info
+else
+    echo "Unknown (information not available)" >> $host_info
+fi
+echo "* CPU frequency" >> $host_info
+if [ -f /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq ];
+then
+    cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq >> $host_info
+else
+    echo "Unknown (information not available)" >> $host_info
+fi
+echo "* Meminfo" >> $host_info
 cat /proc/meminfo >> $host_info
+echo "* Memory hierarchy" >> $host_info
+lstopo --of console >> $host_info
 echo "* Environment Variables" >> $host_info
 printenv >> $host_info
 echo "* Tools" >> $host_info
-echo "** Compiler" >> $host_info
+echo "** Linux and gcc versions" >> $host_info
+cat /proc/version >> $host_info
+echo "** Gcc info" >> $host_info
 gcc -v 2>> $host_info 
 echo "** Make tool" >> $host_info
 make -v >> $host_info
 echo "** CMake" >> $host_info
 cmake --version >> $host_info
+echo "* SimGrid Version" >> $host_info
+grep "SIMGRID_VERSION_STRING" ../../../include/simgrid_config.h | sed 's/.*"\(.*\)"[^"]*$/\1/' >> $host_info
 echo "* SimGrid commit hash" >> $host_info
 git rev-parse --short HEAD >> $host_info
-scp $host_info rtortilopez@rennes.grid5000.fr:~/$log_folder
+$($cp_cmd $host_info $dest)
+set -e
+###############################################################################
 
-# echo table headers into file_table
+###############################################################################
+# ECHO TABLE HEADERS INTO FILE_TABLE
 rm -rf $file_table
 tabs_needed=""
 for thread in "${threads[@]}"; do
@@ -80,8 +131,14 @@ done
 echo "#SimGrid commit $SGHASH"     >> $file_table 
 echo -e "#\t\tconstant${tabs_needed}precise"     >> $file_table
 echo -e "#size/thread$thread_line" >> $file_table
+###############################################################################
 
-# Start simulation
+###############################################################################
+# START SIMULATION
+
+test -e tmp || mkdir tmp
+me=tmp/`hostname -s`
+
 for size in "${sizes[@]}"; do
     line_table=$size"\t"
     # CONSTANT MODE
@@ -123,7 +180,7 @@ for size in "${sizes[@]}"; do
         echo "### timings" >> $filename
         cat $me.timings >> $filename
         line_table=$line_table"\t"$temp_time
-        scp $filename  rtortilopez@rennes.grid5000.fr:$log_folder/
+        $($cp_cmd $filename $dest)
         rm -rf $filename
         rm -rf $me.timings
     done    
@@ -157,7 +214,7 @@ for size in "${sizes[@]}"; do
         echo "### timings" >> $filename
         cat $me.timings >> $filename
         line_table=$line_table"\t"$temp_time
-        scp $filename  rtortilopez@rennes.grid5000.fr:$log_folder/
+        $($cp_cmd $filename $dest)
         rm -rf $filename
         rm -rf $me.timings
     done
@@ -166,5 +223,6 @@ for size in "${sizes[@]}"; do
 
 done
 
-scp $file_table  rtortilopez@rennes.grid5000.fr:$log_folder/
+$($cp_cmd $file_table $dest)
+rm -rf $file_table
 rm -rf tmp
