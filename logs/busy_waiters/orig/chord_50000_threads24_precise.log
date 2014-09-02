@@ -1,0 +1,6 @@
+size:50000, precise network, 24 threads
+cmd:./chord One_cluster_nobb_50000_hosts.xml chord50000.xml --cfg=contexts/stack_size:16 --cfg=maxmin/precision:0.00001 --log=root.thres:critical --cfg=contexts/nthreads:24 --cfg=contexts/guard_size:0
+### stderr output
+[1286.088344] chord.c:1067: [msg_chord/CRITICAL] Messages created: 17811272
+### timings
+clock:723.68 user:868.27 sys:7010.43 telapsed:12:03.68 swapped:0 exitval:0 max:1318796k avg:0k 868.27

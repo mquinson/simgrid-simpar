@@ -374,33 +374,34 @@ do the computation did not show any improvement or loss in performance.
 
 #+name: busy
 #+begin_src R :results output graphics :exports results :file fig/busy.pdf
-orig_data = read.table("./optimizations_experiments/busy_waiters/total_times_original.log")
-opt_data = read.table("./optimizations_experiments/busy_waiters/total_times_busy_waiters.log")
+range = 8
+orig_data = read.table("./logs/busy_waiters/total_times_orig.log")
+opt_data = read.table("./logs/busy_waiters/total_times_busy.log")
 orig_data = as.data.frame.matrix(orig_data)
 opt_data = as.data.frame.matrix(opt_data)
-dataconst <- data.frame(nodes =  orig_data[1:7,1],
-                   thr2const=orig_data[1:7,2],
-                   thr4const=orig_data[1:7,3],
-		   thr8const=orig_data[1:7,4],
-		   thr16const=orig_data[1:7,5],
-		   thr24const=orig_data[1:7,6],
-		   optthr2const=opt_data[1:7,2],
-		   optthr4const=opt_data[1:7,3],
-		   optthr8const=opt_data[1:7,4],
-		   optthr16const=opt_data[1:7,5],
-		   optthr24const=opt_data[1:7,6])
+dataconst <- data.frame(nodes =  orig_data[1:range,1],
+                   thr2const=orig_data[1:range,2],
+                   thr4const=orig_data[1:range,3],
+		   thr8const=orig_data[1:range,4],
+		   thr16const=orig_data[1:range,5],
+		   thr24const=orig_data[1:range,6],
+		   optthr2const=opt_data[1:range,2],
+		   optthr4const=opt_data[1:range,3],
+		   optthr8const=opt_data[1:range,4],
+		   optthr16const=opt_data[1:range,5],
+		   optthr24const=opt_data[1:range,6])
 
-dataprec <- data.frame(nodes =  orig_data[1:7,1],
-                   thr2pre=orig_data[1:7,7],
-                   thr4pre=orig_data[1:7,8],
-		   thr8pre=orig_data[1:7,9],
-		   thr16pre=orig_data[1:7,10],
-		   thr24pre=orig_data[1:7,11],
-		   optthr2pre=opt_data[1:7,7],
-		   optthr4pre=opt_data[1:7,8],
-		   optthr8pre=opt_data[1:7,9],
-		   optthr16pre=opt_data[1:7,10],
-		   optthr24pre=opt_data[1:7,11])
+dataprec <- data.frame(nodes =  orig_data[1:range,1],
+                   thr2pre=orig_data[1:range,7],
+                   thr4pre=orig_data[1:range,8],
+		   thr8pre=orig_data[1:range,9],
+		   thr16pre=orig_data[1:range,10],
+		   thr24pre=orig_data[1:range,11],
+		   optthr2pre=opt_data[1:range,7],
+		   optthr4pre=opt_data[1:range,8],
+		   optthr8pre=opt_data[1:range,9],
+		   optthr16pre=opt_data[1:range,10],
+		   optthr24pre=opt_data[1:range,11])
 dataconst[, "1"] <- dataconst[, "thr16const"] / dataconst[, "thr16const"]
 dataconst[, "2"]   <- dataconst[, "thr2const"]  / dataconst[, "optthr2const"]
 dataconst[, "4"]   <- dataconst[, "thr4const"]  / dataconst[, "optthr4const"]
@@ -452,8 +453,8 @@ executions, and have found the best average option for a simulation.
 
 #+name: sr-par-threshold
 #+begin_src R :results output graphics :exports results   :file fig/sr-par-threshold.pdf
-precise <- readRDS(file="./optimizations_experiments/sr_counts/sr-par-threshold-precise.Rda")
-constant <- readRDS(file="./optimizations_experiments/sr_counts/sr-par-threshold-constant.Rda")
+precise <- readRDS(file="./logs/sr_counts/new/precise.Rda")
+constant <- readRDS(file="./logs/sr_counts/new/constant.Rda")
 g1<- ggplot(data=constant, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
 g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
 arrange_ggplot2(g1,g2,ncol=1)
