@@ -369,7 +369,7 @@ reduce that cost.
 
 
 #+LaTeX: \appendix
-* Data Provenance                                                  :noexport: 
+* Data Provenance
 This section explains and show how to run the experiments and how the data
 is saved and then processed.
 Note: that all experiments are run using the Chord simulation that can be found
