@@ -1,3 +1,4 @@
+
 #+TITLE: Parallel and Distributed Simulation of Large-Scale Distributed Applications
 #+AUTHOR:  Ezequiel Torti Lòpez, Martin Quinson
 #+OPTIONS: H:5 title:nil date:nil author:nil email:nil creator:nil timestamp:nil skip:nil toc:nil
@@ -194,58 +195,6 @@ It is clear from that graph that the real speedup with our parallel model is obt
 when the size of the problem is bigger than 100000 nodes.
 This confirms what we have proved in ~\cite{previous}.
 
-#+name: amdahl-speedup
-#+begin_src R  :results output graphics :exports results :file fig/amdahl-speedup.pdf
-#orig_data = read.table("./optimizations_experiments/timings/total_times_noamdahl2.log")
-
-#CONSTANT MODE
-opt_data = read.table("./optimizations_experiments/timings/total_sum_times_amdahl2.log")
-#orig_data = as.data.frame.matrix(orig_data)
-opt_data = as.data.frame.matrix(opt_data)
-data <- data.frame(nodes =  opt_data[1:10,1], seq = opt_data[1:10,2], t2 = opt_data[1:10,3],
-                   t4 = opt_data[1:10,4], t8 = opt_data[1:10,5], t16 = opt_data[1:10,6])
-                   #t24 = opt_data[1:10,13])
-# an extra seq column to average would be good too.
-data[, "1"] <- data[, "seq"] / data[, "seq"]
-data[, "speedup2"] <- data[, "seq"] / data[, "t2"]
-data[, "speedup4"] <- data[, "seq"] / data[, "t4"]
-data[, "speedup8"] <- data[, "seq"] / data[, "t8"]
-data[, "speedup16"] <- data[, "seq"] / data[, "t16"]
-#data[, "speedup24"] <- data[, "seq"] / data[, "t24"]
-
-data[, "t2"] <- NULL
-data[, "t4"] <- NULL
-data[, "t8"] <- NULL
-data[, "t16"] <- NULL
-#data[, "t24"] <- NULL
-data[, "seq"] <- NULL
-
-df <- melt(data ,  id = 'nodes', variable_name = 'versions')
-g1<-ggplot(df, aes(x=nodes,y=value, group=versions, colour=versions)) + geom_line() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(), legend.position="none") + ggtitle("Constant Mode") + ylab("speedup")
-
-
-#PRECISE MODE
-data2 <- data.frame(nodes =  opt_data[1:10,1], seq = opt_data[1:10,7], t2 = opt_data[1:10,8],
-                   t4 = opt_data[1:10,9], t8 = opt_data[1:10,10], t16 = opt_data[1:10,11])
-data2[, "1"] <- data2[, "seq"] / data2[, "seq"]
-data2[, "2"] <- data2[, "seq"] / data2[, "t2"]
-data2[, "4"] <- data2[, "seq"] / data2[, "t4"]
-data2[, "8"] <- data2[, "seq"] / data2[, "t8"]
-data2[, "16"] <- data2[, "seq"] / data2[, "t16"]
-
-data2[, "t2"] <- NULL
-data2[, "t4"] <- NULL
-data2[, "t8"] <- NULL
-data2[, "t16"] <- NULL
-data2[, "seq"] <- NULL
-
-df2 <- melt(data2 ,  id = 'nodes', variable_name = 'threads')
-g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) + ggtitle("Precise Mode") + scale_fill_discrete(name="threads")
-arrange_ggplot2(g1,g2,nrow=1)
-
-
-#+end_src
-
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:one
 #+caption: Real speedup achieved using parallell mode in Chord simulation.
@@ -266,23 +215,6 @@ instances. The remaining processes are executed in parallel due to the parallel
 execution threshold already setted up in SimGrid (which can be modified), but it only
 represents the 31\% of the total amount of user processes in a typical run.
 
-#+name: sr-distribution
-#+begin_src R  :results output graphics :exports results  :file fig/sr-distribution.pdf
-
-#temp = list.files(path='./optimizations_experiments/sr_counts', pattern="*precise*", full.names = TRUE)
-#temp = list.files(path='./optimizations_experiments/sr_counts/parallel', pattern="*precise*", full.names = TRUE)
-#flist <- lapply(temp, read.table)
-#sr_data <- rbindlist(flist)
-#sr_data[, "V1"] <- NULL
-#sr_data = as.data.frame.matrix(sr_data)
-
-#ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(0,15) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds")
-#ggplot(data=sr_data, geom="histogram", aes(x=V3)) + xlim(1,15) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..))) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + scale_x_continuous(breaks=c(1:15), labels=c(1:15),limits=c(1,15))
-sr_data <- readRDS(file="./optimizations_experiments/sr_counts/sr-distribution.Rda")
-ggplot(data=sr_data, geom="histogram", aes(x=V3)) + ylim(0,0.7)+ xlim(1,13) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..)), origin=-0.5) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + scale_x_continuous(breaks=c(1:13), labels=c(1:13),limits=c(1,13)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank()) #, axis.line = element_line(colour = "black"))
-
-#+end_src
-
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:two
 #+caption: Proportion of scheduling rounds computing processes.
@@ -293,21 +225,6 @@ ggplot(data=sr_data, geom="histogram", aes(x=V3)) + ylim(0,0.7)+ xlim(1,13) + ge
 Besides that, the Figure \ref{fig:three} show that when the amount of processes is bigger,
 then the sequential execution time is bigger. That means that parallelizing that remaining 31\%
 of processes is what achieves the current speedup.
-
-#+name: sr-times
-#+begin_src R  :results output graphics :exports results  :file fig/sr-times.pdf
-
-temp = list.files(path='./optimizations_experiments/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
-
-flist <- lapply(temp, read.table)
-sr_data <- rbindlist(flist)
-sr_data[, "V1"] <- NULL
-sr_data = as.data.frame.matrix(sr_data)
-#df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
-#sr_data <- readRDS(file="./optimizations_experiments/sr_counts/sr-times.Rda")
-#ggplot(data=df, geom="histogram", aes(x=V3, y=mean_value)) + xlim(0,100) + xlab("") + ylab("") + ylim(0,0.005) + geom_point(size = 1)
-ggplot(data=sr_data, geom="histogram", aes(x=V3, y=V2)) + xlim(0,500) + xlab("") + ylab("") + ylim(0,0.005) + geom_point(size = 1)
-#+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:three
@@ -372,61 +289,6 @@ do the computation did not show any improvement or loss in performance.
 
 ** Busy Waiting versus Futexes
 
-#+name: busy
-#+begin_src R :results output graphics :exports results :file fig/busy.pdf
-range = 8
-orig_data = read.table("./logs/busy_waiters/total_times_orig.log")
-opt_data = read.table("./logs/busy_waiters/total_times_busy.log")
-orig_data = as.data.frame.matrix(orig_data)
-opt_data = as.data.frame.matrix(opt_data)
-dataconst <- data.frame(nodes =  orig_data[1:range,1],
-                   thr2const=orig_data[1:range,2],
-                   thr4const=orig_data[1:range,3],
-		   thr8const=orig_data[1:range,4],
-		   thr16const=orig_data[1:range,5],
-		   thr24const=orig_data[1:range,6],
-		   optthr2const=opt_data[1:range,2],
-		   optthr4const=opt_data[1:range,3],
-		   optthr8const=opt_data[1:range,4],
-		   optthr16const=opt_data[1:range,5],
-		   optthr24const=opt_data[1:range,6])
-
-dataprec <- data.frame(nodes =  orig_data[1:range,1],
-                   thr2pre=orig_data[1:range,7],
-                   thr4pre=orig_data[1:range,8],
-		   thr8pre=orig_data[1:range,9],
-		   thr16pre=orig_data[1:range,10],
-		   thr24pre=orig_data[1:range,11],
-		   optthr2pre=opt_data[1:range,7],
-		   optthr4pre=opt_data[1:range,8],
-		   optthr8pre=opt_data[1:range,9],
-		   optthr16pre=opt_data[1:range,10],
-		   optthr24pre=opt_data[1:range,11])
-dataconst[, "1"] <- dataconst[, "thr16const"] / dataconst[, "thr16const"]
-dataconst[, "2"]   <- dataconst[, "thr2const"]  / dataconst[, "optthr2const"]
-dataconst[, "4"]   <- dataconst[, "thr4const"]  / dataconst[, "optthr4const"]
-dataconst[, "8"]   <- dataconst[, "thr8const"]  / dataconst[, "optthr8const"]
-dataconst[, "16"]  <- dataconst[, "thr16const"] / dataconst[, "optthr16const"]
-dataconst[, "24"]  <- dataconst[, "thr24const"] / dataconst[, "optthr24const"]
-
-dataprec[, "1"]  <- dataprec[, "thr2pre"]     / dataprec[, "thr2pre"]
-dataprec[, "2"]    <- dataprec[, "thr2pre"]     / dataprec[, "optthr2pre"]
-dataprec[, "4"]    <- dataprec[, "thr4pre"]     / dataprec[, "optthr4pre"]
-dataprec[, "8"]    <- dataprec[, "thr8pre"]     / dataprec[, "optthr8pre"]
-dataprec[, "16"]   <- dataprec[, "thr16pre"]    / dataprec[, "optthr16pre"]
-dataprec[, "24"]   <- dataprec[, "thr24pre"]    / dataprec[, "optthr24pre"]
-
-dataprec <- dataprec[, -grep("thr", colnames(dataprec))]
-dataconst <- dataconst[, -grep("thr", colnames(dataconst))]
-
-df <- melt(dataconst ,  id = 'nodes', variable_name = 'threads')
-df2 <- melt(dataprec ,  id = 'nodes', variable_name = 'threads')
-g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position="none") +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Constant")
-
-g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(axis.text.x = element_text(angle = -45, hjust = 0), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(),  legend.position="bottom") + scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000)) +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Precise")
-arrange_ggplot2(g1,g2,ncol=1)
-#+end_src
-
 #+RESULTS: busy
 [[file:fig/busy.pdf]]
 
@@ -450,15 +312,6 @@ Initially, what we want is to find an optimal threshold for the beginning of
 any simulation.
 For that purpose, we have done a benchmark of the scheduling rounds timings in parallel and sequential
 executions, and have found the best average option for a simulation.
-
-#+name: sr-par-threshold
-#+begin_src R :results output graphics :exports results   :file fig/sr-par-threshold.pdf
-precise <- readRDS(file="./logs/sr_counts/new/precise.Rda")
-constant <- readRDS(file="./logs/sr_counts/new/constant.Rda")
-g1<- ggplot(data=constant, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
-g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
-arrange_ggplot2(g1,g2,ncol=1)
-#+end_src
 
 #+RESULTS: sr-par-threshold
 [[file:fig/sr-par-threshold.pdf]]
@@ -503,59 +356,6 @@ to launch a scheduling round in parallel, and while having a lot of threads incr
 the costs of synchronization, an intelligent choice of when to launch them will
 reduce that cost.
 
-#+name: adapt-algorithm
-#+begin_src R  :results output graphics :exports results  :file fig/adapt-algorithm.pdf
-orig_data = read.table("./optimizations_experiments/dynamic_threshold/total_times_original.log")
-opt_data = read.table("./optimizations_experiments/dynamic_threshold/total_times_adaptive.log")
-orig_data = as.data.frame.matrix(orig_data)
-opt_data = as.data.frame.matrix(opt_data)
-dataconst <- data.frame(nodes =  orig_data[1:6,1],
-                   thr2const=orig_data[1:6,2],
-                   thr4const=orig_data[1:6,3],
-		   thr8const=orig_data[1:6,4],
-		   thr16const=orig_data[1:6,5],
-		   thr24const=orig_data[1:6,6],
-		   optthr2const=opt_data[1:6,2],
-		   optthr4const=opt_data[1:6,3],
-		   optthr8const=opt_data[1:6,4],
-		   optthr16const=opt_data[1:6,5],
-		   optthr24const=opt_data[1:6,6])
-
-dataprec <- data.frame(nodes =  orig_data[1:6,1],
-                   thr2pre=orig_data[1:6,7],
-                   thr4pre=orig_data[1:6,8],
-		   thr8pre=orig_data[1:6,9],
-		   thr16pre=orig_data[1:6,10],
-		   thr24pre=orig_data[1:6,11],
-		   optthr2pre=opt_data[1:6,7],
-		   optthr4pre=opt_data[1:6,8],
-		   optthr8pre=opt_data[1:6,9],
-		   optthr16pre=opt_data[1:6,10],
-		   optthr24pre=opt_data[1:6,11])
-dataconst[, "1"] <- dataconst[, "thr24const"] / dataconst[, "thr24const"]
-dataconst[, "2"]   <- dataconst[, "thr2const"]  / dataconst[, "optthr2const"]
-dataconst[, "4"]   <- dataconst[, "thr4const"]  / dataconst[, "optthr4const"]
-dataconst[, "8"]   <- dataconst[, "thr8const"]  / dataconst[, "optthr8const"]
-dataconst[, "16"]  <- dataconst[, "thr16const"] / dataconst[, "optthr16const"]
-dataconst[, "24"]  <- dataconst[, "thr24const"] / dataconst[, "optthr24const"]
-
-dataprec[, "1"]  <- dataprec[, "thr2pre"]     / dataprec[, "thr2pre"]
-dataprec[, "t2"]    <- dataprec[, "thr2pre"]     / dataprec[, "optthr2pre"]
-dataprec[, "t4"]    <- dataprec[, "thr4pre"]     / dataprec[, "optthr4pre"]
-dataprec[, "t8"]    <- dataprec[, "thr8pre"]     / dataprec[, "optthr8pre"]
-dataprec[, "t16"]   <- dataprec[, "thr16pre"]    / dataprec[, "optthr16pre"]
-dataprec[, "t24"]   <- dataprec[, "thr24pre"]    / dataprec[, "optthr24pre"]
-
-dataprec <- dataprec[, -grep("thr", colnames(dataprec))]
-dataconst <- dataconst[, -grep("thr", colnames(dataconst))]
-
-df <- melt(dataconst ,  id = 'nodes', variable_name = 'threads')
-df2 <- melt(dataprec ,  id = 'nodes', variable_name = 'threads')
-g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position="none") +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Constant")
-
-g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(axis.text.x = element_text(angle = -45, hjust = 0), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(),  legend.position="bottom") + scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000)) +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Precise")
-arrange_ggplot2(g1,g2,ncol=1)
-#+end_src
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:six
@@ -569,7 +369,7 @@ arrange_ggplot2(g1,g2,ncol=1)
 
 
 #+LaTeX: \appendix
-* Data Provenance
+* Data Provenance                                                  :noexport: 
 This section explains and show how to run the experiments and how the data
 is saved and then processed.
 Note: that all experiments are run using the Chord simulation that can be found
@@ -660,7 +460,6 @@ The data set is the same as SR Distribution and SR times experiments.
 *** TODO put code to post-process tables in Data Analysis, separated from plot code
 ** Adaptive Algorithm
 The benchmark is done using testall.sh and the tables generated using get_times.py
-* Data Analysis
 
 
 * Emacs Setup                                                      :noexport:

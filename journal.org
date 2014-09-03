@@ -250,30 +250,20 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
    - [X] comments about how to regenerate data in report.
    - [X] Re-run busy-waiters. Re-run speedup of scheduling rounds.
 
-** 2 [%]
-1000 nodes, precise model, 16 threads failed (SR exp.)
-   - [ ] add units/labels to plots. Add conclusions to plots. Recheck plots, redo the sr-times, sr-speedup, and sr-distribution. Redo busy-waiters.
+** 2 [100%]
+CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
+   - [X] Integrate Luka script with mine. Make it more portable.
+   - [X] Work on sr-par-threshold (plot again with new data, compare to old plot. Plot only with specific settings: certain amount of threads and sizes)
+** 3 [100%]
+   - [X] transforms files to csv.
+   - [X] cleanup R code.
+   - [X] modify logs paths in report. Add code to Data Analysis section.
+** 4 [%]
+
+   - [ ] Add scripts into file.
+   - [ ] add units/labels to plots. Add conclusions to plots. Recheck plots, redo the sr-times, sr-par-thresh, and sr-distribution (new one). Redo busy-waiters.
+
    - [ ] run for once and all speedups with 1000000 and 2000000 nodes.
-
-* TODO Experiment of Section I [0%]
-** TODO Benchmark: before Amdahl benchmark, do experiments with the optimized version without benchmark and save those timings. Thats is for the comparation of timings to say that our benchmark is not intrusive.
-*** DONE modify scripts for this.
-    CLOSED: [2014-06-30 Mon 15:34]
-** TODO Gather data-> id Sched Round : time taken by each SR : #proc. From this data set I can generate the 2 graphs:
-*** DONE Find the ifndef/define of the benchmarks that are already done
-    CLOSED: [2014-07-02 Wed 09:29]
-*** DONE Set up everything to run tests and gather data (with chord, for example)
-    CLOSED: [2014-07-07 Mon 13:13]
-**** DONE Fix code on SR benchmarks.
-     CLOSED: [2014-07-07 Mon 13:13]
-*** DONE The graph 1: Y=% of scheduling rounds taking #proc. x=#proc
-    CLOSED: [2014-07-08 Tue 09:30]
-*** DONE The graph 2: Y=number of scheduling round. x=Time (is the time of each scheduling round).
-    CLOSED: [2014-07-25 Fri 10:58]
-** TODO Amdhal: Optimal Ahmdal threshold: measure time of sequential executions, then measure time of parallel+sequential execution in a parallel execution. Calculate Amdahl law.
-*** TODO try with other examples.
-
-
 
 * Useful info:
 ** To run classical chord experiment
