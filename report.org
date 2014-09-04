@@ -460,6 +460,205 @@ The data set is the same as SR Distribution and SR times experiments.
 *** TODO put code to post-process tables in Data Analysis, separated from plot code
 ** Adaptive Algorithm
 The benchmark is done using testall.sh and the tables generated using get_times.py
+* Data Analysis
+** Pre-processing of datasets
+#+name: process_data_sr-distribution
+#+begin_src R
+temp = list.files(path='./logs/sr_counts/parallel', pattern="threads_4", full.names = TRUE)
+temp <- temp[grep("precise",temp)]
+flist <- lapply(temp, read.table)
+sr_data <- rbindlist(flist)
+sr_data[, "V1"] <- NULL
+sr_data = as.data.frame.matrix(sr_data)
+saveRDS(sr_data, file="sr-distribution.Rda")
+#+end_src
+
+#+name: process_data_sr-times
+#+begin_src R
+temp = list.files(path='./logs/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
+flist <- lapply(temp, read.table)
+sr_data <- rbindlist(flist)
+sr_data[, "V1"] <- NULL
+sr_data = as.data.frame.matrix(sr_data)
+saveRDS(sr_data, file="./logs/sr_counts/sr-times.Rda")
+#+end_src
+
+#+name: process_data_sr-par-threshold
+#+begin_src R
+#PRECISE MODE
+#SEQUENTIAL
+temp = list.files(path='./logs/sr_counts/sequential', pattern="threads4_", full.names = TRUE)
+temp <- temp[grepl("precise", temp)]
+#temp <- temp[-grep("50000", temp)]
+#temp <- temp[-grep("75000", temp)]
+flist <- lapply(temp, read.table)
+sr_data <- rbindlist(flist)
+sr_data[, "V1"] <- NULL
+sr_data = as.data.frame.matrix(sr_data)
+df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
+
+#PARALLEL:
+temp2 = list.files(path='./logs/sr_counts/parallel', pattern="threads4_", full.names = TRUE)
+temp2 <- temp2[grepl("precise", temp2)]
+flist2 <- lapply(temp2, read.table)
+sr_data2 <- rbindlist(flist2)
+sr_data2[, "V1"] <- NULL
+sr_data2 = as.data.frame.matrix(sr_data2)
+df2 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
+
+#CONSTANT MODE
+#SEQUENTIAL
+temp3 = list.files(path='./logs/sr_counts/sequential', pattern="threads4_", full.names = TRUE)
+temp3 <- temp3[grepl("constant", temp3)]
+flist <- lapply(temp3, read.table)
+sr_data <- rbindlist(flist)
+sr_data[, "V1"] <- NULL
+sr_data = as.data.frame.matrix(sr_data)
+df3 <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
+
+
+#PARALLEL:
+temp4 = list.files(path='./logs/sr_counts/parallel', pattern="threads4_", full.names = TRUE)
+temp4 <- temp4[grepl("constant", temp4)]
+#temp4 <- temp4[-grep("50000", temp4)]
+#temp4 <- temp4[-grep("75000", temp4)]
+flist2 <- lapply(temp4, read.table)
+sr_data2 <- rbindlist(flist2)
+sr_data2[, "V1"] <- NULL
+sr_data2 = as.data.frame.matrix(sr_data2)
+df4 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
+
+#Merge PRECISE datasets
+df5 = merge(df, df2, by.x = 'V3', by.y = 'V3', incomparables = NULL)
+df5[, 'speedup'] <- df5[,'mean_value.x'] / df5[, 'mean_value.y']
+saveRDS(df5, file="./logs/sr_counts/precise.Rda")
+#Merge CONSTANT datasets
+df6 = merge(df3, df4, by.x = 'V3', by.y = 'V3', incomparables = NULL)
+df6[, 'speedup'] <- df6[,'mean_value.x'] / df6[, 'mean_value.y']
+saveRDS(df6,file="./logs/sr_counts/constant.Rda")
+#+end_src
+** Plotting
+#+name: amdahl-speedup
+#+begin_src R  :results output graphics :exports results :file fig/amdahl-speedup.pdf
+data = read.csv("./logs/timings/total_sum_times_amdahl.csv", head=TRUE, sep=',')
+# Speedups of Constant Mode
+data[, "sc1"]  <- data[, "c1"]  / data[, "c1"]
+data[, "sc2"]  <- data[, "c1"] / data[, "c2"]
+data[, "sc4"]  <- data[, "c1"] / data[, "c4"]
+data[, "sc8"]  <- data[, "c1"] / data[, "c8"]
+data[, "sc16"] <- data[, "c1"] / data[, "c16"]
+keep <- c("nodes", colnames(data)[grep("^sc", colnames(data))])
+speedup_constant <- data[keep]
+df <- melt(speedup_constant ,  id = 'nodes', variable_name = 'threads')
+g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(), legend.position="none") + ggtitle("Constant Mode") + ylab("speedup")
+
+# Speedups of Precise Mode
+data[, "1"] <- data[, "p1"]  / data[, "p1"]
+data[, "2"] <- data[, "p1"]  / data[, "p2"]
+data[, "4"] <- data[, "p1"]  / data[, "p4"]
+data[, "8"] <- data[, "p1"]  / data[, "p8"]
+data[, "16"] <- data[,"p1"]  / data[, "p16"]
+keep <- c("nodes", colnames(data)[grep("^[1-9]", colnames(data))])
+speedup_precise <- data[keep]
+df2 <- melt(speedup_precise ,  id = 'nodes', variable_name = 'threads')
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) + ggtitle("Precise Mode") + scale_fill_discrete(name="threads")
+
+arrange_ggplot2(g1,g2,nrow=1)
+#+end_src
+
+#+name: sr-distribution
+#+begin_src R  :results output graphics :exports results  :file fig/sr-distribution.pdf
+sr_data <- readRDS(file="./logs/sr_counts/sr-distribution.Rda")
+ggplot(data=sr_data, geom="histogram", aes(x=V3)) + ylim(0,0.7)+ xlim(1,13) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..)), origin=-0.5) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + scale_x_continuous(breaks=c(1:13), labels=c(1:13),limits=c(1,13)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank()) #, axis.line = element_line(colour = "black"))
+#+end_src
+
+#+name: sr-times
+#+begin_src R  :results output graphics :exports results  :file fig/sr-times.pdf
+sr_data <- readRDS(file="./logs/sr_counts/sr-times.Rda")
+#df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
+ggplot(data=sr_data, geom="histogram", aes(x=V3, y=V2)) + xlim(0,500) + xlab("") + ylab("") + ylim(0,0.005) + geom_point(size = 1) # Replace V2 for 'mean_value' if dont want to plot every dot; and uncomment line above.
+#+end_src
+
+#+name: busy
+#+begin_src R :results output graphics :exports results :file fig/busy.pdf
+orig_data = read.csv("./logs/busy_waiters/total_times_orig.csv", head=TRUE, sep=',')
+opt_data = read.csv("./logs/busy_waiters/total_times_busy.csv", head=TRUE, sep=',')
+
+# Speedups of Constant Mode
+opt_data[, "1"]  <- orig_data[, "c2"]  / orig_data[, "c2"]
+opt_data[, "2"]  <- orig_data[, "c2"]  / opt_data[, "c2"]
+opt_data[, "4"]  <- orig_data[, "c4"]  / opt_data[, "c4"]
+opt_data[, "8"]  <- orig_data[, "c8"]  / opt_data[, "c8"]
+opt_data[, "16"] <- orig_data[, "c16"] / opt_data[, "c16"]
+opt_data[, "24"] <- orig_data[, "c24"] / opt_data[, "c24"]
+keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))])
+speedup_constant <- opt_data[keep]
+
+# Speedups of Precise Mode
+opt_data[, "1"]  <- orig_data[, "p2"]  / orig_data[, "p2"]
+opt_data[, "2"]  <- orig_data[, "p2"]  / opt_data[, "p2"]
+opt_data[, "4"]  <- orig_data[, "p4"]  / opt_data[, "p4"]
+opt_data[, "8"]  <- orig_data[, "p8"]  / opt_data[, "p8"]
+opt_data[, "16"] <- orig_data[, "p16"] / opt_data[, "p16"]
+opt_data[, "24"] <- orig_data[, "p24"] / opt_data[, "p24"]
+keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))])
+speedup_precise <- opt_data[keep]
+
+df <- melt(speedup_constant,  id = 'nodes', variable_name = 'threads')
+df2 <- melt(speedup_precise ,  id = 'nodes', variable_name = 'threads')
+
+g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position="none") +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Constant")
+
+
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(axis.text.x = element_text(angle = -45, hjust = 0), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(),  legend.position="bottom") + scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000)) +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Precise")
+
+arrange_ggplot2(g1,g2,ncol=1)
+#+end_src
+
+#+name: sr-par-threshold
+#+begin_src R :results output graphics :exports results   :file fig/sr-par-threshold.pdf
+precise <- readRDS(file="./logs/sr_counts/precise.Rda")
+constant <- readRDS(file="./logs/sr_counts/constant.Rda")
+
+g1<- ggplot(data=constant, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
+
+g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
+
+arrange_ggplot2(g1,g2,ncol=1)
+#+end_src
+
+#+name: adapt-algorithm
+#+begin_src R  :results output graphics :exports results  :file fig/adapt-algorithm.pdf
+orig_data = read.table("./logs/adaptive_algorithm/total_times_orig.csv")
+opt_data = read.table("./logs/adaptive_algorithm/total_times_adaptive.csv")
+
+# Speedups of Constant Mode
+opt_data[, "1"]  <- orig_data[, "c2"]  / orig_data[, "c2"]
+opt_data[, "2"]  <- orig_data[, "c2"]  / opt_data[, "c2"]
+opt_data[, "4"]  <- orig_data[, "c4"]  / opt_data[, "c4"]
+opt_data[, "8"]  <- orig_data[, "c8"]  / opt_data[, "c8"]
+opt_data[, "16"] <- orig_data[, "c16"] / opt_data[, "c16"]
+opt_data[, "24"] <- orig_data[, "c24"] / opt_data[, "c24"]
+keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))])
+speedup_constant <- opt_data[keep]
+
+# Speedups of Precise Mode
+opt_data[, "1"]  <- orig_data[, "p2"]  / orig_data[, "p2"]
+opt_data[, "2"]  <- orig_data[, "p2"]  / opt_data[, "p2"]
+opt_data[, "4"]  <- orig_data[, "p4"]  / opt_data[, "p4"]
+opt_data[, "8"]  <- orig_data[, "p8"]  / opt_data[, "p8"]
+opt_data[, "16"] <- orig_data[, "p16"] / opt_data[, "p16"]
+opt_data[, "24"] <- orig_data[, "p24"] / opt_data[, "p24"]
+keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))])
+speedup_precise <- opt_data[keep]
+
+df <- melt(speedup_constant ,  id = 'nodes', variable_name = 'threads')
+df2 <- melt(speedup_precise ,  id = 'nodes', variable_name = 'threads')
+g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_blank(), legend.position="none") +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Constant")
+
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(axis.text.x = element_text(angle = -45, hjust = 0), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(),  legend.position="bottom") + scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000)) +  scale_y_continuous(breaks=c(1,10,20,40)) + ylab("Precise")
+arrange_ggplot2(g1,g2,ncol=1)
+#+end_src
 
 
 * Emacs Setup                                                      :noexport:
