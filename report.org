@@ -29,6 +29,7 @@ library('gridExtra')
 library('reshape')
 library('plyr')
 library('data.table')
+library('stringr')
 
 #Helper function to plot several ggplot in one window.
 require(grid)
@@ -462,17 +463,6 @@ The data set is the same as SR Distribution and SR times experiments.
 The benchmark is done using testall.sh and the tables generated using get_times.py
 * Data Analysis
 ** Pre-processing of datasets
-#+name: process_data_sr-distribution
-#+begin_src R
-temp = list.files(path='./logs/sr_counts/parallel', pattern="threads_4", full.names = TRUE)
-temp <- temp[grep("precise",temp)]
-flist <- lapply(temp, read.table)
-sr_data <- rbindlist(flist)
-sr_data[, "V1"] <- NULL
-sr_data = as.data.frame.matrix(sr_data)
-saveRDS(sr_data, file="sr-distribution.Rda")
-#+end_src
-
 #+name: process_data_sr-times
 #+begin_src R
 temp = list.files(path='./logs/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
@@ -567,9 +557,33 @@ arrange_ggplot2(g1,g2,nrow=1)
 #+end_src
 
 #+name: sr-distribution
-#+begin_src R  :results output graphics :exports results  :file fig/sr-distribution.pdf
-sr_data <- readRDS(file="./logs/sr_counts/sr-distribution.Rda")
-ggplot(data=sr_data, geom="histogram", aes(x=V3)) + ylim(0,0.7)+ xlim(1,13) + geom_histogram(binwidth=0.5,aes(y=..count../sum(..count..)), origin=-0.5) + xlab("Amount of processes") + ylab("Percentage of Scheduling Rounds") + scale_x_continuous(breaks=c(1:13), labels=c(1:13),limits=c(1,13)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank()) #, axis.line = element_line(colour = "black"))
+#+begin_src R
+temp = list.files(path='./logs/sr_counts/new', pattern="threads", full.names = TRUE)
+temp <- temp[grep("precise",temp)]
+# This data.frame will store the final proportion values.
+proportions <- data.frame(stringsAsFactors=FALSE) 
+for(i in temp){
+    # Parse amount of nodes from the file path.
+    # Example of file path: './logs/sr_counts/parallel/sr_10000_threads4_constant.log'
+    # Yeah, this could be more beautiful...
+    nodes = as.numeric(strsplit(str_extract(i, "_[0-9]+_"), "_")[[1]][2])
+    # Keep only the column with the amount of processes
+    data <- read.table(i)["V3"]
+    # Calculate proportions
+    data <- prop.table(xtabs(~ V3, data=data))
+    # Populate a new data frame with percentages of interest (1 process, 2 processes, others)
+    p <- c(data["1"][[1]],data["2"][[1]], 1 - (data["1"][[1]] + data["2"][[1]]))
+    # Calculate the remaining proportion
+    #p['others'] <- 1 - (data["1"][[1]] + data["2"][[1]])
+    # And bind to existing data.frame
+    p <- as.data.frame(p)
+    p[,'nodes'] <- nodes
+    p[,'process'] <- c("1","2","others")
+    proportions <- rbind(proportions, p)
+}
+df <- ddply(proportions, .(nodes,process), summarise, msteps = mean(p))
+g<-ggplot(df, aes(x=nodes,y=msteps, group=process, colour=process)) + geom_line() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) + scale_fill_discrete(name="threads")
+g
 #+end_src
 
 #+name: sr-times
