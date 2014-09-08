@@ -39,7 +39,7 @@ if [ ! -d "$log_folder" ]; then
     exit 1
 fi
 
-file_table="timings_$SGHASH.dat"
+file_table="timings_$SGHASH.csv"
 host_info="host_info.org"
 rm -rf $host_info
 
@@ -48,6 +48,7 @@ timefmt="clock:%e user:%U sys:%S telapsed:%e swapped:%W exitval:%x max:%Mk avg:%
 
 # Copy command. This way one can use cp, scp and a local folder or a folder in 
 # a cluster.
+sep=','
 cp_cmd='cp'
 dest=$log_folder # change for <user>@<node>.grid5000.fr:~/$log_folder if necessary
 ###############################################################################
@@ -140,7 +141,7 @@ test -e tmp || mkdir tmp
 me=tmp/`hostname -s`
 
 for size in "${sizes[@]}"; do
-    line_table=$size"\t"
+    line_table=$size
     # CONSTANT MODE
     for thread in "${threads[@]}"; do
         filename="chord_${size}_threads${thread}_constant.log"
@@ -181,7 +182,7 @@ for size in "${sizes[@]}"; do
         # time
         echo "* Timings" >> $filename
         cat $me.timings >> $filename
-        line_table=$line_table"\t"$temp_time
+        line_table=$line_table$sep$temp_time
         $($cp_cmd $filename $dest)
         rm -rf $filename
         rm -rf $me.timings
@@ -216,7 +217,7 @@ for size in "${sizes[@]}"; do
         # time
         echo "* Timings" >> $filename
         cat $me.timings >> $filename
-        line_table=$line_table"\t"$temp_time
+        line_table=$line_table$sep$temp_time
         $($cp_cmd $filename $dest)
         rm -rf $filename
         rm -rf $me.timings
