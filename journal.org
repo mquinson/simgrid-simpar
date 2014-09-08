@@ -261,26 +261,30 @@ CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
 ** 4 [100%]
    - [X] Recheck plots, redo the sr-times, sr-par-thresh, busy
    - [X] new sr-distribution plot
-** 5 [%]
-Report:
-   - [ ] Fix bugs of sr-distribution R code
-   - [ ] Check the empty figures. Generate new sr-times and sr-distribution.
-   - [ ] Keep with the old plot of sr-threshold, its good.
-   - [ ] add units/labels to plots. Add conclusions to plots.
-   - [ ] Take uniform distribution of sizes (not choose them randomly. Not choose 1000, 5000, 10000. Choose them equally distributed).
-   - [ ] Ignore results on emacs maybe will avoid plotting twice some graphs, maybe.
+** 5 [100%]
+   - [X] Fix bugs of sr-distribution R code
+** 8 [36%]
+   - [ ] Go back to the old plot of sr-threshold, its good. (Running new experiments)
+   - [ ] Check the empty figures. Generate new sr-times and sr-distribution. (Running new experiments, R code already done)
+   - [X] add units/labels to plots. Add conclusions to plots.
+   - [X] Take uniform distribution of sizes (not choose them randomly. Not choose 1000, 5000, 10000. Choose them equally distributed).
+   - [X] Put host info in each chord_100*
+   - [X] Change scripts to generate .csv, not tables.
 
-Scripts:
-   - [ ] Put host info in each chord_100*
-   - [ ] Change scripts to generate csv, not tables.
+
+** 9 [%]
    - [ ] Add scripts into file. (testall, testall_sr, get_times)
+   - [ ] G5K: add proxy setting (https://www.grid5000.fr/mediawiki/index.php/Getting_Started#Customizing_nodes_and_accessing_the_Internet)
+   - [ ] G5K: create an image to accelerate the exp. procedures.
 
 New things:
    - [ ] Investigate about remote file + emacs
-
+   - [ ] Run adaptive algorithm with other examples.
 
 Experiments:
    - [ ] run for once and all speedups with 1000000 and 2000000 nodes. (In progress)
+
+ - Ignore results on emacs maybe will avoid plotting twice some graphs, maybe.
 
 * Useful info:
 ** To run classical chord experiment
