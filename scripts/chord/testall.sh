@@ -171,13 +171,15 @@ for size in "${sizes[@]}"; do
         fi
 
         # param
+        cat $host_info >> $filename
+        echo "* Experiment settings"
         echo "size:$size, constant network, $thread threads" >> $filename
         echo "cmd:$cmd" >> $filename
         #stderr
-        echo "### stderr output" >> $filename
+        echo "* Stderr output" >> $filename
         cat /tmp/stderr-xp >> $filename
         # time
-        echo "### timings" >> $filename
+        echo "* Timings" >> $filename
         cat $me.timings >> $filename
         line_table=$line_table"\t"$temp_time
         $($cp_cmd $filename $dest)
@@ -204,14 +206,15 @@ for size in "${sizes[@]}"; do
             temp_time=$(cat $me.timings | awk '{print $(NF)}')
         fi
         # param
-        echo "size:$size, precise network, $thread threads" >> $filename
+        cat $host_info >> $filename
+        echo "* Experiment settings"
+        echo "size:$size, constant network, $thread threads" >> $filename
         echo "cmd:$cmd" >> $filename
         #stderr
-        echo "### stderr output" >> $filename
+        echo "* Stderr output" >> $filename
         cat /tmp/stderr-xp >> $filename
-
         # time
-        echo "### timings" >> $filename
+        echo "* Timings" >> $filename
         cat $me.timings >> $filename
         line_table=$line_table"\t"$temp_time
         $($cp_cmd $filename $dest)
