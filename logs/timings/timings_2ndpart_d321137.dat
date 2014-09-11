@@ -1,7 +1,0 @@
-#SimGrid commit d321137
-#		constant					precise
-#size/thread	1	2	4	8	16	24	1	2	4	8	16	24
-100000		errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig
-300000		errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig
-1000000		errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig
-2000000		errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig	errSig
