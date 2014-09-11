@@ -1,8 +1,8 @@
 DIR = "./logs"                     # The dir where to gather the logs
-MODES = ['constant', 'precise']    # The modes you want to analyse
-OUTPUT_FILE = "./total_times.csv"  # Modify this name to one of your preference
+MODES = ['constant', 'precise']    # The modes to analyse
+OUTPUT_FILE = "./total_times.csv"  # Put proper name here
 
-SIZES = ['1000', '3000', '10000', '25000', '30000', '50000', '75000', '100000']
+SIZES = ['1000', '3000', '10000', '25000', '50000', '75000']
 THREADS = ['2', '4', '8', '16', '24']
 
 # If you make several test of the same experiment, you can name the log files
@@ -23,9 +23,17 @@ def parse_user_kernel(line):
     return sumtime
 
 
+def print_header(file):
+    file.write('"nodes"')
+    for mode in MODES:
+        for thread in THREADS:
+            file.write(',"'+mode[0]+thread+'"')
+    file.write('\n')
+
+
 def parse_files(elapsed=True):
     f = open(OUTPUT_FILE, "w")
-    # f.write("#Non bencharked timings\n#constant first, precise last\n")
+    print_header(f)
     for size in SIZES:
         temp_line = "{}".format(size)
         for mode in MODES:
