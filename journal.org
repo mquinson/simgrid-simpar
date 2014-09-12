@@ -272,29 +272,44 @@ CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
 ** 9 [100%]
    - [X] test remote emacs, examples 
    - [X] test new benchmark with SR experiment
-** 10 [37%]
+** 10 [100%]
    - [X] R remote execution + emacs, working fine
    - [X] G5K: create an image to accelerate a node setup. Check proxy configuration and set keys to clone SimGrid+report.
+** 11 [100%]
+  - [X] Work on portability&reproducibility of report. Rename/cleanup logs folders in a proper way.
+  - [X] get_times.py now more general (can gather amdahl times, usr+sys, elapsed)
+** 12 [100%]
+  - [X] Make image of kadeploy better (add .vimrc, proxy settings, make setup.sh file and add it)
+  - [X] Write about busy waiters comparison
+  - [X] aesthetics of report.org
 
-   - [ ] Work on portability&reproducibility of report. Rename/cleanup logs folders in a proper way. 
-   - [ ] Put host info in each chord_* file.
-   - [ ] Try the new amdahl plot.
-   - [ ] Put the scripts in Data Generation along with the description and then one
-         can choose which one run. (Also put the proper logs/ directories)
- 
-   - [ ] Run adaptive algorithm with other examples.
-   - [ ] Keep thinking about the speedup of SR's data.
-   - [ ] run for once and all speedups with 1000000 and 2000000 nodes. (In progress)
+** 15 [%]
+  - [ ] Make plots in same column of the same size (R)
+  - [ ] Improve benchmark of SRs.
+  - [ ] (experiment for a weekend) Try the new amdahl plot. Actually,
+        run new experiments in normal way to measure only speedups. 
 
-   - Ignore results on emacs maybe will avoid plotting twice some graphs, maybe.
+Other things that might be interesting:
+  - Run adaptive algorithm with other examples.
+  - check uniformity of nodes amounts on some experiments.
+Long term tasks:
+  - run chord with 1m and 2m nodes. (In progress)(missing 2,4 threads for precise, 4 for constant)
+
 * Useful info:
-** General setup ("What you have to install in order to run experiments, compile report, etc...")
+** List of recommended packages/software to run experiments
    - Emacs24
    - org-mode8.2
    - ess
    - R
    - texlive
    - cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev libdwarf-dev libunwind7-dev valgrind libsigc++
+** To deploy a node with a personalized image
+   1) oarsub -p 'cluster="parapluie"' -l nodes=1,walltime=8:00 -I -t deploy 
+   2) kadeploy3 -f $OAR_NODEFILE -e debian-simgrid -k (the image is in kadeploy_images/)
+   3) connect to the deployed node and run ./post_deploy.sh
+   4) ssh-keygen, put the public key in authorized_keys of rennes frontend
+   5) All the R packages and libraries needed to run SimGrid should be installed.
+
 ** To run classical chord experiment
    - Steps to connect to G5K and deploy SimGrid:
      1) connect to G5k, connect to Rennes, try to ask a parapluie node:
