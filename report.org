@@ -668,11 +668,18 @@ grid.arrange(arrangeGrob(g1, g2 + theme(legend.position="none"),
 precise <- readRDS(file="./logs/sr_counts/precise.Rda")
 constant <- readRDS(file="./logs/sr_counts/constant.Rda")
 
-g1<- ggplot(data=constant, geom="histogram", aes(x=V3, y=speedup)) + xlab("") + ylab("Speedup") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
+g1<- ggplot(data=constant, geom="histogram", aes(x=V3, y=speedup)) + xlab("")+geom_point() + xlim(1,100) + stat_smooth(se=FALSE) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+    panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
+    panel.background = element_blank(), axis.line=element_line(), axis.title.x = element_blank(),
+    legend.position="none") + ylab("")
 
-g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) + xlab("Processes in SR") + ylab("Speedup") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE)
+g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) + xlab("Processes in SR") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE) + theme(panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
+    panel.background = element_blank(), axis.line=element_line(),
+    axis.title.x = element_blank(), legend.position="none") + ylab("")
 
-arrange_ggplot2(g1,g2,ncol=1)
+grid.arrange(arrangeGrob(g1, g2,
+             main ="", sub = "Amount of processes taken by SR's",
+             left = "Speedup of parallel execution against sequential execution"), nrow=1)
 #+end_src
 
 #+name: adapt-algorithm
