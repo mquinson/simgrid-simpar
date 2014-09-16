@@ -9,25 +9,38 @@
 ** 15 [100%]
    - [X] understand how to run experiment.
 ** 16 [100%]
-   - [X] Figure out how to get the times of the previous exp. (system time, in log folder)
-   - [X] deploy a parapluie node in rennes. Somehow it refuses to give me a node there, so I got a parapide node. Its not the same, but at least I am able to run the simulation.
-   - [X] Install newer version of simgrid. I struggled a lot here, since it seems there are some files missing in examples/msg/chord/ and examples/platform/
-   - [X] Figure out how to run with different ammount of threads --cfg flag for simgrid simulations
+   - [X] Figure out how to get the times of the previous exp. (system
+     time, in log folder)
+   - [X] deploy a parapluie node in rennes. Somehow it refuses to give
+     me a node there, so I got a parapide node. Its not the same, but
+     at least I am able to run the simulation.
+   - [X] Install newer version of simgrid. I struggled a lot here,
+     since it seems there are some files missing in
+     examples/msg/chord/ and examples/platform/
+   - [X] Figure out how to run with different ammount of threads --cfg
+     flag for simgrid simulations
 
-
+     
 ** 19 [100%]
    - [X] Figure out how to run all the experiments using a script
-   - [X] Schedule a Launch with all the experiments. Run in parapluie-9.rennes.grid5000.fr
+   - [X] Schedule a Launch with all the experiments. Run in
+     parapluie-9.rennes.grid5000.fr
 
 ** 20 [100%] 
-   - [X] Run simulation in G5K, using the last version available of [[https://gforge.inria.fr/projects/simgrid/][simgrid]]
-	 Anyway, the simulation was too slow, couldnt finish it. Had some unexpected exceptions too.
+   - [X] Run simulation in G5K, using the last version available of
+     [[https://gforge.inria.fr/projects/simgrid/][simgrid]] Anyway, the simulation was too slow, couldnt finish
+     it. Had some unexpected exceptions too.
 
 ** 21 [100%]
-   - [X] Run te experiment available at revision 918d6192, but with the newer revision. NOTE: this didnt work, the script to run the experiment is simpler than the one I actually need
+   - [X] Run te experiment available at revision 918d6192, but with
+     the newer revision. NOTE: this didnt work, the script to run the
+     experiment is simpler than the one I actually need
    - [X] Run modified script on the older version and see what happens
-   - [X] Run the scripts of 2011_parallel on the older version and see what happens
-   - [X] Run the scripts of 2011_parallel on the newer version and see what happens. Still slower than the paper, at least in constant sequential mode.
+   - [X] Run the scripts of 2011_parallel on the older version and see
+     what happens
+   - [X] Run the scripts of 2011_parallel on the newer version and see
+     what happens. Still slower than the paper, at least in constant
+     sequential mode.
 ** 22 [100%] Simulation is slow, even with the same parameters (like the older version). 
    - [X] Try with other runtime options, lile --cfg=config
    - [X] Try to figure out what the bottleneck is
@@ -44,28 +57,36 @@
    - [X] learn about thread synchronization.
 
 ** 28 [100%]
-   - [X] Profiling to find bottleneck in simulation (poorman's, perf, gprof, flamegraph)
+   - [X] Profiling to find bottleneck in simulation (poorman's, perf,
+     gprof, flamegraph)
     
 * June
 ** 2 - 6 SUD'14
 
 ** 10 [100%]
    - [X] Make script to test performance on different versions.
-   - [X] Start tests performance in different versions of SG, using a "bisection" methodology.
+   - [X] Start tests performance in different versions of SG, using a
+     "bisection" methodology.
 
-To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graphene --test=chord,goal --rev="e32a2a561ef184dc9ef8cdaf25759bba6b2ea198,71c9241aa27344f9f8f02f3c1272af4556691713,f95108e7e5bcb66bba76a24c1c433eee710e38e0"
+To run (old) performance regression test: ./SGXP.pl --site=nancy
+--cluster=graphene --test=chord,goal
+--rev="e32a2a561ef184dc9ef8cdaf25759bba6b2ea198,71c9241aa27344f9f8f02f3c1272af4556691713,f95108e7e5bcb66bba76a24c1c433eee710e38e0"
 ** 11 [100%]
-   - [X] Start with optimization of dynamic threshold of paper, have an initial version working (not necessarily more efficient).
+   - [X] Start with optimization of dynamic threshold of paper, have
+     an initial version working (not necessarily more efficient).
 ** 12 [100%]
    - [X] Performances timings of dynamic threshold algorithm.
 ** 13 [100%]
    - [X] Run performance regression test.
-   - [X] Finish performance timings of dynamic threshold algorithm, check if it is really working. Plot a graph.
+   - [X] Finish performance timings of dynamic threshold algorithm,
+     check if it is really working. Plot a graph.
    - [X] Try to start with the cores optimization of parmap.
 
 
 ** 16 [100%]
-   - [X] Re run Performance regression test with fixed amount of commits. For version 3.9 and ahead there are ~2221 commits (until 3.11 release, +2270 until HEAD)
+   - [X] Re run Performance regression test with fixed amount of
+     commits. For version 3.9 and ahead there are ~2221 commits (until
+     3.11 release, +2270 until HEAD)
 ** 17 [100%]
    - [X] Debug dynamic threshold algorithm
 ** 18 [100%]
@@ -106,7 +127,11 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
 
 * July
 ** 1 [100%]
-*** DONE Prepare code to run Amdahl Benchmark. Dont forget to set log_critical to the final print of Amdahl law. Then run exp. the same way without amdahl benchmark. In the table will be the final times, in the logs will be the times of the parallel/sequential execution too.
+   - [X] Prepare code to run Amdahl Benchmark. Dont forget to set
+     log_critical to the final print of Amdahl law. Then run exp. the
+     same way without amdahl benchmark. In the table will be the final
+     times, in the logs will be the times of the parallel/sequential
+     execution too.
     CLOSED: [2014-07-01 Tue 16:00]
 ** 2 [100%]
 *** DONE Run portion of experiments (<10k)
@@ -116,7 +141,7 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
 **** DONE with amdahl benchmark
      CLOSED: [2014-07-02 Wed 17:55]
 ** 3 [100%]
-- [X] benchmark experiment for SR. Still not working.
+   - [X] benchmark experiment for SR. Still not working.
 ** 4 [100%]
 *** DONE fix exp. of benchmark per SR.
     CLOSED: [2014-07-04 Fri 16:47]
@@ -148,29 +173,46 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
 **** DONE make more experiments from the laptop
      CLOSED: [2014-07-17 Thu 09:41]
 ** 16 [100%]
-   - [X] valgrind and gdb to track the bug in chord. Found a corruption in memory, still dont find the bug
+   - [X] valgrind and gdb to track the bug in chord. Found a
+     corruption in memory, still dont find the bug
 ** 17-18 [100%]
    - [X] Analyze stacks, the bug has its origins on the SR benchmarks
 
 
 ** 21 [100%]
-   - [X] Using gdb. Found where the SIGSEV comes from: raw_swapcontext from suspend_serial of smx_context_raw.c. The problem is with the address of the next_context
-     The problem seems to be with the way 'i' index was computed in smx_ctx_raw_suspend_serial. I fixed it and now it works.
+   - [X] Using gdb. Found where the SIGSEV comes from: raw_swapcontext
+     from suspend_serial of smx_context_raw.c. The problem is with the
+     address of the next_context The problem seems to be with the way
+     'i' index was computed in smx_ctx_raw_suspend_serial. I fixed it
+     and now it works.
 ** 22 [100%]
-   - [X] Found 2 more segfaults: when nthreads=1 using the SR benchmarks, and when the sizes are too big (with or without benchmarks) in chord simulation.
+   - [X] Found 2 more segfaults: when nthreads=1 using the SR
+     benchmarks, and when the sizes are too big (with or without
+     benchmarks) in chord simulation.
    - [X] Re run experiments with SR with smaller sizes, in the cluster
-** 23 
-   - found that the 'performance fix' might be what causes the segfaults in some scenarios 
-** 24 
-   - Fixed potential SIGSEV when removing communication action when a SURF communication action is finishes (SIMIX_post_comm)
+** 23 [100%] 
+   - [X] found that the 'performance fix' might be what causes the
+     segfaults in some scenarios
+** 24 [100%]
+   - [X] Fixed potential SIGSEV when removing communication action
+     when a SURF communication action is finishes (SIMIX_post_comm)
 ** 25 [100%]
-   - [X] Make new experiments with bigger sizes: speedup (amdahl, /log_amdahl), SR (/log_sr), and raw (/log)(to compare intrusiveness of experiment). Use parapluie
-   - [X] Prepare "micro" amdahl timings. That would be I)c). Use SR experiment, one with 1 thread (seq), one with better parallel version. Average timings of each amount of processes and then calculate speedup of each amount of processes
+   - [X] Make new experiments with bigger sizes: speedup (amdahl,
+     /log_amdahl), SR (/log_sr), and raw (/log)(to compare
+     intrusiveness of experiment). Use parapluie
+   - [X] Prepare "micro" amdahl timings. That would be I)c). Use SR
+     experiment, one with 1 thread (seq), one with better parallel
+     version. Average timings of each amount of processes and then
+     calculate speedup of each amount of processes
 
 
 ** 28 [100%]
-   - [X] run SR like this: adding all the times of the parallel execution; taking the maxtime of the parallel execution. That way I get the sequential time of each SR, and the parallel time. 
-   - [X] generate 300000, 1000000 nodes files again, there are some problems with the current ones. Run final part of experiments with it(raw, amdahl, sr)
+   - [X] run SR like this: adding all the times of the parallel
+     execution; taking the maxtime of the parallel execution. That way
+     I get the sequential time of each SR, and the parallel time.
+   - [X] generate 300000, 1000000 nodes files again, there are some
+     problems with the current ones. Run final part of experiments
+     with it(raw, amdahl, sr)
    - [X] Migrate from Rstudio to emacs
 ** 29 [100%]
    - [X] Work on better plots in rstudio. Work on report
@@ -178,13 +220,16 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
    - [X] fix SR
    - [X] keep working with report
 ** 31 [100%]
-   - [X] organize data of experiments. Check that I have everything and probably relaunch some exp. to update data with the fixed version of SimGrid
+   - [X] organize data of experiments. Check that I have everything
+     and probably relaunch some exp. to update data with the fixed
+     version of SimGrid
 
 * August
 ** 1 [100%]
    - [X] work on benchmark not intrusive
 ** 4 [100%]
-   - [X] make new speedup plot with the bigger sizes (already got the logs). with 2,4,8,16,24 threads
+   - [X] make new speedup plot with the bigger sizes (already got the
+     logs). with 2,4,8,16,24 threads
    - [X] put numbers below bars in sr-distribution
 ** 5 [100%]
    - [X] get new data and make a decent sr-times plot,
@@ -199,50 +244,65 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
    - [X] Check cache misses of previous/optimized version with perf.
    - [X] Start with parmap between N cores.
 ** 11 [100%]
-   - [X] find why I get a deadlock running chord -> commit b533e2f7a6f6ebf750a96243804688169d2e6d9e, change only the #define. Also, check that the code at SIMIX_post_comm is deleted.
+   - [X] find why I get a deadlock running chord -> commit
+     b533e2f7a6f6ebf750a96243804688169d2e6d9e, change only the
+     #define. Also, check that the code at SIMIX_post_comm is deleted.
 ** 12 [100%]
-   - [X] Still have some random deadlocks at the end of the simulation.Random. have to do some pinpoint, beginning from the performance fix.
+   - [X] Still have some random deadlocks at the end of the
+     simulation.Random. have to do some pinpoint, beginning from the
+     performance fix.
 ** 13 [100%]
-   - [X] Fix deadlock: delete SIMIX_process_cleanup(smx_proc) from src/msg/msg_process.c, why is that there?
+   - [X] Fix deadlock: delete SIMIX_process_cleanup(smx_proc) from
+     src/msg/msg_process.c, why is that there?
    - [X] Do timings with maestro sleep+(N-1)
  
 ** 14 [100%]
    - [X] Timings maestrosleeps + (N-1) with 100k, 300k
 ** 18 [100%]
    - [X] Put code of bindings in order.
-   - [X] Exp. intrusiveness with 3k, 5k, 10k, 25k, 50k, 75k nodes. (in progress)
+   - [X] Exp. intrusiveness with 3k, 5k, 10k, 25k, 50k, 75k nodes. (in
+     progress)
 ** 19 [100%]
-   - [X] Work with ideas of adaptative algorithm. Do some meditions if have time.
-   - [X] Tons of meditions and benchmarks of parmap opt., intrusiveness, amdahl speedup.
+   - [X] Work with ideas of adaptative algorithm. Do some meditions if
+     have time.
+   - [X] Tons of meditions and benchmarks of parmap opt.,
+     intrusiveness, amdahl speedup.
 
 ** 20 [100%]
    - [X] Amdahl speedup with 300k, 500k
    - [X] Short tests with adaptive algorithm in cluster.
    - [X] graph to show times of parmapN, parmapN-1 and original (al)
-   - [X] Polish some things in report, like the plots with newer data, and some numbers using that data.
+   - [X] Polish some things in report, like the plots with newer data,
+     and some numbers using that data.
 ** 21 [100%]
    - [X] Write down things about binding threads.
    - [X] Run a new benchmark with the adaptive algorithm
 ** 22 [100%]
-   - [X] Significant improve on adaptive algorithm plot. Write conclusions of this.
+   - [X] Significant improve on adaptive algorithm plot. Write
+     conclusions of this.
    - [X] Run remaining Amdahl experiments.
 ** 25 [100%]
    - [X] Finally, got a nicer dataset/plot of sr-par-threshold.
    - [X] Start Busy Waiters exp.
 ** 26 [100%]
-   - [X] Constant vs. Precise with sr-par-threshold plot.(use a node or something, this TAKES time)
+   - [X] Constant vs. Precise with sr-par-threshold plot.(use a node
+     or something, this TAKES time)
    - [X] Keep w/busy waiters optimization.
    - [X] Amdahl: Do plot with data gathered
 ** 27 [100%]
-   - [X] Make more Constant mode experiments with sr-speedup to get better shape in plot
-   - [X] plot busy_waiters vs. futex,check if there is some improvement.
+   - [X] Make more Constant mode experiments with sr-speedup to get
+     better shape in plot
+   - [X] plot busy_waiters vs. futex,check if there is some
+     improvement.
    - [X] Use node to process the data of sr-counts
 ** 28 [100%]
-   - [X] Process tables of sr-times plot and save them to generate latex faster.
-   - Work on report (organize plots, sections)
+   - [X] Process tables of sr-times plot and save them to generate
+     latex faster.
+   - [X] Work on report (organize plots, sections)
 
 ** 29 [100%]
-   - [X] General cleanup of repository: erase old folders, update scripts, organize everything.
+   - [X] General cleanup of repository: erase old folders, update
+     scripts, organize everything.
    - [X] Add documentation to scripts.
 
 * September
@@ -251,13 +311,15 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy --cluster=graph
    - [X] Re-run busy-waiters. Re-run speedup of scheduling rounds.
 
 ** 2 [100%]
-CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
    - [X] Integrate Luka script with mine. Make it more portable.
-   - [X] Work on sr-par-threshold (plot again with new data, compare to old plot. Plot only with specific settings: certain amount of threads and sizes)
+   - [X] Work on sr-par-threshold (plot again with new data, compare
+     to old plot. Plot only with specific settings: certain amount of
+     threads and sizes)
 ** 3 [100%]
    - [X] transforms files to csv.
    - [X] cleanup R code.
-   - [X] modify logs paths in report. Add code to Data Analysis section.
+   - [X] modify logs paths in report. Add code to Data Analysis
+     section.
 ** 4 [100%]
    - [X] Recheck plots, redo the sr-times, sr-par-thresh, busy
    - [X] new sr-distribution plot
@@ -266,7 +328,9 @@ CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
 
 ** 8 [100%]
    - [X] add units/labels to plots. Add conclusions to plots.
-   - [X] Take uniform distribution of sizes (not choose them randomly. Not choose 1000, 5000, 10000. Choose them equally distributed).
+   - [X] Take uniform distribution of sizes (not choose them
+     randomly. Not choose 1000, 5000, 10000. Choose them equally
+     distributed).
    - [X] Put host info in each chord_100*
    - [X] Change scripts to generate .csv, not tables.
 ** 9 [100%]
@@ -274,26 +338,59 @@ CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
    - [X] test new benchmark with SR experiment
 ** 10 [100%]
    - [X] R remote execution + emacs, working fine
-   - [X] G5K: create an image to accelerate a node setup. Check proxy configuration and set keys to clone SimGrid+report.
+   - [X] G5K: create an image to accelerate a node setup. Check proxy
+     configuration and set keys to clone SimGrid+report.
 ** 11 [100%]
-  - [X] Work on portability&reproducibility of report. Rename/cleanup logs folders in a proper way.
-  - [X] get_times.py now more general (can gather amdahl times, usr+sys, elapsed)
+  - [X] Work on portability&reproducibility of report. Rename/cleanup
+    logs folders in a proper way.
+  - [X] get_times.py now more general (can gather amdahl times,
+    usr+sys, elapsed)
 ** 12 [100%]
-  - [X] Make image of kadeploy better (add .vimrc, proxy settings, make setup.sh file and add it)
+  - [X] Make image of kadeploy better (add .vimrc, proxy settings,
+    make setup.sh file and add it)
   - [X] Write about busy waiters comparison
   - [X] aesthetics of report.org
 
-** 15 [%]
-  - [ ] Make plots in same column of the same size (R)
-  - [ ] Improve benchmark of SRs.
-  - [ ] (experiment for a weekend) Try the new amdahl plot. Actually,
-        run new experiments in normal way to measure only speedups. 
+** 15 [100%]
+  - [X] Make plots in same column of the same size (R)
+** 16 [100%]
+  - [X] Integrate sr-distribution in the produced .pdf
+  - [X] Drop everything related to the constant model. Precise mode
+    needs to become more efficient.
+  - [X] Ensure that every graph has a caption, a legend if it presents
+    more than one curve, and that the axis are explained.
+  - [X] Finish experiments of Amdahl with 1m nodes.(Precise mode)
+
+** 17 [0%]
+Scripts:
+  - [ ] make testall grep important output from logs (dont use the CRITICAl trick anymore)
+
+Experiments:
+  - [ ] Make normal speedup exp with default SimGrid. 
+    - [ ] After that, try the new amdahl plot with amdahl timings
+  - [ ] Improve benchmark of SR's.
+  - [ ] Make new SR exp with normal benchmark and uniform distributed
+    sizes.
+
+Report:
+  - [ ] Add the scripts to org mode.
+  - [ ] The Figure 1 should be renamed to "Baseline performance of
+    SimGrid 3.11." or something. I would like this graph to:
+    - be actually run with SimGrid v3.11 maybe (not sure)
+    - have more data (In Progress)
+    - report also the memory consumption
+    - report some absolute numbers here (Figure 1), maybe on another
+      graph so that we can see the time that it actually takes.
+  - [ ] Add the used algorithm in section 5.2, as well as absolute
+    numbers again, as in 3.1.
 
 Other things that might be interesting:
-  - Run adaptive algorithm with other examples.
-  - check uniformity of nodes amounts on some experiments.
+  - [ ] Run adaptive algorithm with other examples.
+  - [ ] Check uniformity of nodes amounts on some experiments.
+
 Long term tasks:
-  - run chord with 1m and 2m nodes. (In progress)(missing 2,4 threads for precise, 4 for constant)
+  - [ ] Run chord with 1m nodes. (In progress)
+  - [ ] Run chord with 2m nodes.
 
 * Useful info:
 ** List of recommended packages/software to run experiments
@@ -302,13 +399,15 @@ Long term tasks:
    - ess
    - R
    - texlive
-   - cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev libdwarf-dev libunwind7-dev valgrind libsigc++
+   - cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools
+     gdb liblua5.1-0-dev libdwarf-dev libunwind7-dev valgrind
+     libsigc++
 ** To deploy a node with a personalized image
-   1) oarsub -p 'cluster="parapluie"' -l nodes=1,walltime=8:00 -I -t deploy 
-   2) kadeploy3 -f $OAR_NODEFILE -e debian-simgrid -k (the image is in kadeploy_images/)
+   1) oarsub -p 'cluster="parapluie"' -l nodes=1,walltime=8:00 -I -t deploy
+   2) kadeploy3 -f $OAR_NODEFILE -e debian-simgrid -k
    3) connect to the deployed node and run ./post_deploy.sh
-   4) ssh-keygen, put the public key in authorized_keys of rennes frontend
-   5) All the R packages and libraries needed to run SimGrid should be installed.
+   4) ssh-keygen, put .pub in authorized_keys of rennes frontend
+   5) R packages and libraries needed should be installed.
 
 ** To run classical chord experiment
    - Steps to connect to G5K and deploy SimGrid:
@@ -354,17 +453,22 @@ repository: git+ssh://rtortilo@scm.gforge.inria.fr//gitroot/simgrid/simgrid-perf
 6) ./SG-PRT.rb
 
 ** Pinpoint tests
-1) To get a list of specific commits (and count them,etc) git log 772d63c..ce1289d --pretty=oneline | head -n570 | less 
-2) If compilaton of chord fails for version 3.10 (or whatever else), try copying the content of folder src/ to usr/local/src
+1) To get a list of specific commits (and count them,etc):
+   git log 772d63c..ce1289d --pretty=oneline | head -n570 | less
+2) If compilaton of chord fails for version 3.10 (or whatever else),
+   try copying the content of folder src/ to usr/local/src
 ** Useful commands
-- To rename bunch of files (useful for organizing logs): rename 's/^/2_/' sr_5000_threads* (rename <pattern_prefix> <pattern_group_files>)
+- To rename bunch of files (useful for organizing logs):
+  rename 's/^/2_/' sr_5000_threads*
+  (basically rename <pattern_prefix>  <pattern_group_files>)
 * Paper
 ** Problem Analysis
-  1) Optimal threshold for Amdhal. Which portion of the problem is paralellizable. Which not. Why is hard?(a)
-     Two graphics: #SD vs. #process (b) && #SD vs. time(SD) (c)
+  1) Optimal threshold for Amdhal. Which portion of the problem is
+     paralellizable. Which not. Why is hard?(a) Two graphics: #SD
+     vs. #process (b) && #SD vs. time(SD) (c)
      
 ** Find threshold between sequential/parallel
-  1) test over real runs. not simulations (what would be real runs?)
+  1) test over real runs. not simulations
   2) geometric mean (of..)
 Once I get the basis threshold:
   3) adaptative algorithm to choose how many threads wake up in each round:
@@ -400,8 +504,10 @@ SimGrid3.10   772d63cca583f5d16096fa9f487b4ab07d9af8f0
   Performance regression testing
   
 ** Hot topics task 5
-1) we are near amdhal paralelism threshold, because there are no more things to paralellize.
-2) we want to run in parallel not only the threads but also the events in each thread?
+1) we are near amdhal paralelism threshold, because there are no more
+   things to paralellize.
+2) we want to run in parallel not only the threads but also the events
+   in each thread?
 3) we want to find the independent events and run them in parallel.
 
 
