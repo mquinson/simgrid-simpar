@@ -156,7 +156,7 @@ for size in "${sizes[@]}"; do
 
 
         echo "$size nodes, constant model, $thread threads"
-        cmd="./chord One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:critical --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0"
+        cmd="./chord One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0"
 
         /usr/bin/time -f "$timefmt" -o $me.timings $cmd $cmd 1>/tmp/stdout-xp 2>/tmp/stderr-xp
 
@@ -192,7 +192,7 @@ for size in "${sizes[@]}"; do
         echo "$size nodes, precise model, $thread threads"
         filename="chord_${size}_threads${thread}_precise.log"
 
-        cmd="./chord One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=maxmin/precision:0.00001 --log=root.thres:critical --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0"
+        cmd="./chord One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=maxmin/precision:0.00001 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0"
 
         /usr/bin/time -f "$timefmt" -o $me.timings $cmd $cmd 1>/tmp/stdout-xp 2>/tmp/stderr-xp
 

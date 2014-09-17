@@ -354,6 +354,7 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy
 ** 15 [100%]
   - [X] Make plots in same column of the same size (R)
 ** 16 [100%]
+CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
   - [X] Integrate sr-distribution in the produced .pdf
   - [X] Drop everything related to the constant model. Precise mode
     needs to become more efficient.
@@ -361,28 +362,32 @@ To run (old) performance regression test: ./SGXP.pl --site=nancy
     more than one curve, and that the axis are explained.
   - [X] Finish experiments of Amdahl with 1m nodes.(Precise mode)
 
-** 17 [0%]
-Scripts:
-  - [ ] make testall grep important output from logs (dont use the CRITICAl trick anymore)
-
+** 17 [100%]
+   - [X] Add setup scripts to report.
+   - [X] launch experiments for speedup, with a more uniform
+     distribution of sizes
+** 18 [%]
 Experiments:
-  - [ ] Make normal speedup exp with default SimGrid. 
-    - [ ] After that, try the new amdahl plot with amdahl timings
+  - [ ] Make normal speedup exp with default SimGrid. (In Progress)
+    - [ ] New amdahl plot with amdahl timings
   - [ ] Improve benchmark of SR's.
   - [ ] Make new SR exp with normal benchmark and uniform distributed
     sizes.
 
 Report:
   - [ ] Add the scripts to org mode.
+  - [ ] Add the used algorithm in section 5.2, as well as absolute
+    numbers again, as in 3.1.
+
   - [ ] The Figure 1 should be renamed to "Baseline performance of
     SimGrid 3.11." or something. I would like this graph to:
     - be actually run with SimGrid v3.11 maybe (not sure)
     - have more data (In Progress)
-    - report also the memory consumption
+    - report also the memory consumption (Peak and average memory
+      already measured)
     - report some absolute numbers here (Figure 1), maybe on another
       graph so that we can see the time that it actually takes.
-  - [ ] Add the used algorithm in section 5.2, as well as absolute
-    numbers again, as in 3.1.
+
 
 Other things that might be interesting:
   - [ ] Run adaptive algorithm with other examples.

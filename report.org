@@ -22,57 +22,6 @@
 #+LATEX_HEADER: \usepackage{amscd}
 #+LATEX_HEADER: \usepackage{wrapfig}
 
-#+begin_src R  :exports none
-# If you miss the libraries, try typing >>>install.packages("data.table")<<< in a R console
-library('ggplot2')
-library('gridExtra')
-library('reshape')
-library('plyr')
-library('data.table')
-library('stringr')
-require('grid')
-# To plot several ggplot in one window.
-vp.layout <- function(x, y) viewport(layout.pos.row=x, layout.pos.col=y)
-arrange_ggplot2 <- function(..., nrow=NULL, ncol=NULL, as.table=FALSE) {
-    dots <- list(...)
-    n <- length(dots)
-    if(is.null(nrow) & is.null(ncol)){
-        nrow = floor(n/2) ; ncol = ceiling(n/nrow)
-    }
-    if(is.null(nrow)){
-        nrow = ceiling(n/ncol)
-    }
-    if(is.null(ncol)){
-        ncol = ceiling(n/nrow)
-    }
-    grid.newpage()
-    pushViewport(viewport(layout=grid.layout(nrow,ncol)))
-    ii.p <- 1
-    for(ii.row in seq(1, nrow)){
-        ii.table.row <- ii.row
-        if(as.table) {
-            ii.table.row <- nrow - ii.table.row + 1
-        }
-        for(ii.col in seq(1, ncol)){
-            ii.table <- ii.p
-            if(ii.p > n) break
-            print(dots[[ii.table]], vp=vp.layout(ii.table.row, ii.col))
-            ii.p <- ii.p + 1
-        }
-    }
-}
-
-# Get legend from a given plot
-g_legend<-function(a.gplot){
-    tmp <- ggplot_gtable(ggplot_build(a.gplot))
-    leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-    legend <- tmp$grobs[[leg]]
-    return(legend)
-}
-#+end_src
-
-#+RESULTS:
-
 * Motivation and Problem Statement
 
 Simulation is the third pillar of science, allowing to study complicated
@@ -209,38 +158,39 @@ confirms what we have proved in ~\cite{previous}.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:one
-#+caption: Real speedup achieved running Chord simulation in multithread mode.
+#+caption: Baseline performance of SimGrid 3.11. Speedups achieved using multithreaded executions against the sequential ones.
 #+results: amdahl-speedup
 [[file:fig/amdahl-speedup.pdf]]
 
 ** Parallelizable portions of the problem
-This experiment is based on a typical Chord simulation, and the data wanted is
-the following: ID of each Scheduling Round, time taken by each Scheduling Round
-and number of process executed in each scheduling round.
+This experiment is based on a typical Chord simulation, and the data
+wanted is the following: ID of each Scheduling Round, time taken by
+each Scheduling Round and number of process executed in each
+scheduling round.
 
-What we want to prove is that the limit on the speed up reached is due to the
-fact that we are very closer to the line that define what is parallelizable in
-our model and what is exeuted sequentially.  As it can be seen in the Figure
-\ref{fig:two} , the amount of processes computed by each scheduling round is
-only one most of the times, so the parallel execution is not possible in that
-instances. The remaining processes are executed in parallel due to the parallel
-execution threshold already setted up in SimGrid (which can be modified), but it
-only represents the 31\% of the total amount of user processes in a typical run.
+What we want to prove is that the limit on the speed up reached is due
+to the fact that we are very closer to the line that define what is
+parallelizable in our model and what is exeuted sequentially.  As it
+can be seen in the Figure \ref{fig:two} , the amount of processes
+computed by each scheduling round is only one most of the times
+(between 50-60\%), so the parallel execution is not possible in that
+instances. The remaining processes are executed in parallel due to the
+parallel execution threshold already setted up in SimGrid (which can
+be modified).
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:two
-#+caption: Proportion of scheduling rounds computing processes depending on amount of nodes simulated (Chord simulation).
-#+results: sr-distribution
+#+caption: Proportions of SR's having only one process to compute, SR's having 2 and SR's having 3 or more; according to the size of nodes simulated.
 [[file:fig/sr-distribution.pdf]]
 
-
-Besides that, the Figure \ref{fig:three} show that when the amount of processes is bigger,
-then the sequential execution time is bigger. That means that parallelizing that remaining 31\%
-of processes is what achieves the current speedup.
+Besides that, the Figure \ref{fig:three} shows that when the amount of
+processes is bigger, then the sequential execution time is
+bigger. That means that parallelizing that remaining percentage of
+SR's can help to increase the performance.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:three
-#+caption: Execution times of SR's depending on the amount of processes of each SR (Chord simulation)
+#+caption: Times of SR's sequential executions depending on the amount of processes of each SR.
 #+results: sr-times
 [[file:fig/sr-times.pdf]]
 
@@ -281,7 +231,6 @@ x2.44 and almost x15 (depending on the amount of threads and the size of the
 simulation).  This proves that physical binding of threads to CPU cores can be
 useful when a big amount of threads is needed.
 
-
 ** Parmap between N cores
 
 Several optimizations regarding the distribution of work between threads were
@@ -292,7 +241,7 @@ computing; the last one involves the creation of one extra thread and make all
 this N threads work while maestro sleeps.
 
 The experiments were made using up to 75000 nodes in a Chord simulation with
-Precise and Constant modes, but no performance gain was achieved. In fact, the
+Precise mode, but no performance gain was achieved. In fact, the
 creation of one extra thread proved to be slightly more slower than the original
 version of parmap, while sending maestro to sleep and make its N-1 threads do
 the computation did not show any improvement or loss in performance.
@@ -306,7 +255,7 @@ synchronization mode within the parmap abstraction, in user space only.  But
 even when they are more efficient than classical mutexes, which run in kernel
 space, they may present performance drawbacks.  In this section we compare the
 busy waiters vs. futexes synchronization types, using the chord simulation in
-both Constant and Precise modes, and we found that using busy waiters instead of
+both Precise mode, and we found that using busy waiters instead of
 futexes can result in a speedup between 1.08 and 1.53 using few threads (up to
 8), and from 1.15 to 3 when the amount of threads is big enough (16 or 24).
 
@@ -335,8 +284,7 @@ the best average option for a simulation.
 [[file:fig/sr-par-threshold.pdf]]
 
 As it can be seen in the Figure \ref{fig:five}, the optimal threshold starts at 28 user processes
-for the Precise mode, while with Constant mode, the speedup of parallel vs. sequential execution of
-scheduling rounds is immediate.
+for the Precise mode.
 
 ** Adaptive algorithm to calculate threshold
 Finding an optimal threshold and keep it during all the simulation might not
@@ -368,7 +316,7 @@ choice of when to launch them will reduce that cost.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:six
-#+caption: Speedup achieved with Adaptive Algorithm. Chord simulation, Precise and Constant modes.
+#+caption: Speedup achieved with Adaptive Algorithm. Chord simulation, Precise mode.
 #+results: adapt-algorithm
 [[file:fig/adapt-algorithm.pdf]]
 
@@ -379,22 +327,95 @@ choice of when to launch them will reduce that cost.
 
 #+LaTeX: \appendix
 * Data Provenance
-This section explains and show how to run the experiments and how the data is
-saved and then processed.  Note: that all experiments are run using the Chord
-simulation that can be found in examples/msg/chord folder of your SimGrid
-install. Unless stated, all the experiments are run using the futex
-synchronization method and raw contexts under a Linux environment; in a node
-from 'parapluie' cluster of Grid5000.  The analysis of data can be done within
-this paper itself, executing the corresponding R codes. Note that it is even
-possible to execute them remotely if TRAMP is used to open this file (this is
-useful if you want the data to be processed in one powerful machine, such as a
+This section explains and show how to run the experiments and how the
+data is saved and then processed.  Note: that all experiments are run
+using the Chord simulation that can be found in examples/msg/chord
+folder of your SimGrid install. Unless stated, all the experiments are
+run using the futex synchronization method and raw contexts under a
+Linux environment; in a node from 'parapluie' cluster of Grid5000.
+The analysis of data can be done within this paper itself, executing
+the corresponding R codes. Note that it is even possible to execute
+them remotely if TRAMP is used to open this file (this is useful if
+you want the data to be processed in one powerful machine, such as a
 cluster).
-** Setting up a node in Grid5000
-This section is useful only if you have an account in Grid5000 and want to run the
-experiments there.
-Once you have a node deployed, you can do something similar to what is in the
-./scripts/g5k/setup_node.sh script to install packages/compile SimGrid.
-*** DONE make setup_node.sh more portable to other users.
+** Setting up the machine
+Install required packages to compile/run SimGrid experiments. If you
+are in a cluster (such as Grid5000) you can run this file remotely in
+a deployed node and still be able to setup your environment.
+
+#+name: generate_platforms
+#+begin_src python :var list_nb_nodes=[1000] :var nb_bits=32 :var end_date=10000
+
+# This function generates a specific platform file for the Chord example.
+import random
+
+def platform(nb_nodes, nb_bits, end_date):
+  max_id = 2 ** nb_bits - 1
+  all_ids = [42]
+  res = ["<?xml version='1.0'?>\n"
+  "<!DOCTYPE platform SYSTEM \"http://simgrid.gforge.inria.fr/simgrid.dtd\">\n"]
+  res.append("<!-- nodes: %d, bits: %d, date: %d -->\n"%(nb_nodes, nb_bits, end_date))
+  res.append("<platform version=\"3\">\n"
+  "  <process host=\"c-0.me\" function=\"node\"><argument value=\"42\"/><argument value=\"%d\"/></process>\n" % end_date)
+
+  for i in range(1, nb_nodes):
+    ok = False
+    while not ok:
+      my_id = random.randint(0, max_id)
+      ok = not my_id in all_ids
+
+    known_id = all_ids[random.randint(0, len(all_ids) - 1)]
+    start_date = i * 10
+    res.append("  <process host=\"c-%d.me\" function=\"node\"><argument value=\"%d\" /><argument value=\"%d\" /><argument value=\"%d\" /><argument value=\"%d\" /></process>\n" % (i, my_id, known_id, start_date, end_date))
+    all_ids.append(my_id)
+
+  res.append("</platform>")
+  res = "".join(res)
+  f = open("./Simpar/platform/chord%d.xml"%options.nodes, "w")
+  f.write(res)
+  f.close()
+
+for size in list_nb_nodes:
+  platform(size, nb_bits, end_date)
+#+end_src
+
+
+#+name: generate_deployment
+#+begin_src python  :var list_nb_nodes=[1000]
+
+# This function generates a specific deployment file for the Chord example.
+# It assumes that the platform will be a cluster.
+def deploy(nb_nodes):
+  res = """<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "http://simgrid.gforge.inria.fr/simgrid.dtd">
+<platform version="3">
+<AS  id="AS0"  routing="Full">
+  <cluster id="my_cluster_1" prefix="c-" suffix=".me"
+  		radical="0-%d"	power="1000000000"    bw="125000000"     lat="5E-5"/>
+</AS>
+</platform>"""%(nb_nodes-1)
+
+  f = open("./Simpar/deployment/One_cluster_nobb_%d_hosts.xml"%options.nodes, "w")
+  f.write(res)
+  f.close()
+
+for size in list_nb_nodes:
+  deploy(size)
+#+end_src
+
+
+#+begin_src sh
+sudo apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev libdwarf-dev libunwind7-dev valgrind libsigc++
+mkdir -p Simpar/{SimGrid,deployment,platforms,logs,fig}
+cd Simpar/SimGrid/
+# Clone latest SimGrid version. You may have to configure proxy settins if you are in a G5K node
+git clone https://gforge.inria.fr/git/simgrid/simgrid.git .
+cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF -Denable_documentation=OFF .
+sudo make install
+#+end_src
+
+#+call: generate_platforms
+#+call: generate_deployment
 ** Amdahl speedup
 The constant TIME_BENCH_AMDAHL must be defined in SimGrid in order to
 enable the required logs for this experiment. This variable can be
@@ -470,6 +491,71 @@ The data set is the same as SR Distribution and SR times experiments.
 ** Adaptive Algorithm
 The benchmark is done using testall.sh and the tables generated using get_times.py
 * Data Analysis                                                    :noexport: 
+** Installing required packages
+#+begin_src R :exports none
+install.packages("ggplot2")
+install.packages("gridExtra")
+install.packages("reshape")
+install.packages("plyr")
+install.packages("data.table")
+install.packages("stringr")
+install.packages("grid")
+#+end_src
+
+#+RESULTS:
+
+** Libraries/Auxiliar functions
+#+begin_src R  :exports none
+# If you miss the libraries, try typing >>>install.packages("data.table")<<< in a R console
+library('ggplot2')
+library('gridExtra')
+library('reshape')
+library('plyr')
+library('data.table')
+library('stringr')
+require('grid')
+# To plot several ggplot in one window.
+vp.layout <- function(x, y) viewport(layout.pos.row=x, layout.pos.col=y)
+arrange_ggplot2 <- function(..., nrow=NULL, ncol=NULL, as.table=FALSE) {
+    dots <- list(...)
+    n <- length(dots)
+    if(is.null(nrow) & is.null(ncol)){
+        nrow = floor(n/2) ; ncol = ceiling(n/nrow)
+    }
+    if(is.null(nrow)){
+        nrow = ceiling(n/ncol)
+    }
+    if(is.null(ncol)){
+        ncol = ceiling(n/nrow)
+    }
+    grid.newpage()
+    pushViewport(viewport(layout=grid.layout(nrow,ncol)))
+    ii.p <- 1
+    for(ii.row in seq(1, nrow)){
+        ii.table.row <- ii.row
+        if(as.table) {
+            ii.table.row <- nrow - ii.table.row + 1
+        }
+        for(ii.col in seq(1, ncol)){
+            ii.table <- ii.p
+            if(ii.p > n) break
+            print(dots[[ii.table]], vp=vp.layout(ii.table.row, ii.col))
+            ii.p <- ii.p + 1
+        }
+    }
+}
+
+# Get legend from a given plot
+g_legend<-function(a.gplot){
+    tmp <- ggplot_gtable(ggplot_build(a.gplot))
+    leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+    legend <- tmp$grobs[[leg]]
+    return(legend)
+}
+#+end_src
+
+#+RESULTS:
+
 ** Pre-processing of datasets
 #+name: process_data_sr-times
 #+begin_src R
@@ -538,20 +624,8 @@ saveRDS(df6,file="./logs/sr_counts/constant.Rda")
 ** Plotting
 #+name: amdahl-speedup
 #+begin_src R  :results output graphics :exports results :file fig/amdahl-speedup.pdf
-data = read.csv("./logs/timings/total_sum_times_amdahl.csv", head=TRUE, sep=',')
-# Speedups of Constant Mode
-data[, "sc1"]  <- data[, "c1"]  / data[, "c1"]
-data[, "sc2"]  <- data[, "c1"] / data[, "c2"]
-data[, "sc4"]  <- data[, "c1"] / data[, "c4"]
-data[, "sc8"]  <- data[, "c1"] / data[, "c8"]
-data[, "sc16"] <- data[, "c1"] / data[, "c16"]
-keep <- c("nodes", colnames(data)[grep("^sc", colnames(data))])
-speedup_constant <- data[keep]
-df <- melt(speedup_constant ,  id = 'nodes', variable_name = 'threads')
-g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-    panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
-    panel.background = element_blank(), axis.line=element_line(), axis.title.x = element_blank(),
-    legend.position="none") + ylab("Constant mode")
+data = read.csv("./logs/timings/total_times_wallclock.csv", head=TRUE, sep=',')
+
 
 # Speedups of Precise Mode
 data[, "1"] <- data[, "p1"]  / data[, "p1"]
@@ -565,15 +639,8 @@ df2 <- melt(speedup_precise ,  id = 'nodes', variable_name = 'threads')
 g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + theme(axis.text.x = element_text(angle = -45, hjust = 0),
     panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
     panel.background = element_blank(), axis.line=element_line(),
-    axis.title.x = element_blank(), legend.position="right") + ylab("Precise mode") + scale_fill_discrete(name="threads")
-
-legend <- g_legend(g2)
-lwidth <- sum(legend$width)
-
-grid.arrange(arrangeGrob(g1, g2 + theme(legend.position="none"),
-             main ="",sub="Amount of nodes simulated",
-             left = "Speedups"),legend, 
-             widths=unit.c(unit(1, "npc") - lwidth, lwidth), nrow=1)
+    legend.position="right") + xlab("Amount of nodes simulated") + ylab("Speedup-Precise mode") + scale_fill_discrete(name="threads")
+g2
 #+end_src
 
 #+name: sr-distribution
@@ -599,7 +666,11 @@ for(i in temp){
     proportions <- rbind(proportions, p)
 }
 df <- ddply(proportions, .(nodes,process), summarise, msteps = mean(p))
-g<-ggplot(df, aes(x=nodes,y=msteps, group=process, colour=process)) + geom_line() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.title.x = element_text("Nodes simulated"), axis.title.y = element_text("Percentage of SR"), axis.line=element_line()) + scale_fill_discrete(name="threads")
+g<-ggplot(df, aes(x=nodes,y=msteps, group=process, colour=process)) + geom_line() +
+   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+   panel.background = element_blank(), axis.line=element_line()) +
+   scale_fill_discrete(name="threads") +
+   xlab("Amount of nodes simulated") + ylab("Percentage of SR's")
 g
 #+end_src
 
@@ -615,16 +686,6 @@ ggplot(data=sr_data, geom="histogram", aes(x=V3, y=V2)) + xlim(0,500) + xlab("Pr
 orig_data = read.csv("./logs/busy_waiters/total_times_orig.csv", head=TRUE, sep=',')
 opt_data = read.csv("./logs/busy_waiters/total_times_busy.csv", head=TRUE, sep=',')
 
-# Speedups of Constant Mode
-opt_data[, "1"]  <- orig_data[, "c2"]  / orig_data[, "c2"]
-opt_data[, "2"]  <- orig_data[, "c2"]  / opt_data[, "c2"]
-opt_data[, "4"]  <- orig_data[, "c4"]  / opt_data[, "c4"]
-opt_data[, "8"]  <- orig_data[, "c8"]  / opt_data[, "c8"]
-opt_data[, "16"] <- orig_data[, "c16"] / opt_data[, "c16"]
-opt_data[, "24"] <- orig_data[, "c24"] / opt_data[, "c24"]
-keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))])
-speedup_constant <- opt_data[keep]
-
 # Speedups of Precise Mode
 opt_data[, "1"]  <- orig_data[, "p2"]  / orig_data[, "p2"]
 opt_data[, "2"]  <- orig_data[, "p2"]  / opt_data[, "p2"]
@@ -635,51 +696,26 @@ opt_data[, "24"] <- orig_data[, "p24"] / opt_data[, "p24"]
 keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))])
 speedup_precise <- opt_data[keep]
 
-df <- melt(speedup_constant,  id = 'nodes', variable_name = 'threads')
 df2 <- melt(speedup_precise ,  id = 'nodes', variable_name = 'threads')
 
 g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() +
     scale_fill_hue() + theme(axis.text.x = element_text(angle = -45, hjust = 0),
     panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
     panel.background = element_blank(), axis.line=element_line(),
-    axis.title.x = element_blank(), legend.position="right") + 
+    legend.position="right") + 
     scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000,100000)) +
-    scale_y_continuous(breaks=c(1.0,1.5,2.0,2.5,3.0,4.0)) + ylab("Precise mode")
-
-g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads))  + geom_line() +
-    scale_fill_hue() + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-    panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
-    panel.background = element_blank(), axis.line=element_line(), axis.title.x = element_blank(),
-    legend.position="none") +
-    scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000,100000)) +
-    scale_y_continuous(breaks=c(1.0,1.5,2.0,2.5,3.0,4.0)) + ylab("Constant mode")
-
-legend <- g_legend(g2)
-lwidth <- sum(legend$width)
-
-grid.arrange(arrangeGrob(g1, g2 + theme(legend.position="none"),
-             main ="",sub="Nodes",
-             left = "Speedups"),legend, 
-             widths=unit.c(unit(1, "npc") - lwidth, lwidth), nrow=1)
+    scale_y_continuous(breaks=c(1.0,1.5,2.0,2.5,3.0,4.0)) + ylab("Speedup-Precise mode") +
+    xlab("Amount of nodes simulated")
+g2
 #+end_src
 
 #+name: sr-par-threshold
 #+begin_src R :results output graphics :exports results   :file fig/sr-par-threshold.pdf
 precise <- readRDS(file="./logs/sr_counts/precise.Rda")
-constant <- readRDS(file="./logs/sr_counts/constant.Rda")
 
-g1<- ggplot(data=constant, geom="histogram", aes(x=V3, y=speedup)) + xlab("")+geom_point() + xlim(1,100) + stat_smooth(se=FALSE) + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-    panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
-    panel.background = element_blank(), axis.line=element_line(), axis.title.x = element_blank(),
-    legend.position="none") + ylab("Constant mode")
-
-g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) + xlab("Processes in SR") +geom_point() + xlim(1,100) + stat_smooth(se=FALSE) + theme(panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
+g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) +geom_point() + xlim(1,100) + stat_smooth(se=FALSE) + theme(panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
     panel.background = element_blank(), axis.line=element_line(),
-    axis.title.x = element_blank(), legend.position="none") + ylab("Precise mode")
-
-grid.arrange(arrangeGrob(g1, g2,
-             main ="", sub = "Amount of processes taken by SR's",
-             left = "Speedup of parallel execution against sequential execution"), nrow=1)
+    legend.position="none") + ylab("Speedup of parallel execution against sequential execution") + xlab("Amount of processes computed by each SR")
 #+end_src
 
 #+name: adapt-algorithm
@@ -687,16 +723,6 @@ grid.arrange(arrangeGrob(g1, g2,
 orig_data = read.table("./logs/adaptive_algorithm/total_times_orig.csv")
 opt_data = read.table("./logs/adaptive_algorithm/total_times_adaptive.csv")
 
-# Speedups of Constant Mode
-opt_data[, "1"]  <- orig_data[, "c2"]  / orig_data[, "c2"]
-opt_data[, "2"]  <- orig_data[, "c2"]  / opt_data[, "c2"]
-opt_data[, "4"]  <- orig_data[, "c4"]  / opt_data[, "c4"]
-opt_data[, "8"]  <- orig_data[, "c8"]  / opt_data[, "c8"]
-opt_data[, "16"] <- orig_data[, "c16"] / opt_data[, "c16"]
-opt_data[, "24"] <- orig_data[, "c24"] / opt_data[, "c24"]
-keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))])
-speedup_constant <- opt_data[keep]
-
 # Speedups of Precise Mode
 opt_data[, "1"]  <- orig_data[, "p2"]  / orig_data[, "p2"]
 opt_data[, "2"]  <- orig_data[, "p2"]  / opt_data[, "p2"]
@@ -707,28 +733,17 @@ opt_data[, "24"] <- orig_data[, "p24"] / opt_data[, "p24"]
 keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))])
 speedup_precise <- opt_data[keep]
 
-df <- melt(speedup_constant ,  id = 'nodes', variable_name = 'threads')
 df2 <- melt(speedup_precise ,  id = 'nodes', variable_name = 'threads')
-g1<-ggplot(df, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + 
-    scale_fill_hue() + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-    panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
-    panel.background = element_blank(), axis.line=element_line(), axis.title.x = element_blank(),
-    legend.position="none") +  scale_y_continuous(breaks=c(1,2,3,4)) + ylab("Constant mode")
 
 g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + scale_fill_hue() + theme(axis.text.x = element_text(angle = -45, hjust = 0),
     panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
     panel.background = element_blank(), axis.line=element_line(),
-    axis.title.x = element_blank(), legend.position="right") +
+    legend.position="right") +
     scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000)) + 
-    scale_y_continuous(breaks=c(1,2,3,4)) + ylab("Precise mode")
+    scale_y_continuous(breaks=c(1,2,3,4)) + ylab("Speedup-Precise mode") +
+    xlab("Amount of nodes simulated")
 
-legend <- g_legend(g2)
-lwidth <- sum(legend$width)
-
-grid.arrange(arrangeGrob(g1, g2 + theme(legend.position="none"),
-             main ="",sub="Amount of nodes simulated",
-             left = "Speedups"),legend, 
-             widths=unit.c(unit(1, "npc") - lwidth, lwidth), nrow=1)
+g2
 #+end_src
 
 
