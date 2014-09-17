@@ -214,7 +214,7 @@ for size in "${sizes[@]}"; do
         fi
         # param
         cat $host_info >> $filename
-        echo "* Experiment settings"
+        echo "* Experiment settings" >> $filename
         echo "size:$size, constant network, $thread threads" >> $filename
         echo "cmd:$cmd" >> $filename
         #stderr
