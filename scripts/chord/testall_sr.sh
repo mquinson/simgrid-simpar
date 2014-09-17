@@ -39,15 +39,16 @@ if [ ! -d "$log_folder" ]; then
     exit 1
 fi
 
-file_table="timings_$SGHASH.dat"
+file_table="timings_$SGHASH.csv"
 host_info="host_info.org"
 rm -rf $host_info
 
 # The las %U is just to ease the parsing for table
-timefmt="clock:%e user:%U sys:%S telapsed:%E swapped:%W exitval:%x max:%Mk avg:%Kk %U"
+timefmt="clock:%e user:%U sys:%S telapsed:%e swapped:%W exitval:%x max:%Mk avg:%Kk %U"
 
 # Copy command. This way one can use cp, scp and a local folder or a folder in 
 # a cluster.
+sep=','
 cp_cmd='cp'
 dest=$log_folder # change for <user>@<node>.grid5000.fr:~/$log_folder if necessary
 ###############################################################################
@@ -114,7 +115,6 @@ grep "SIMGRID_VERSION_STRING" ../../../include/simgrid_config.h | sed 's/.*"\(.*
 echo "* SimGrid commit hash" >> $host_info
 git rev-parse --short HEAD >> $host_info
 $($cp_cmd $host_info $dest)
-set -e
 ###############################################################################
 
 ###############################################################################
@@ -140,7 +140,7 @@ test -e tmp || mkdir tmp
 me=tmp/`hostname -s`
 
 for size in "${sizes[@]}"; do
-    line_table=$size"\t"
+    line_table=$size
     # CONSTANT MODE
     for thread in "${threads[@]}"; do
         filename="chord_${size}_threads${thread}_constant.log"
@@ -172,17 +172,23 @@ for size in "${sizes[@]}"; do
         fi
 
         # param
+        cat $host_info >> $filename
+        echo "* Experiment settings" >> $filename
         echo "size:$size, constant network, $thread threads" >> $filename
         echo "cmd:$cmd" >> $filename
+        #stdout
+        echo "* Stdout output" >> $filename
+        cat /tmp/stdout-xp | grep Amdahl >> $filename
         #stderr
-        echo "### stderr output" >> $filename
+        echo "* Stderr output" >> $filename
         cat /tmp/stderr-xp >> $filename
         # time
-        echo "### timings" >> $filename
+        echo "* Timings" >> $filename
         cat $me.timings >> $filename
-        line_table=$line_table"\t"$temp_time
+        line_table=$line_table$sep$temp_time
         python get_sr_counts.py $filename $output
         $($cp_cmd $output $dest)
+        $($cp_cmd $filename $dest)
         rm -rf $filename $output
         rm -rf $me.timings
     done    
@@ -207,18 +213,20 @@ for size in "${sizes[@]}"; do
             temp_time=$(cat $me.timings | awk '{print $(NF)}')
         fi
         # param
-        echo "size:$size, precise network, $thread threads" >> $filename
+        cat $host_info >> $filename
+        echo "* Experiment settings"
+        echo "size:$size, constant network, $thread threads" >> $filename
         echo "cmd:$cmd" >> $filename
         #stderr
-        echo "### stderr output" >> $filename
+        echo "* Stderr output" >> $filename
         cat /tmp/stderr-xp >> $filename
-
         # time
-        echo "### timings" >> $filename
+        echo "* Timings" >> $filename
         cat $me.timings >> $filename
-        line_table=$line_table"\t"$temp_time
+        line_table=$line_table$sep$temp_time
         python get_sr_counts.py $filename $output
         $($cp_cmd $output $dest)
+        $($cp_cmd $filename $dest)
         rm -rf $filename $output
         rm -rf $me.timings
     done

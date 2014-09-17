@@ -115,7 +115,6 @@ grep "SIMGRID_VERSION_STRING" ../../../include/simgrid_config.h | sed 's/.*"\(.*
 echo "* SimGrid commit hash" >> $host_info
 git rev-parse --short HEAD >> $host_info
 $($cp_cmd $host_info $dest)
-set -e
 ###############################################################################
 
 ###############################################################################
@@ -173,7 +172,7 @@ for size in "${sizes[@]}"; do
 
         # param
         cat $host_info >> $filename
-        echo "* Experiment settings"
+        echo "* Experiment settings" >> $filename
         echo "size:$size, constant network, $thread threads" >> $filename
         echo "cmd:$cmd" >> $filename
         #stderr
@@ -208,7 +207,7 @@ for size in "${sizes[@]}"; do
         fi
         # param
         cat $host_info >> $filename
-        echo "* Experiment settings"
+        echo "* Experiment settings" >> $filename
         echo "size:$size, constant network, $thread threads" >> $filename
         echo "cmd:$cmd" >> $filename
         #stderr
