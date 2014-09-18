@@ -341,14 +341,30 @@ cluster).
 ** Setting up the machine
 Install required packages to compile/run SimGrid experiments. If you
 are in a cluster (such as Grid5000) you can run this file remotely in
-a deployed node and still be able to setup your environment.
+a deployed node and still be able to setup your environment.  Run this
+two code chunks sequentially in order to create folders, install
+packages and create required deployment/platform files.
 
-#+name: generate_platforms
-#+begin_src python :var list_nb_nodes=[1000] :var nb_bits=32 :var end_date=10000
+#+begin_src sh :session org-sh
+sudo apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev libdwarf-dev libunwind7-dev valgrind libsigc++
+mkdir -p Simpar/{SimGrid,deployment,platforms,logs,fig}
+cd Simpar/SimGrid/
+# Clone latest SimGrid version. You may have to configure proxy settings if you are in a G5K node in order to clone this git repository
+git clone https://gforge.inria.fr/git/simgrid/simgrid.git .
+cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF -Denable_documentation=OFF .
+sudo make install
+cd ../../
+#+end_src
+
+#+begin_src python :session :results output
+
+# Add/quit sizes as you wish
+list_nb_nodes = [1000,5000,10000,15000]
+nb_bits = 32
+end_date = 10000
 
 # This function generates a specific platform file for the Chord example.
 import random
-
 def platform(nb_nodes, nb_bits, end_date):
   max_id = 2 ** nb_bits - 1
   all_ids = [42]
@@ -357,31 +373,21 @@ def platform(nb_nodes, nb_bits, end_date):
   res.append("<!-- nodes: %d, bits: %d, date: %d -->\n"%(nb_nodes, nb_bits, end_date))
   res.append("<platform version=\"3\">\n"
   "  <process host=\"c-0.me\" function=\"node\"><argument value=\"42\"/><argument value=\"%d\"/></process>\n" % end_date)
-
   for i in range(1, nb_nodes):
     ok = False
     while not ok:
       my_id = random.randint(0, max_id)
       ok = not my_id in all_ids
-
     known_id = all_ids[random.randint(0, len(all_ids) - 1)]
     start_date = i * 10
     res.append("  <process host=\"c-%d.me\" function=\"node\"><argument value=\"%d\" /><argument value=\"%d\" /><argument value=\"%d\" /><argument value=\"%d\" /></process>\n" % (i, my_id, known_id, start_date, end_date))
     all_ids.append(my_id)
-
   res.append("</platform>")
   res = "".join(res)
-  f = open("./Simpar/platform/chord%d.xml"%options.nodes, "w")
+  f  = open("./Simpar/platforms/chord%d.xml"%nb_nodes, "w")
   f.write(res)
   f.close()
-
-for size in list_nb_nodes:
-  platform(size, nb_bits, end_date)
-#+end_src
-
-
-#+name: generate_deployment
-#+begin_src python  :var list_nb_nodes=[1000]
+  return
 
 # This function generates a specific deployment file for the Chord example.
 # It assumes that the platform will be a cluster.
@@ -394,28 +400,16 @@ def deploy(nb_nodes):
   		radical="0-%d"	power="1000000000"    bw="125000000"     lat="5E-5"/>
 </AS>
 </platform>"""%(nb_nodes-1)
-
-  f = open("./Simpar/deployment/One_cluster_nobb_%d_hosts.xml"%options.nodes, "w")
+  f = open("./Simpar/deployment/One_cluster_nobb_%d_hosts.xml"%nb_nodes, "w")
   f.write(res)
   f.close()
+  return 
 
 for size in list_nb_nodes:
+  platform(size, nb_bits, end_date)
   deploy(size)
 #+end_src
 
-
-#+begin_src sh
-sudo apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev libdwarf-dev libunwind7-dev valgrind libsigc++
-mkdir -p Simpar/{SimGrid,deployment,platforms,logs,fig}
-cd Simpar/SimGrid/
-# Clone latest SimGrid version. You may have to configure proxy settins if you are in a G5K node
-git clone https://gforge.inria.fr/git/simgrid/simgrid.git .
-cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF -Denable_documentation=OFF .
-sudo make install
-#+end_src
-
-#+call: generate_platforms
-#+call: generate_deployment
 ** Amdahl speedup
 The constant TIME_BENCH_AMDAHL must be defined in SimGrid in order to
 enable the required logs for this experiment. This variable can be
