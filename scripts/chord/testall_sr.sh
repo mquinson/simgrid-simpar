@@ -186,7 +186,9 @@ for size in "${sizes[@]}"; do
         echo "* Timings" >> $filename
         cat $me.timings >> $filename
         line_table=$line_table$sep$temp_time
-        python get_sr_counts.py $filename $output
+        # Gather SR data from logs
+        echo -e '#id_sr\ttime_taken\tamount_proccesses' >> $output
+        grep 'Total time SR' $filename | awk '{print $7 "\x09" $9 "\x09" $10}' | tr -d ',' >> $output
         $($cp_cmd $output $dest)
         $($cp_cmd $filename $dest)
         rm -rf $filename $output
@@ -224,7 +226,9 @@ for size in "${sizes[@]}"; do
         echo "* Timings" >> $filename
         cat $me.timings >> $filename
         line_table=$line_table$sep$temp_time
-        python get_sr_counts.py $filename $output
+        # Gather SR data from logs
+        echo -e '#id_sr\ttime_taken\tamount_proccesses' >> $output
+        grep 'Total time SR' $filename | awk '{print $7 "\x09" $9 "\x09" $10}' | tr -d ',' >> $output
         $($cp_cmd $output $dest)
         $($cp_cmd $filename $dest)
         rm -rf $filename $output
