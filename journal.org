@@ -366,36 +366,42 @@ CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
    - [X] Add setup scripts to report.
    - [X] launch experiments for speedup, with a more uniform
      distribution of sizes
-** 18 [%]
-Experiments:
-  - [ ] Make normal speedup exp with default SimGrid. (In Progress)
-    - [ ] New amdahl plot with amdahl timings
-  - [ ] Improve benchmark of SR's.
-  - [ ] Make new SR exp with normal benchmark and uniform distributed
-    sizes.
+** 18 [100%]
+  - [X] Integrate testall script, scripts to generate
+    platforms/deployment files to report
+  - [X] Keep with standar benchmark in g5k
 
-Report:
-  - [ ] Add the scripts to org mode.
-  - [ ] Add the used algorithm in section 5.2, as well as absolute
-    numbers again, as in 3.1.
+** 19 [100%]
+  - [X] Delete get_sr_counts.py. The same thing can be achieved with oneline bash script.
+  - [X] Add the used algorithm in section 5.2.
+  - [X] Sizes, threads and log_folder should be defined in a separate
+    block of code and then use them trhoughout the file in the same sh
+    session
 
+** 22 [%]
+  - [ ] Absolute numbers in Speedup section and 5.2
   - [ ] The Figure 1 should be renamed to "Baseline performance of
-    SimGrid 3.11." or something. I would like this graph to:
+    SimGrid 3.11." or something. Also:
     - be actually run with SimGrid v3.11 maybe (not sure)
     - have more data (In Progress)
     - report also the memory consumption (Peak and average memory
       already measured)
     - report some absolute numbers here (Figure 1), maybe on another
       graph so that we can see the time that it actually takes.
-
+  - [ ] Make the speedup chart and also the amdahl one. Or put those two in the same graph
+Experiments:
+  - Make normal speedup exp with default SimGrid. (In
+    Progress). Plot.
+  - [ ] Improve benchmark of SR's & make new SR exp with normal
+    benchmark and uniform distributed sizes.
 
 Other things that might be interesting:
-  - [ ] Run adaptive algorithm with other examples.
-  - [ ] Check uniformity of nodes amounts on some experiments.
+  - Run adaptive algorithm with other examples.
+  - Check uniformity of nodes amounts on some experiments.
 
 Long term tasks:
-  - [ ] Run chord with 1m nodes. (In progress)
-  - [ ] Run chord with 2m nodes.
+  - Run chord with 1m nodes. (In progress)
+  - Run chord with 2m nodes.
 
 * Useful info:
 ** List of recommended packages/software to run experiments
