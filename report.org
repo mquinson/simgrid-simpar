@@ -953,14 +953,11 @@ round, as well as the amount of processes each SR takes.
 For this experiment, we are only interested in the amount of processes
 taken by each SR.
 
-The script to run this experiment is ./scripts/chord/testall_sr.sh, it
-is mandatory to have also the get_sr_counts.py scripts to process output
-data and save only the id of SR, time of SR and num processes of SR,
-in a table format.
+The script to run this experiment is ./scripts/chord/testall_sr.sh,
+the id of SR, time of SR and num processes of SR, in a table format.
 
-This can be run from here or just by putting testall_sr.sh and
-get_sr_counts.py in the examples/msg/chord folder of your SimGrid, and
-running ./testall_sr.sh
+This can be run from here or just by running testall_sr.sh in in the
+examples/msg/chord folder of your SimGrid install.
 
 #+begin_src sh :session org-sh
 cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
@@ -973,28 +970,48 @@ The data set used for this plot is the same as the one before.
 We just use the data of the sequential simulations (1 thread).
 ** Binding threads to physical cores
 The constant CORE_BINDING has to be defined in src/xbt/parmap.c in
-order to enable this optimization.
-The benchmark is then run in the same way as the Amdahl Speedup experiment
-(using the same script in the same way) and then creating a table with the
-times using the scripts/chord/get_times.py script
+order to enable this optimization.  The benchmark is then run in the
+same way as the Amdahl Speedup experiment.
+
+#+begin_src sh :session org-sh
+cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+#+end_src
+
+#+call: testall[:session org-sh](log_folder='binding_cores')
 ** parmap between N cores
 This may be the experiment that requires more work to reproduce:
 *** maestro works with N-1 threads
-This is the default setting. Just run the testall.sh, get the logs and
-create a table using get_times.py
+This is the default setting and the standard benchmark can be used.
+
+#+begin_src sh :session org-sh
+cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+#+end_src
+
+#+call: testall[:session org-sh](log_folder='pmapM_N-1')
 *** maestro sleeps with N-1 threads
-To avoid that maestro works with the threads, just comment out the line:
+To avoid that maestro works with the threads, comment out the line:
     xbt_parmap_work(parmap);
 from the function xbt_parmap_apply() in src/xbt/parmap.c
 
-Then just run the testall.sh benchmark the same as before. Create tables
-with get_times.py
-*** maestro sleeps with N threads
-This requires to do the same as before. Then the function
-src/xbt/parmap.c:xbt_parmap_new has to be modified to create
-one extra thread. It is easy: just add 1 to num_workers parameter.
+#+begin_src sh :session org-sh
+cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+#+end_src
 
-Then just run testall.sh and then get_times.py the same as before.
+#+call: testall[:session org-sh](log_folder='pmap_N-1')
+
+*** maestro sleeps with N threads
+To avoid that maestro works with the threads, comment out the line:
+    xbt_parmap_work(parmap);
+from the function xbt_parmap_apply() in src/xbt/parmap.c
+Then the function src/xbt/parmap.c:xbt_parmap_new has to be
+modified to create one extra thread. It is easy: just add 1 to
+num_workers parameter.
+
+#+begin_src sh :session org-sh
+cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+#+end_src
+
+#+call: testall[:session org-sh](log_folder='pmap_N')
 ** Busy Waiters vs. Futexes performance
 Enable the use of busy waiters running chord with the extra option:
     --cfg=contexts/synchro:busy_wait
@@ -1002,12 +1019,24 @@ The experiment was run with testall.sh using that extra option in the
 chord command inside the script. The tables were constructed using get_times.py
 The data regarding the futexes synchro times is the same gathered in Amdahl
 Speedup experiment.
-Then both tables can be compared in a plot.
+
+#+begin_src sh :session org-sh
+cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+#+end_src
+
+#+call: testall[:session org-sh](log_folder='busy_waiters')
 ** Performance Regression Testing
 ** SR parallel threshold
 The data set is the same as SR Distribution and SR times experiments.
 ** Adaptive Algorithm
-The benchmark is done using testall.sh and the tables generated using get_times.py
+The benchmark is done using testall.sh. The algorithm is the one
+described in section 5.2
+
+#+begin_src sh :session org-sh
+cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+#+end_src
+
+#+call: testall[:session org-sh](log_folder='adaptive-algorithm')
 * Data Analysis                                                    :noexport: 
 ** Installing required packages
 #+begin_src R :exports none
