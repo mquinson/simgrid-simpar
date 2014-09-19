@@ -21,6 +21,8 @@
 #+LATEX_HEADER: \usepackage{url}\urlstyle{sf}
 #+LATEX_HEADER: \usepackage{amscd}
 #+LATEX_HEADER: \usepackage{wrapfig}
+#+LATEX_HEADER: \usepackage{algorithm}
+#+LATEX_HEADER: \usepackage[noend]{algpseudocode}
 
 * Motivation and Problem Statement
 
@@ -287,31 +289,70 @@ As it can be seen in the Figure \ref{fig:five}, the optimal threshold starts at 
 for the Precise mode.
 
 ** Adaptive algorithm to calculate threshold
-Finding an optimal threshold and keep it during all the simulation might not
-always be the best option: some simulations can take more or less time in the
-execution of user processes. If a simulation has very efficient processes, or
-processes that don't work too much, then the threshold could be inappropriate,
-leading to parallelize scheduling rounds that would run more efficiently in a
-sequential way.  That's why an algorithm for a dynamic threshold calculation is
-proposed.
+Finding an optimal threshold and keep it during all the simulation
+might not always be the best option: some simulations can take more or
+less time in the execution of user processes. If a simulation has very
+efficient processes, or processes that don't work too much, then the
+threshold could be inappropriate, leading to parallelize scheduling
+rounds that would run more efficiently in a sequential way.  That's
+why an algorithm for a dynamic threshold calculation is proposed.
 
-The main idea behind this heuristic is to calculate the optimal number of
-processes that can be run in parallel during the execution of the simulation.
+The main idea behind this heuristic is to calculate the optimal number
+of processes that can be run in parallel during the execution of the
+simulation.
 
-For that purpose, the times of five scheduling round are measured.  A
-performance ratio for both of the possible parallel and sequential executions is
-calculated, simply by dividing the time taken by the amount of processes
-computed.  If the sequential ratio turns to be bigger than the parallel one,
-then the threshold is decreased, and increased otherwise.
+For that purpose, the times of five scheduling round are measured. A
+performance ratio for both of the possible parallel and sequential
+executions is calculated, simply by dividing the time taken by the
+amount of processes computed.  If the sequential ratio turns to be
+bigger than the parallel one, then the threshold is decreased, and
+increased otherwise.
 
-This results in a relative improvement in performance. As it can be seen on
-Figure \ref{fig:five}, the speedup is important in the 16 and 24 threads cases,
-reaching levels between 11 and 47 with small sizes (1000, 5000, and 10000
-nodes), while with fewer amounts of threads (2,4,8) the speedup is not big,
-between 1.28 and 4.62.  This can be explained by the fact that the algorithm
-choose more efficiently when to launch a scheduling round in parallel, and while
-having a lot of threads increases the costs of synchronization, an intelligent
-choice of when to launch them will reduce that cost.
+
+#+begin_latex
+\begin{algorithm}
+\caption{Adaptive Threshold}\label{adaptive-algorithm}
+\begin{algorithmic}[1]
+\Procedure{RunSchedulingRound}{}
+\If {five SR's have passed}
+\State $num\_sr\_sequential \gets \textit{1}$
+\State $num\_sr\_parallel \gets \textit{1}$
+\If {$sequential\_time / num\_process\_sequential > parallel\_time / num\_process\_parallel$}
+\State decrease threshold
+\Else
+\State increase threshold
+\EndIf
+\State $sequential\_time,parallel\_time \gets \textit{0}$
+\State $num\_seq\_process,num\_par\_process \gets \textit{0}$
+
+\EndIf
+
+
+\If {$processes\_to\_run >= current\_parallel\_threshold$}
+\State start\_timer(timer)
+\State Execute SR in parallel
+\State stop\_timer(timer)
+\State num\_sr\_parallel++
+\Else
+\State start\_timer(timer)
+\State Execute SR sequentially
+\State stop\_timer(timer)
+\State num\_sr\_sequential++
+\EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+#+end_latex
+
+This results in a relative improvement in performance. As it can be
+seen on Figure \ref{fig:five}, the speedup is important in the 16 and
+24 threads cases, reaching levels between 11 and 47 with small sizes
+(1000, 5000, and 10000 nodes), while with fewer amounts of threads
+(2,4,8) the speedup is not big, between 1.28 and 4.62.  This can be
+explained by the fact that the algorithm choose more efficiently when
+to launch a scheduling round in parallel, and while having a lot of
+threads increases the costs of synchronization, an intelligent choice
+of when to launch them will reduce that cost.
 
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
@@ -319,6 +360,8 @@ choice of when to launch them will reduce that cost.
 #+caption: Speedup achieved with Adaptive Algorithm. Chord simulation, Precise mode.
 #+results: adapt-algorithm
 [[file:fig/adapt-algorithm.pdf]]
+
+
 
 
 * Conclusion
@@ -360,6 +403,7 @@ sudo make install
 cd ../../
 #+end_src
 
+#+name: generate_platform_files
 #+begin_src python :session :results output
 
 # Add/quit sizes as you wish
@@ -909,6 +953,20 @@ done
 $($cp_cmd $file_table $dest)
 rm -rf $file_table
 rm -rf tmp
+#+end_src
+
+** Modifiable Parameters
+Some of the parameters to run the experiments can be modified, like
+the amount of nodes to simulate and the amount of threads to use.
+Note that the list of nodes to simulate will have to be changed
+manually in [[generate_platform_files]].
+
+#+begin_src sh :session org-sh
+SGPATH='/usr/local'
+# Save the revision of SimGrid used for the experiment
+SGHASH=$(git rev-parse --short HEAD)
+sizes=(1000 3000)
+threads=(1 2 4 8 16 24)
 #+end_src
 
 ** Amdahl speedup
