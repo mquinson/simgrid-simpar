@@ -368,6 +368,7 @@ of when to launch them will reduce that cost.
 #+LaTeX: \label{sec:cc}
 
 
+#+LaTeX: \onecolumn
 #+LaTeX: \appendix
 * Data Provenance
 This section explains and show how to run the experiments and how the
