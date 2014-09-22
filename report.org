@@ -136,34 +136,71 @@ waiters).
 #+LaTeX: \label{sec:problem}
 ** Current speedup achieved
 # Also, the benchmarking not intrusive is here.
-We want to find the maximum speedup achieved with our current parallel
-model. For that, a benchmark test is run to get the timings of typical
-sequential and parallel executions, so we can get the real speedup achieved with
-our system using the Amdahl's law.
+To get a baseline timings and a speedup plot starting from the current
+version of SimGrid (3.11), benchmarks to measure the execution time of
+a typical Chord simulation in Precise mode with different amount of
+threads (1, 2, 4, 8, 16 and 24) were done.
 
-But first we want to prove that our benchmarks are not intrusive, that is, our
-measures do not really affect the overall performance of the system. For that,
-the experiments are run with and without benchmarking, using the Precise mode,
-and then a comparation of both is made to find if there is a significative
-breach in the timings of both experiments.
+The total times of a normal execution for the Chord simulation in the
+precise mode are presented in the table \ref{tab:one}.
 
-Using the Chord simulation, the experiment showed us that the maximum difference
-in the execution time of both versions is lesser than 10% in most of the cases,
-and is even lower with sizes bigger that 100000 nodes, which allow us to
-conclude that the benchmarking is, indeed, not intrusive.
+The memory consumptions reported in all the experiments show that each
+node is using around 25 KB and 30 KB. A simulation with 1000 nodes,
+takes around 30 MB (independent of the amount of threads launched),
+while when simulating 3000000 nodes, the maximum memory used is
+between 7.38 and 7.60 GB.
 
-The experiment to calculate speedups involves the Chord simulation as well,
-using the Precise model of our engine, and running it with 2,4,8,16 and 24
-threads.  The actual speedup obtained can be seen in the Figure \ref{fig:one}.
-It is clear from that graph that the real speedup with our parallel model is
-obtained when the size of the problem is bigger than 100000 nodes.  This
-confirms what we have proved in ~\cite{previous}.
+TODO: wait until 1m/2m simulations finish and put that data too.
+
+#+caption: Execution times (seconds) of a normal execution of Chord with different sizes, serial and with 2 and 8 threads. The average memory consumption is reported in GB.
+#+name: tab:one
+|---+--------+--------+------+--------+------+--------+------|
+|   |  nodes | serial |  Mem | 2 thr. |  Mem | 8 thr. |  Mem |
+| / |     <> |      < |    > |      < |    > |      < |    > |
+|---+--------+--------+------+--------+------+--------+------|
+| # |   1000 |      5 | 0.03 |      7 | 0.03 |      9 | 0.03 |
+| # |   5000 |     29 | 0.13 |     41 | 0.13 |     49 | 0.13 |
+| # |  10000 |     63 | 0.25 |     81 | 0.26 |     95 | 0.25 |
+| # |  50000 |    381 | 1.24 |    459 | 1.27 |    484 | 1.25 |
+| # | 100000 |    815 | 2.47 |    937 | 2.53 |    951 |  2.5 |
+| # | 300000 |   3059 | 7.38 |   3318 | 7.54 |   3476 | 7.47 |
+|---+--------+--------+------+--------+------+--------+------|
+
+
+The actual speedup obtained can be seen in the Figure \ref{fig:one}.
+It is clear from that graph that the real speedup with our parallel
+model is obtained when the size of the problem is bigger than 100000
+nodes.  This is a proof that what was proved in our previous work
+~\cite{previous} is still valid.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:one
 #+caption: Baseline performance of SimGrid 3.11. Speedups achieved using multithreaded executions against the sequential ones.
 #+results: amdahl-speedup
 [[file:fig/amdahl-speedup.pdf]]
+
+
+# NOW THE AMDAHL THING.
+What we want to see now is how far are we from the ideal speedup that
+would be achieved according to the Amdahl law.  For that, a benchmark
+test is run to get the timings of the sequential and parallel parts of
+the executions, and the calculate that speedup using the Amdahl
+equation.
+
+But first we want to prove that our benchmarks are not intrusive, that
+is, our measures of parallel and sequential times do not really affect
+the overall performance of the system. For that, the experiments are
+run with and without benchmarking, using the Precise mode, and then a
+comparation of both is made to find if there is a significative breach
+in the timings of both experiments.
+
+Using the Chord simulation, the experiment showed us that the maximum
+difference in the execution time of both versions is lesser than 10%
+in most of the cases, and is even lower with sizes bigger that 100000
+nodes, which allow us to conclude that the benchmarking is, indeed,
+not intrusive.
+
+Applying the Amdahl law, we can see that... TODO: proper use of data to conclude something here.
 
 ** Parallelizable portions of the problem
 This experiment is based on a typical Chord simulation, and the data
@@ -1385,6 +1422,7 @@ g2
 # eval:   (setq org-export-babel-evaluate nil)
 # eval:   (setq org-latex-to-pdf-process '("pdflatex -interaction nonstopmode -output-directory %o %f ; bibtex `basename %f | sed 's/\.tex//'` ; pdflatex -interaction nonstopmode -output-directory  %o %f ; pdflatex -interaction nonstopmode -output-directory %o %f"))
 # eval:   (setq ispell-local-dictionary "american")
+# eval:    (setq org-export-latex-table-caption-above nil)
 # eval:   (eval (flyspell-mode t))
 # End:
 
