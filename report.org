@@ -23,6 +23,7 @@
 #+LATEX_HEADER: \usepackage{wrapfig}
 #+LATEX_HEADER: \usepackage{algorithm}
 #+LATEX_HEADER: \usepackage[noend]{algpseudocode}
+#+LATEX_HEADER: \renewcommand{\algorithmiccomment}[1]{// #1}
 
 * Motivation and Problem Statement
 
@@ -312,32 +313,43 @@ increased otherwise.
 #+begin_latex
 \begin{algorithm}
 \caption{Adaptive Threshold}\label{adaptive-algorithm}
-\begin{algorithmic}[1]
+\begin{algorithmic}
+
+\State
+\Comment {Amount of parallel/sequential SRs that ran}
+\State $parallel\_SRs, sequential\_SRs \gets \textit{1}$
+\State
+\Comment {Sum of times of par/seq SR's}
+\State $seq\_time, par\_time \gets \textit{0}$
+\State
+\Comment {Number of processes computed in par/seq}
+\State $process\_seq, process\_par \gets \textit{0}$
+\State
+
 \Procedure{RunSchedulingRound}{}
-\If {five SR's have passed}
-\State $num\_sr\_sequential \gets \textit{1}$
-\State $num\_sr\_parallel \gets \textit{1}$
-\If {$sequential\_time / num\_process\_sequential > parallel\_time / num\_process\_parallel$}
-\State decrease threshold
+
+\If {computed five par/seq SR's}
+\State $parallel\_SRs \gets \textit{1}$
+\State $sequential\_SRs \gets \textit{1}$
+\State $ratio\_seq \gets seq\_time/process\_seq$
+\State $ratio\_par \gets par\_time/process\_par$
+\State $sequential\_is\_slower \gets ratio\_seq>ratio\_par$
+\If {$sequential\_is\_slower$}
+\State decrease($parallel\_threshold$)
 \Else
-\State increase threshold
+\State increase($parallel\_threshold$)
 \EndIf
-\State $sequential\_time,parallel\_time \gets \textit{0}$
-\State $num\_seq\_process,num\_par\_process \gets \textit{0}$
-
+\State $seq\_time,par\_time \gets \textit{0}$
+\State $process\_seq,process\_par \gets \textit{0}$
 \EndIf
 
-
-\If {$processes\_to\_run >= current\_parallel\_threshold$}
-\State start\_timer(timer)
-\State Execute SR in parallel
-\State stop\_timer(timer)
-\State num\_sr\_parallel++
+\State
+\If {$processes\_to\_run >= parallel\_threshold$}
+\State execute\_SR\_parallel()
+\State parallel\_SRs++
 \Else
-\State start\_timer(timer)
-\State Execute SR sequentially
-\State stop\_timer(timer)
-\State num\_sr\_sequential++
+\State execute\_SR\_serial()
+\State sequential\_SRs++
 \EndIf
 \EndProcedure
 \end{algorithmic}
@@ -1375,3 +1387,4 @@ g2
 # eval:   (setq ispell-local-dictionary "american")
 # eval:   (eval (flyspell-mode t))
 # End:
+
