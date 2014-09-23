@@ -378,43 +378,50 @@ CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
     block of code and then use them trhoughout the file in the same sh
     session
 
-** 22 [12%]
-  - [X] Improve algorithm. Describe variables, better names, erase
-    timers
-  - [ ] Absolute numbers in section 3.1 (current speedup) and 5.2
-    (Adaptive algorithm). Write something + maybe a table with
-    absolute times +  memory consumption.
+** 22 [100%]
+  - [X] Improve algorithm in report. Describe variables, better names,
+    erase timers
+  - [X] Absolute numbers in section 3.1 (current
+    speedup).Table+memoryconsumption
+** 23 [100%]
+  - [X] Test new changes in scripts in report.
+  - [X] Add get_times script
+  - [X] Integration test: run exp, gather data, do plot.
+
+** 24 [%]
+  - [ ] Put code snippets to change dir and redefine BASE_DIR and name them. They are useful.
+  - [ ] Learn how to launch an experiment for a weekend (if thats
+    possible)
+  - [ ] Absolute numbers in section 5.2 (Adaptive algorithm). Write
+    something + maybe a table with absolute times. (Add millions when ready)
+
   - [ ] Figure 1:
     - be actually run with SimGrid v3.11 maybe (not sure)
-    - have more data (In Progress)
-    - report also the memory consumption (Peak and average memory
-      already measured)
-    - report some absolute numbers here (Figure 1), maybe on another
-      graph so that we can see the time that it actually takes.
     - Make the speedup chart and also the amdahl one. Or put those
       two in the same graph
-
+    - Add memory used with 1m, 2m nodes when ready
+    - Add units of values in table.
+  - [ ] Make new plot of SR w/new idea.
   - Compare sequential time of 3.11 against newer version too.
-  - https://github.com/mquinson/simgrid-simpar/issues 
-Experiments:
-  - [ ] Improve benchmark of SR's & make new SR exp with normal
-    benchmark and uniform distributed sizes. With this data, replot
-    corresponding graphs.
-  - [ ] Figure 4. Use more data.
-  - [ ] See how the adaptative threshold evolved over a given
-    simulation. Maybe do a graph where the simulated time (the
+  - https://github.com/mquinson/simgrid-simpar/issues
+
+For a weekend:
+All have to be done with the  same sizes.
+  - bench 3.11
+  - bench adaptive w/bigger sizes. Keep track of threshold to plot
+    another graph w/it (Maybe do a graph where the simulated time (the
     differing SRs) are given in abscisse and the adaptative threshold
     computed at that point is given in ordinate. And maybe use several
-    curves on that graph, for several sizes of simulation.
+    curves on that graph, for several sizes of simulation.)
+  - bench busy_waiters w/bigger sizes
+  - fix SR's exp. and bench with bigger sizes
+  - run all the exps with other examples
 
 Other things:
-  - Run benchmarks with other examples.
-  - Check uniformity of nodes amounts on some experiments.
+  - To Amdahl plot: measure sequential time and then add SR
+    times. That way, we can tell what should be the theoretical
+    speedup achieved, maybe.
   - Improve adaptive algorithm.
-
-Long term tasks:
-  - Run chord with 1m nodes. (In progress)
-  - Run chord with 2m nodes.
 
 * Useful info:
 ** List of recommended packages/software to run experiments
