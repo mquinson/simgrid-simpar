@@ -12,6 +12,18 @@ THREADS = ['2', '4', '8', '16', '24']
 input_seq = ['']
 
 
+def parse_memory_used(file):
+    line = file.read().splitlines()
+    l = line[-1]
+    if l:
+        mem = float(((l.split()[6]).split(':')[1]).replace('k',''))
+        mem = mem / (1024.0 * 1024.0)  # gigabytes used
+        mem = float(("{0:.2f}".format(mem)))
+        return mem
+    else:
+        return 0
+
+
 def parse_elapsed_real(file):
     line = file.read().splitlines()[-1]
     if line:
@@ -44,7 +56,7 @@ def print_header(file):
     file.write('\n')
 
 
-def parse_files(elapsed=False, amdahl=False):
+def parse_files(elapsed=False, amdahl=False, mem=False):
     f = open(OUTPUT_FILE, "w")
     print_header(f)
     for size in SIZES:
@@ -60,6 +72,8 @@ def parse_files(elapsed=False, amdahl=False):
                         sum_l += parse_elapsed_real(file)
                     elif amdahl:
                         sum_l += parse_amdahl_times(file)
+                    elif mem:
+                        sum_l += parse_memory_used(file)
                     else:
                         sum_l += parse_user_kernel(file)
                 if leng != 0:
@@ -79,6 +93,9 @@ if __name__ == "__main__":
     parser.add_option("-u", action="store_true",
                       dest="userkernel",
                       help="Generate table using user+kernel time from logs")
+    parser.add_option("-m", action="store_true",
+                      dest="memory",
+                      help="Generate table with memory consumptions")
     parser.add_option("-a", action="store_true",
                       dest="amdahl",
                       help="Generate table using amdahl times from logs")
@@ -90,5 +107,7 @@ if __name__ == "__main__":
         parse_files(elapsed=False)
     elif options.amdahl:
         parse_files(amdahl=True)
+    elif options.memory:
+        parse_files(mem=True)
 
     exit(0)
