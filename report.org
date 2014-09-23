@@ -433,12 +433,38 @@ the corresponding R codes. Note that it is even possible to execute
 them remotely if TRAMP is used to open this file (this is useful if
 you want the data to be processed in one powerful machine, such as a
 cluster).
+** Modifiable Parameters
+Some of the parameters to run the experiments can be modified, like
+the amount of nodes to simulate and the amount of threads to use.
+Note that the list of nodes to simulate have to be changed in both the
+python session and the shell session.  This sessions are intended to
+last during all your experiments/analysis.
+
+#+begin_src sh :session org-sh
+SGPATH='/usr/local'
+# Save the revision of SimGrid used for the experiment
+SGHASH=$(git rev-parse --short HEAD)
+sizes=(1000 5000 10000 15000)
+threads=(1 2 4 8 16 24)
+#+end_src
+
+#+begin_src python :session
+  SIZES = [1000,5000,10000,15000]
+  THREADS = [1, 2, 4, 8, 16, 24]
+  # All the benchmarks can be done using both modes, but note that this
+  # paper uses only precise
+  MODES = ['constant','precise']
+  nb_bits = 32
+  end_date = 10000
+#+end_src
+
 ** Setting up the machine
 Install required packages to compile/run SimGrid experiments. If you
 are in a cluster (such as Grid5000) you can run this file remotely in
 a deployed node and still be able to setup your environment.  Run this
-two code chunks sequentially in order to create folders, install
+two code chunks one after other in order to create folders, install
 packages and create required deployment/platform files.
+
 
 #+begin_src sh :session org-sh
 
@@ -446,8 +472,8 @@ packages and create required deployment/platform files.
 BASE_DIR=$PWD
 
 sudo apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev libdwarf-dev libunwind7-dev valgrind libsigc++
-mkdir -p Simpar/{SimGrid,deployment,platforms,logs,fig}
-cd Simpar/SimGrid/
+mkdir -p SimGrid deployment platforms logs fig
+cd SimGrid/
 # Clone latest SimGrid version. You may have to configure proxy settings if you are in a G5K node in order to clone this git repository
 #git clone https://gforge.inria.fr/git/simgrid/simgrid.git .
 cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF -Denable_documentation=OFF .
@@ -457,11 +483,6 @@ cd ../../
 
 #+name: generate_platform_files
 #+begin_src python :session :results output
-
-# Add/quit sizes as you wish
-list_nb_nodes = [1000,5000,10000,15000]
-nb_bits = 32
-end_date = 10000
 
 # This function generates a specific platform file for the Chord example.
 import random
@@ -484,7 +505,7 @@ def platform(nb_nodes, nb_bits, end_date):
     all_ids.append(my_id)
   res.append("</platform>")
   res = "".join(res)
-  f  = open("./Simpar/platforms/chord%d.xml"%nb_nodes, "w")
+  f  = open("./platforms/chord%d.xml"%nb_nodes, "w")
   f.write(res)
   f.close()
   return
@@ -500,18 +521,19 @@ def deploy(nb_nodes):
   		radical="0-%d"	power="1000000000"    bw="125000000"     lat="5E-5"/>
 </AS>
 </platform>"""%(nb_nodes-1)
-  f = open("./Simpar/deployment/One_cluster_nobb_%d_hosts.xml"%nb_nodes, "w")
+  f = open("./deployment/One_cluster_nobb_%d_hosts.xml"%nb_nodes, "w")
   f.write(res)
   f.close()
   return 
 
-for size in list_nb_nodes:
+# Remember that SIZES was defined as a global variable in the first python code chunk in [[Modifiable Parameters]]
+for size in SIZES:
   platform(size, nb_bits, end_date)
   deploy(size)
 #+end_src
 
 ** Scripts to run benchmarks
-This is a general script that can be used to run all the benchmarks
+This are general scripts that can be used to run all the benchmarks
 after the proper modifications were done.
 
 #+name: testall
@@ -556,9 +578,9 @@ fi
 # Path where to store logs, and filenames of times table, host info
 if [ -z "$log_folder"]
 then
-    log_folder=$BASE_DIR"/Simpar/logs"
+    log_folder=$BASE_DIR"/logs"
 else
-    log_folder=$BASE_DIR"/Simpar/logs/"$log_folder
+    log_folder=$BASE_DIR"/logs/"$log_folder
 fi
 
 if [ ! -d "$log_folder" ]
@@ -568,8 +590,8 @@ then
 fi
 
 # Copy all the generated deployment/platform files into chord folder
-cp $BASE_DIR/Simpar/platforms/* .
-cp $BASE_DIR/Simpar/deployment/* .
+cp $BASE_DIR/platforms/* .
+cp $BASE_DIR/deployment/* .
 
 file_table="timings_$SGHASH.csv"
 host_info="host_info.org"
@@ -781,28 +803,43 @@ rm -rf tmp
 
 # Path to installation folder needed to recompile chord
 # If it is not set, assume that the path is '/usr/local'
-if [ -z "$1" ]
+if [ -z "$SG_PATH" ]
 then
     SGPATH='/usr/local'
-else
-    SGPATH=$1
 fi
 
 # Save the revision of SimGrid used for the experiment
 SGHASH=$(git rev-parse --short HEAD)
 
 # List of sizes to test. Modify this to add different sizes.
-sizes=(1000) # 3000 5000 10000 25000 50000 75000)
+if [ -z "$sizes" ]
+then
+    sizes=(1000 3000)
+fi
 
 # Number of threads to test. 
-threads=(2) # 4 8 16 24)
+if [ -z "$threads"]
+then
+    threads=(1 2 4 8 16 24)
+fi
 
 # Path where to store logs, and filenames of times table, host info
-log_folder="log/"
-if [ ! -d "$log_folder" ]; then
-    echo "Please create $log_folder directory before."
-    exit 1
+if [ -z "$log_folder"]
+then
+    log_folder=$BASE_DIR"/logs"
+else
+    log_folder=$BASE_DIR"/logs/"$log_folder
 fi
+
+if [ ! -d "$log_folder" ]
+then
+    echo "Creating $log_folder to store logs."
+    mkdir -p $log_folder
+fi
+
+# Copy all the generated deployment/platform files into chord folder
+cp $BASE_DIR/platforms/* .
+cp $BASE_DIR/deployment/* .
 
 file_table="timings_$SGHASH.csv"
 host_info="host_info.org"
@@ -1007,20 +1044,6 @@ rm -rf $file_table
 rm -rf tmp
 #+end_src
 
-** Modifiable Parameters
-Some of the parameters to run the experiments can be modified, like
-the amount of nodes to simulate and the amount of threads to use.
-Note that the list of nodes to simulate will have to be changed
-manually in [[generate_platform_files]].
-
-#+begin_src sh :session org-sh
-SGPATH='/usr/local'
-# Save the revision of SimGrid used for the experiment
-SGHASH=$(git rev-parse --short HEAD)
-sizes=(1000 3000)
-threads=(1 2 4 8 16 24)
-#+end_src
-
 ** Amdahl speedup
 The benchmark can be run from this org-mode file, or simply by running
 ./scripts/chord/testall.sh (in this repository) inside the folder
@@ -1070,7 +1093,7 @@ This can be run from here or just by running testall_sr.sh in in the
 examples/msg/chord folder of your SimGrid install.
 
 #+begin_src sh :session org-sh
-cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+cd $BASE_DIR/SimGrid/examples/msg/chord
 #+end_src
 
 #+call: testall_sr[:session org-sh](log_folder='sr_counts')
@@ -1084,7 +1107,7 @@ order to enable this optimization.  The benchmark is then run in the
 same way as the Amdahl Speedup experiment.
 
 #+begin_src sh :session org-sh
-cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+cd $BASE_DIR/SimGrid/examples/msg/chord
 #+end_src
 
 #+call: testall[:session org-sh](log_folder='binding_cores')
@@ -1094,7 +1117,7 @@ This may be the experiment that requires more work to reproduce:
 This is the default setting and the standard benchmark can be used.
 
 #+begin_src sh :session org-sh
-cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+cd $BASE_DIR/SimGrid/examples/msg/chord
 #+end_src
 
 #+call: testall[:session org-sh](log_folder='pmapM_N-1')
@@ -1104,7 +1127,7 @@ To avoid that maestro works with the threads, comment out the line:
 from the function xbt_parmap_apply() in src/xbt/parmap.c
 
 #+begin_src sh :session org-sh
-cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+cd $BASE_DIR/SimGrid/examples/msg/chord
 #+end_src
 
 #+call: testall[:session org-sh](log_folder='pmap_N-1')
@@ -1118,7 +1141,7 @@ modified to create one extra thread. It is easy: just add 1 to
 num_workers parameter.
 
 #+begin_src sh :session org-sh
-cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+cd $BASE_DIR/SimGrid/examples/msg/chord
 #+end_src
 
 #+call: testall[:session org-sh](log_folder='pmap_N')
@@ -1131,7 +1154,7 @@ The data regarding the futexes synchro times is the same gathered in Amdahl
 Speedup experiment.
 
 #+begin_src sh :session org-sh
-cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+cd $BASE_DIR/SimGrid/examples/msg/chord
 #+end_src
 
 #+call: testall[:session org-sh](log_folder='busy_waiters')
@@ -1143,7 +1166,7 @@ The benchmark is done using testall.sh. The algorithm is the one
 described in section 5.2
 
 #+begin_src sh :session org-sh
-cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
+cd $BASE_DIR/SimGrid/examples/msg/chord
 #+end_src
 
 #+call: testall[:session org-sh](log_folder='adaptive-algorithm')
@@ -1278,10 +1301,112 @@ df6 = merge(df3, df4, by.x = 'V3', by.y = 'V3', incomparables = NULL)
 df6[, 'speedup'] <- df6[,'mean_value.x'] / df6[, 'mean_value.y']
 saveRDS(df6,file="./logs/sr_counts/constant.Rda")
 #+end_src
+
+#+name: create_table
+#+begin_src python :session :var elapsed=False :var amdahl=False :var memory=False :var logs_path='./logs' :var output_file='./logs/total_times.csv'
+
+  # This is a set of functions that can generate nice .csv files with
+  # the times of the experiments. Also, the memory consumption can be
+  # gathered. Note that the logs are the ones generated by [[testall]]
+  # code chunk.
+
+  #Parameters: elapsed: if set to True, then the elapsed time (wallclock) is gathered.
+  #            amdahl:  if set to True, then the times of the Amdahl benchmark are gathered.
+  #            memory:  if set to True, then the peak RAM used by the process is gathered.
+  #               If none of them is gathered, then the usrtime + systime is gathered.
+  #            logs_path: where are stored the logs to analyze.
+  #            output_file_path: where to store the produced table
+
+  # If you make several test of the same experiment, you can name the log files
+  # with a prefix ('1_chord..., 2_chord...') and then put the prefixes
+  # you used in input_seq. The script will average the corresponding values
+  # for you.
+  input_seq = ['']
+
+
+  def parse_memory_used(file):
+      line = file.read().splitlines()
+      l = line[-1]
+      if l:
+          mem = float(((l.split()[6]).split(':')[1]).replace('k',''))
+          mem = mem / (1024.0 * 1024.0)  # gigabytes used
+          mem = float(("{0:.2f}".format(mem)))
+          return mem
+      else:
+          return 0
+
+
+  def parse_elapsed_real(file):
+      line = file.read().splitlines()[-1]
+      if line:
+          return float((line.split()[0]).split(':')[1])
+      else:
+          return 0
+
+
+  def parse_user_kernel(file):
+      line = file.read().splitlines()[-1]
+      if line:
+          usrtime = float((line.split(":")[2]).split()[0])
+          systime = float((line.split(":")[3]).split()[0])
+          return usrtime + systime
+
+
+  def parse_amdahl_times(file):
+      line = [line for line in file.read().splitlines() if "Amdahl" in line]
+      line = [(((l.split(";")[0]).split(":")[-1]).strip(),
+              ((l.split(";")[1]).split(":")[1]).strip())
+              for l in line][0]
+      return float(line[0]) + float(line[1])
+
+
+  def print_header(file):
+      file.write('"nodes"')
+      for mode in MODES:
+          for thread in THREADS:
+              file.write(',"'+mode[0]+str(thread)+'"')
+      file.write('\n')
+
+
+  def parse_files(elapsed=False, amdahl=False, mem=False, logs_path, output_file_path):
+      f = open(output_file_path, "w")
+      print_header(f)
+      for size in SIZES:
+          temp_line = "{}".format(size)
+          for mode in MODES:
+              for thread in THREADS:
+                  sum_l = 0.
+                  leng = len(input_seq)
+                  for seq in input_seq:
+                      file = open("{}/chord{}_{}_threads{}_{}.log".format(logs_path,
+                                  seq, str(size), str(thread), mode), "r")
+                      if elapsed:
+                          sum_l += parse_elapsed_real(file)
+                      elif amdahl:
+                          sum_l += parse_amdahl_times(file)
+                      elif mem:
+                          sum_l += parse_memory_used(file)
+                      else:
+                          sum_l += parse_user_kernel(file)
+                  if leng != 0:
+                      temp_line += ",{}".format(sum_l / float(leng))
+                  else:
+                      temp_line += ",?"
+          f.write(temp_line + "\n")
+      f.close()
+
+  parse_files(elapsed,amdahl,mem, output_file, logs_path, output_folder)
+#+end_src
+
+#+call: create_table(amdahl=True,logs_path='./logs/amdahl/logs',output_file='./logs/amdahl/total_times_amdahl.csv')
+#+call: create_table(elapsed=True,logs_path='./logs/busy_waiters/logs',output_file='./logs/busy_waiters/total_times_busy.csv')  
+#+call: create_table(elapsed=True,logs_path='./logs/adaptive_algorithm/logs',output_file='./logs/adaptive_algorithm/total_times_adaptive.csv')
+#+call: create_table(elapsed=True,logs_path='./logs/timings/logs',output_file='./logs/timings/total_times.csv')
+
 ** Plotting
 #+name: amdahl-speedup
 #+begin_src R  :results output graphics :exports results :file fig/amdahl-speedup.pdf
-data = read.csv("./logs/timings/total_times_wallclock.csv", head=TRUE, sep=',')
+data = read.csv("./logs/amdahl/total_times_wallclock.csv", head=TRUE, sep=',')
 
 
 # Speedups of Precise Mode
@@ -1340,7 +1465,7 @@ ggplot(data=sr_data, geom="histogram", aes(x=V3, y=V2)) + xlim(0,500) + xlab("Pr
 
 #+name: busy
 #+begin_src R :results output graphics :exports results :file fig/busy.pdf
-orig_data = read.csv("./logs/busy_waiters/total_times_orig.csv", head=TRUE, sep=',')
+orig_data = read.csv("./logs/timings/total_times.csv", head=TRUE, sep=',')
 opt_data = read.csv("./logs/busy_waiters/total_times_busy.csv", head=TRUE, sep=',')
 
 # Speedups of Precise Mode
@@ -1377,7 +1502,7 @@ g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) +geom_point() +
 
 #+name: adapt-algorithm
 #+begin_src R  :results output graphics :exports results  :file fig/adapt-algorithm.pdf
-orig_data = read.csv("./logs/adaptive_algorithm/total_times_orig.csv")
+orig_data = read.csv("./logs/timings/total_times.csv")
 opt_data = read.csv("./logs/adaptive_algorithm/total_times_adaptive.csv")
 
 # Speedups of Precise Mode
