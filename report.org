@@ -146,9 +146,9 @@ precise mode are presented in the table \ref{tab:one}.
 
 The memory consumptions reported in all the experiments show that each
 node is using around 25 KB and 30 KB. A simulation with 1000 nodes,
-takes around 30 MB (independent of the amount of threads launched),
-while when simulating 3000000 nodes, the maximum memory used is
-between 7.38 and 7.60 GB.
+takes around 30 MB (independent of the amount of threads launched) and
+around 5 seconds in a serial execution, while when simulating 3000000
+nodes, the maximum memory used is between 7.38 and 7.60 GB and it takes around .
 
 TODO: wait until 1m/2m simulations finish and put that data too.
 
@@ -383,10 +383,12 @@ increased otherwise.
 \State
 \If {$processes\_to\_run >= parallel\_threshold$}
 \State execute\_SR\_parallel()
-\State parallel\_SRs++
+\State $process\_par \gets get\_number\_of\_processes()$
+\State $parallel\_SRs++$
 \Else
 \State execute\_SR\_serial()
-\State sequential\_SRs++
+\State $process\_seq \gets get\_number\_of\_processes()$
+\State $sequential\_SRs++$
 \EndIf
 \EndProcedure
 \end{algorithmic}
