@@ -440,10 +440,12 @@ Note that the list of nodes to simulate have to be changed in both the
 python session and the shell session.  This sessions are intended to
 last during all your experiments/analysis.
 
+This sizes/threads lists are needed to run the simulations, generate
+platform/deployment files, and generate tables after the
+experiments. Thus, is mandatory to run this snippets.
+
 #+begin_src sh :session org-sh
-SGPATH='/usr/local'
-# Save the revision of SimGrid used for the experiment
-SGHASH=$(git rev-parse --short HEAD)
+BASE_DIR=$PWD
 sizes=(1000 5000 10000 15000)
 threads=(1 2 4 8 16 24)
 #+end_src
@@ -465,19 +467,25 @@ a deployed node and still be able to setup your environment.  Run this
 two code chunks one after other in order to create folders, install
 packages and create required deployment/platform files.
 
+If the [[setup_and_install]] snippet was run before, or everything is
+already installed and set up, then check/modify the parameters of the
+shell session with the snippets [[check_args]] and [[go_to_chord]]
 
+#+name: setup_and_install
 #+begin_src sh :session org-sh
 
 # Save current directory where the report is
 BASE_DIR=$PWD
-
-sudo apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev libdwarf-dev libunwind7-dev valgrind libsigc++
+apt-get update && apt-get install cmake make gcc git libboost-dev libgct++ libpcre3-dev linux-tools gdb liblua5.1-0-dev libdwarf-dev libunwind7-dev valgrind libsigc++
 mkdir -p SimGrid deployment platforms logs fig
-cd SimGrid/
+cd $BASE_DIR/SimGrid/
 # Clone latest SimGrid version. You may have to configure proxy settings if you are in a G5K node in order to clone this git repository
-#git clone https://gforge.inria.fr/git/simgrid/simgrid.git .
+git clone https://gforge.inria.fr/git/simgrid/simgrid.git .
+SGPATH='/usr/local'
+# Save the revision of SimGrid used for the experiment
+SGHASH=$(git rev-parse --short HEAD)
 cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile_warnings=OFF -Denable_debug=OFF -Denable_gtnets=OFF -Denable_jedule=OFF -Denable_latency_bound_tracking=OFF -Denable_lua=OFF -Denable_model-checking=OFF -Denable_smpi=OFF -Denable_tracing=OFF -Denable_documentation=OFF .
-sudo make install
+make install
 cd ../../
 #+end_src
 
@@ -505,7 +513,7 @@ def platform(nb_nodes, nb_bits, end_date):
     all_ids.append(my_id)
   res.append("</platform>")
   res = "".join(res)
-  f  = open("./platforms/chord%d.xml"%nb_nodes, "w")
+  f  = open(os.getcwd() + "/platforms/chord%d.xml"%nb_nodes, "w")
   f.write(res)
   f.close()
   return
@@ -521,7 +529,7 @@ def deploy(nb_nodes):
   		radical="0-%d"	power="1000000000"    bw="125000000"     lat="5E-5"/>
 </AS>
 </platform>"""%(nb_nodes-1)
-  f = open("./deployment/One_cluster_nobb_%d_hosts.xml"%nb_nodes, "w")
+  f = open(os.getcwd() + "/deployment/One_cluster_nobb_%d_hosts.xml"%nb_nodes, "w")
   f.write(res)
   f.close()
   return 
@@ -532,12 +540,36 @@ for size in SIZES:
   deploy(size)
 #+end_src
 
+Optional snippets to check arguments and go to chord folder:
+
+#+name: check_args
+#+begin_src sh :session org-sh
+echo $sizes
+echo $threads
+echo $BASE_DIR
+#sizes=(1000)
+#threads=(1 2)
+#BASE_DIR=$PWD
+echo $sizes
+echo $threads
+echo $BASE_DIR
+#+end_src
+
+#+name: go_to_chord
+#+begin_src sh :session org-sh
+cd $BASE_DIR/SimGrid/examples/msg/chord
+echo $BASE_DIR
+echo $sizes
+echo $threads
+make
+#+end_src
+
 ** Scripts to run benchmarks
 This are general scripts that can be used to run all the benchmarks
 after the proper modifications were done.
 
 #+name: testall
-#+begin_src sh  :var SG_PATH='/usr/local' :var log_folder="logs"
+#+begin_src sh  :var SG_PATH='/usr/local' :var log_folder="logs" :session org-sh
 
 # This script is to benchmark the Chord simulation that can be found
 # in examples/msg/chord folder.
@@ -786,7 +818,7 @@ rm -rf tmp
 #+end_src
 
 #+name: testall_sr
-#+begin_src sh  :var SG_PATH='/usr/local' :var log_folder="logs"
+#+begin_src sh  :var SG_PATH='/usr/local' :var log_folder="logs" :session org-sh
 # This script is to benchmark the Chord simulation that can be found
 # in examples/msg/chord folder.
 # The benchmark is done with both Constant and Precise mode, using
@@ -1062,21 +1094,11 @@ a .csv that can easily be plotted with R/gnuplot.
 
 The script is self-documented.
 
-#+begin_src sh :session org-sh
-cd $BASE_DIR/Simpar/SimGrid/examples/msg/chord
-#+end_src
+#+call: check_args[:session org-sh]()
 
-#+call: testall[:session org-sh](log_folder='timings')
+#+call: go_to_chord[:session org-sh]()
 
-#+RESULTS:
-|                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |       |         |         |     |       |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |      |        |          |        |   |         |
-| >                                                          | >                                                          | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | >                                                          | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | >                                                          | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | >                                                          | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | >                                                          | bash:                                                      | [:    | missing | `]'     |     |       |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |      |        |          |        |   |         |
-| etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | >                                                          | >                                                          | >                                                          | bash:                                                      | [:                                                         | missing                                                    | `]'                                                        |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |       |         |         |     |       |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |      |        |          |        |   |         |
-| etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | >                                                          | >                                                          | Creating                                                   | /home/etl/Desktop/Simpar/logs//log                         | to                                                         | store                                                      | logs.                                                      |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |       |         |         |     |       |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |      |        |          |        |   |         |
-| etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | Recompile                                                  | the                                                        | binary                                                     | against                                                    | /usr/local                                                 |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |       |         |         |     |       |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |      |        |          |        |   |         |
-| etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | >                                                          | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | >                                                          | >                                                          | >                                                          | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | >                                                          | >                                                          | >                                                          | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | bash: | lstopo: | command | not | found |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |      |        |          |        |   |         |
-| etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | etl@coldpeace:~/Desktop/Simpar/SimGrid/examples/msg/chord$ | >                                                          | >                                                          | >                                                          | >     | >       | >       | >   | >     | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | > | 1000 | nodes, | constant | model, | 1 | threads |
-| 1000                                                       | nodes,                                                     | constant                                                   | model,                                                     | 2                                                          | threads                                                    |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |                                                            |       |         |         |     |       |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |      |        |          |        |   |         |
+#+call: testall[:session org-sh](log_folder='timings/logs')
 
 ** SR Distribution
 To enable Scheduling Rounds benchmarks, the constant TIME_BENCH_PER_SR
@@ -1092,11 +1114,11 @@ the id of SR, time of SR and num processes of SR, in a table format.
 This can be run from here or just by running testall_sr.sh in in the
 examples/msg/chord folder of your SimGrid install.
 
-#+begin_src sh :session org-sh
-cd $BASE_DIR/SimGrid/examples/msg/chord
-#+end_src
+#+call: check_args[:session org-sh]()
 
-#+call: testall_sr[:session org-sh](log_folder='sr_counts')
+#+call: go_to_chord[:session org-sh]()
+
+#+call: testall_sr[:session org-sh](log_folder='sr_counts/logs')
 
 ** SR Times
 The data set used for this plot is the same as the one before.
@@ -1106,31 +1128,32 @@ The constant CORE_BINDING has to be defined in src/xbt/parmap.c in
 order to enable this optimization.  The benchmark is then run in the
 same way as the Amdahl Speedup experiment.
 
-#+begin_src sh :session org-sh
-cd $BASE_DIR/SimGrid/examples/msg/chord
-#+end_src
+#+call: check_args[:session org-sh]()
 
-#+call: testall[:session org-sh](log_folder='binding_cores')
+#+call: go_to_chord[:session org-sh]()
+
+#+call: testall[:session org-sh](log_folder='binding_cores/logs')
 ** parmap between N cores
 This may be the experiment that requires more work to reproduce:
 *** maestro works with N-1 threads
 This is the default setting and the standard benchmark can be used.
 
-#+begin_src sh :session org-sh
-cd $BASE_DIR/SimGrid/examples/msg/chord
-#+end_src
+#+call: check_args[:session org-sh]()
 
-#+call: testall[:session org-sh](log_folder='pmapM_N-1')
+#+call: go_to_chord[:session org-sh]()
+
+#+call: testall[:session org-sh](log_folder='pmapM_N-1/logs')
+
 *** maestro sleeps with N-1 threads
 To avoid that maestro works with the threads, comment out the line:
     xbt_parmap_work(parmap);
 from the function xbt_parmap_apply() in src/xbt/parmap.c
 
-#+begin_src sh :session org-sh
-cd $BASE_DIR/SimGrid/examples/msg/chord
-#+end_src
+#+call: check_args[:session org-sh]()
 
-#+call: testall[:session org-sh](log_folder='pmap_N-1')
+#+call: go_to_chord[:session org-sh]()
+
+#+call: testall[:session org-sh](log_folder='pmap_N-1/logs')
 
 *** maestro sleeps with N threads
 To avoid that maestro works with the threads, comment out the line:
@@ -1140,11 +1163,12 @@ Then the function src/xbt/parmap.c:xbt_parmap_new has to be
 modified to create one extra thread. It is easy: just add 1 to
 num_workers parameter.
 
-#+begin_src sh :session org-sh
-cd $BASE_DIR/SimGrid/examples/msg/chord
-#+end_src
+#+call: check_args[:session org-sh]()
 
-#+call: testall[:session org-sh](log_folder='pmap_N')
+#+call: go_to_chord[:session org-sh]()
+
+#+call: testall[:session org-sh](log_folder='pmap_N/logs')
+
 ** Busy Waiters vs. Futexes performance
 Enable the use of busy waiters running chord with the extra option:
     --cfg=contexts/synchro:busy_wait
@@ -1153,11 +1177,12 @@ chord command inside the script. The tables were constructed using get_times.py
 The data regarding the futexes synchro times is the same gathered in Amdahl
 Speedup experiment.
 
-#+begin_src sh :session org-sh
-cd $BASE_DIR/SimGrid/examples/msg/chord
-#+end_src
+#+call: check_args[:session org-sh]()
 
-#+call: testall[:session org-sh](log_folder='busy_waiters')
+#+call: go_to_chord[:session org-sh]()
+
+#+call: testall[:session org-sh](log_folder='busy_waiters/logs')
+
 ** Performance Regression Testing
 ** SR parallel threshold
 The data set is the same as SR Distribution and SR times experiments.
@@ -1165,11 +1190,12 @@ The data set is the same as SR Distribution and SR times experiments.
 The benchmark is done using testall.sh. The algorithm is the one
 described in section 5.2
 
-#+begin_src sh :session org-sh
-cd $BASE_DIR/SimGrid/examples/msg/chord
-#+end_src
+#+call: check_args[:session org-sh]()
 
-#+call: testall[:session org-sh](log_folder='adaptive-algorithm')
+#+call: go_to_chord[:session org-sh]()
+
+#+call: testall[:session org-sh](log_folder='adaptive-algorithm/logs')
+
 * Data Analysis                                                    :noexport: 
 ** Installing required packages
 #+begin_src R :exports none
@@ -1237,6 +1263,9 @@ g_legend<-function(a.gplot){
 #+RESULTS:
 
 ** Pre-processing of datasets
+Here we pre process some data to make the plotting stage faster. Also,
+the .csv files needed for almost all plots are created here.
+
 #+name: process_data_sr-times
 #+begin_src R
 temp = list.files(path='./logs/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
@@ -1303,7 +1332,7 @@ saveRDS(df6,file="./logs/sr_counts/constant.Rda")
 #+end_src
 
 #+name: create_table
-#+begin_src python :session :var elapsed=False :var amdahl=False :var memory=False :var logs_path='./logs' :var output_file='./logs/total_times.csv'
+#+begin_src python :session :var elapsed=0 :var amdahl=0 :var memory=0 :var logs_path='"logs"' :var output_file='"logs/total_times.csv"' :results output
 
   # This is a set of functions that can generate nice .csv files with
   # the times of the experiments. Also, the memory consumption can be
@@ -1368,7 +1397,7 @@ saveRDS(df6,file="./logs/sr_counts/constant.Rda")
       file.write('\n')
 
 
-  def parse_files(elapsed=False, amdahl=False, mem=False, logs_path, output_file_path):
+  def parse_files(elapsed, amdahl, mem, logs_path, output_file_path):
       f = open(output_file_path, "w")
       print_header(f)
       for size in SIZES:
@@ -1395,19 +1424,25 @@ saveRDS(df6,file="./logs/sr_counts/constant.Rda")
           f.write(temp_line + "\n")
       f.close()
 
-  parse_files(elapsed,amdahl,mem, output_file, logs_path, output_folder)
+  parse_files(elapsed, amdahl, memory, logs_path, output_file)
 #+end_src
 
-#+call: create_table(amdahl=True,logs_path='./logs/amdahl/logs',output_file='./logs/amdahl/total_times_amdahl.csv')
-#+call: create_table(elapsed=True,logs_path='./logs/busy_waiters/logs',output_file='./logs/busy_waiters/total_times_busy.csv')  
-#+call: create_table(elapsed=True,logs_path='./logs/adaptive_algorithm/logs',output_file='./logs/adaptive_algorithm/total_times_adaptive.csv')
-#+call: create_table(elapsed=True,logs_path='./logs/timings/logs',output_file='./logs/timings/total_times.csv')
+#+call: create_table(0, 1, 0, '"logs/amdahl/logs"', '"logs/amdahl/total_times_amdahl.csv"') :session
+#+call: create_table(1,0,0,'"logs/timings/logs"','"logs/timings/total_times.csv"') :session
+
+#+begin_src python :session
+  # We only test performance improvements in parallel executions with
+  # adaptive algorithm and busy_waiters.
+  THREADS = [2, 4, 8, 16, 24]
+#+end_src
+
+#+call: create_table(1,0,0,'"logs/busy_waiters/logs"','"logs/busy_waiters/total_times_busy.csv"')  :session
+#+call: create_table(1,0,0,'"logs/adaptive_algorithm/logs"','"logs/adaptive_algorithm/total_times_adaptive.csv"') :session
 
 ** Plotting
 #+name: amdahl-speedup
 #+begin_src R  :results output graphics :exports results :file fig/amdahl-speedup.pdf
-data = read.csv("./logs/amdahl/total_times_wallclock.csv", head=TRUE, sep=',')
-
+data = read.csv("./logs/amdahl/total_times_amdahl.csv", head=TRUE, sep=',')
 
 # Speedups of Precise Mode
 data[, "1"] <- data[, "p1"]  / data[, "p1"]
