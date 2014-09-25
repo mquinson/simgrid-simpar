@@ -1494,7 +1494,6 @@ saveRDS(df6,file="./logs/sr_counts/constant.Rda")
 #+RESULTS:
 
 
-
 ** Plotting
 #+name: baseline_perf
 #+begin_src R  :results output graphics :exports results :file fig/baseline-perf.pdf
@@ -1520,33 +1519,60 @@ g2
 
 #+name: sr-distribution
 #+begin_src R
-temp = list.files(path='./logs/sr_counts/parallel', pattern="threads", full.names = TRUE)
+temp = list.files(path='./logs/sr_counts/new/parallel2', pattern="threads4", full.names = TRUE)
 temp <- temp[grep("precise",temp)]
 # This data.frame will store the final proportion values.
-proportions <- data.frame(stringsAsFactors=FALSE) 
+#proportions <- data.frame(stringsAsFactors=FALSE)
+proportions <- data.frame(row.names = c('1','2','3-5','6-10','11-20','21-30','31+'))
+head <- c()
 for(i in temp){
+    col <- c()
     # Parse amount of nodes from the file path.
     # Example of file path: './logs/sr_counts/parallel/sr_10000_threads4_constant.log'
-    nodes = as.numeric(strsplit(str_extract(i, "_[0-9]+_"), "_")[[1]][2])
+    nodes = strsplit(str_extract(i, "_[0-9]+_"), "_")[[1]][2]
+    head <- c(head,as.numeric(nodes))
+    col <- c(col, nodes)
     # Keep only the column with the amount of processes
     data <- read.table(i)["V3"]
     # Calculate proportions
     data <- prop.table(xtabs(~ V3, data=data))
     # Populate a new data frame with percentages of interest (1, 2, 3 or more processes)
-    p <- c(data["1"][[1]],data["2"][[1]], 1 - (data["1"][[1]] + data["2"][[1]]))
+    proc1 <- data["1"][[1]]
+    proc2 <- data["2"][[1]]
+    proc3_5 <- c(data["3"][[1]],data["4"][[1]], data["5"][[1]])
+    proc6_10 <- c(data["6"][[1]], data["7"][[1]], data["8"][[1]], data["9"][[1]], data["10"][[1]])
+    proc11_20 <- c(data["11"][[1]], data["12"][[1]], data["13"][[1]], data["14"][[1]], data["15"][[1]], data["16"][[1]], data["17"][[1]], data["18"][[1]], data["19"][[1]], data["20"][[1]])
+    proc21_30 <- c(data["21"][[1]], data["22"][[1]], data["23"][[1]], data["24"][[1]], data["25"][[1]], data["26"][[1]], data["27"][[1]], data["28"][[1]], data["29"][[1]], data["30"][[1]])
+    # Calculate final percentages and omit any possible NA
+    proc3_5 <- Reduce("+", proc3_5[!is.na(proc3_5)])
+    proc6_10 <- Reduce("+", proc6_10[!is.na(proc6_10)])
+    proc11_20 <- Reduce("+", proc11_20[!is.na(proc11_20)])
+    proc21_30 <- Reduce("+", proc21_30[!is.na(proc21_30)])
+    proc31 <- 1 - (proc1 + proc2 + proc3_5 + proc6_10 + proc11_20 + proc21_30)
+    #p <- c(nodes, proc1, proc2, proc3_5, proc6_10, proc11_20, proc21_30, proc31)
     # And bind to existing data.frame
-    p <- as.data.frame(p)
-    p[,'nodes'] <- nodes
-    p[,'process'] <- c("1","2",">3")
-    proportions <- rbind(proportions, p)
+    #p <- as.data.frame(p)
+    #p[,'nodes'] <- nodes
+    #p[,'process'] <- c("1","2",">3")
+    proportions <- cbind(proportions, nodes = c(proc1, proc2, proc3_5, proc6_10, proc11_20, proc21_30, proc31))
+    colnames(proportions)[length(proportions)] <- as.numeric(nodes)
 }
-df <- ddply(proportions, .(nodes,process), summarise, msteps = mean(p))
-g<-ggplot(df, aes(x=nodes, y=msteps, group=process, colour=process)) + geom_line() +
-   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-   panel.background = element_blank(), axis.line=element_line()) +
-   scale_fill_discrete(name="threads") +
-   xlab("Amount of nodes simulated") + ylab("Percentage of SR's containing 1,2 or >3 processes")
-g
+head <- sort(head)
+cols <- c()
+for(e in head){ cols <- c(cols,toString(e))}
+proportions <- proportions[,cols]
+b <- barplot(as.matrix(proportions), ylab="Proportion of SR's",
+legend=rownames(proportions), args.legend = list(x = ncol(proportions) + 5.5, bty = "n"),
+xlim=c(0, ncol(proportions) + 4), las=2, cex.axis = 0.8)
+title(xlab = "Amount of nodes simulated", line=4)
+
+#df <- ddply(proportions, .(nodes,process), summarise, msteps = mean(p))
+#g<-ggplot(df, aes(x=nodes, y=msteps, group=process, colour=process)) + geom_line() +
+#   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+#   panel.background = element_blank(), axis.line=element_line()) +
+#   scale_fill_discrete(name="threads") +
+#   xlab("Amount of nodes simulated") + ylab("Percentage of SR's containing 1,2 or >3 processes")
+#g
 #+end_src
 
 #+name: sr-times
