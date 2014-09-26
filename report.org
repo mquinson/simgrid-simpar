@@ -220,7 +220,7 @@ be modified).
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:two
-#+caption: Proportions of SR's having only one process to compute, SR's having 2 and SR's having 3 or more; according to the size of nodes simulated.
+#+caption: Proportions of SR's having different numbers of processes to compute; according to the size of nodes simulated.
 [[file:fig/sr-distribution.pdf]]
 
 Besides that, the Figure \ref{fig:three} shows that when the amount of
@@ -323,8 +323,8 @@ the best average option for a simulation.
 #+results:sr-par-threshold
 [[file:fig/sr-par-threshold.pdf]]
 
-As it can be seen in the Figure \ref{fig:five}, the optimal threshold starts at 28 user processes
-for the Precise mode.
+: As it can be seen in the Figure \ref{fig:five}, the optimal threshold starts at 28 user processes
+: for the Precise mode.
 
 ** Adaptive algorithm to calculate threshold
 Finding an optimal threshold and keep it during all the simulation
@@ -1310,28 +1310,28 @@ temp <- temp[grepl("precise", temp)]
 #temp <- temp[-grep("75000", temp)]
 flist <- lapply(temp, read.table)
 sr_data <- rbindlist(flist)
-sr_data[, "V1"] <- NULL
+#sr_data[, "V1"] <- NULL
 sr_data = as.data.frame.matrix(sr_data)
-df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
+#df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
 
 #PARALLEL:
 temp2 = list.files(path='./logs/sr_counts/parallel', pattern="threads4_", full.names = TRUE)
 temp2 <- temp2[grepl("precise", temp2)]
 flist2 <- lapply(temp2, read.table)
 sr_data2 <- rbindlist(flist2)
-sr_data2[, "V1"] <- NULL
+#sr_data2[, "V1"] <- NULL
 sr_data2 = as.data.frame.matrix(sr_data2)
-df2 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
+#df2 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
 
 #CONSTANT MODE
 #SEQUENTIAL
 temp3 = list.files(path='./logs/sr_counts/sequential', pattern="threads4_", full.names = TRUE)
 temp3 <- temp3[grepl("constant", temp3)]
 flist <- lapply(temp3, read.table)
-sr_data <- rbindlist(flist)
-sr_data[, "V1"] <- NULL
-sr_data = as.data.frame.matrix(sr_data)
-df3 <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
+sr_data3 <- rbindlist(flist)
+#sr_data[, "V1"] <- NULL
+sr_data3 = as.data.frame.matrix(sr_data3)
+#df3 <- ddply(sr_data3, .(V3), summarize, mean_value = mean(V2))
 
 
 #PARALLEL:
@@ -1340,18 +1340,20 @@ temp4 <- temp4[grepl("constant", temp4)]
 #temp4 <- temp4[-grep("50000", temp4)]
 #temp4 <- temp4[-grep("75000", temp4)]
 flist2 <- lapply(temp4, read.table)
-sr_data2 <- rbindlist(flist2)
-sr_data2[, "V1"] <- NULL
-sr_data2 = as.data.frame.matrix(sr_data2)
-df4 <- ddply(sr_data2, .(V3), summarize, mean_value = mean(V2))
+sr_data4 <- rbindlist(flist2)
+#sr_data2[, "V1"] <- NULL
+sr_data4 = as.data.frame.matrix(sr_data4)
+#df4 <- ddply(sr_data4, .(V3), summarize, mean_value = mean(V2))
 
 #Merge PRECISE datasets
-df5 = merge(df, df2, by.x = 'V3', by.y = 'V3', incomparables = NULL)
-df5[, 'speedup'] <- df5[,'mean_value.x'] / df5[, 'mean_value.y']
+df5 = merge(sr_data, sr_data2, by = 'V1', incomparables = NULL)
+df5 <- transform(df5, speedup = V2.x / V2.y)
+#df5[, 'speedup'] <- df5[,'mean_value.x'] / df5[, 'mean_value.y']
 saveRDS(df5, file="./logs/sr_counts/precise.Rda")
 #Merge CONSTANT datasets
-df6 = merge(df3, df4, by.x = 'V3', by.y = 'V3', incomparables = NULL)
-df6[, 'speedup'] <- df6[,'mean_value.x'] / df6[, 'mean_value.y']
+df6 = merge(sr_data3, sr_data4, by = 'V1', incomparables = NULL)
+df6 <- transform(df6, speedup = V2.x / V2.y)
+#df6[, 'speedup'] <- df6[,'mean_value.x'] / df6[, 'mean_value.y']
 saveRDS(df6,file="./logs/sr_counts/constant.Rda")
 #+end_src
 
@@ -1487,12 +1489,11 @@ saveRDS(df6,file="./logs/sr_counts/constant.Rda")
 #+call: create_table(1,0,0,'"logs/busy_waiters/logs"','"logs/busy_waiters/total_times_busy.csv"')  :session
 #+call: create_table(1,0,0,'"logs/adaptive_algorithm/logs"','"logs/adaptive_algorithm/total_times_adaptive.csv"') :session
 
-# This csv is for the table of Section 5.2
+# This csv is useful for the table of Section 5.2
 
 #+call: create_table(1,0,1,'"logs/timings/logs"','"logs/timings/total_times_memory_adaptive.csv"') :session
 
 #+RESULTS:
-
 
 ** Plotting
 #+name: baseline_perf
@@ -1518,7 +1519,7 @@ g2
 #+end_src
 
 #+name: sr-distribution
-#+begin_src R
+#+begin_src R :results output graphics :exports results :file fig/sr-distribution.pdf
 temp = list.files(path='./logs/sr_counts/new/parallel2', pattern="threads4", full.names = TRUE)
 temp <- temp[grep("precise",temp)]
 # This data.frame will store the final proportion values.
@@ -1575,6 +1576,10 @@ title(xlab = "Amount of nodes simulated", line=4)
 #g
 #+end_src
 
+#+RESULTS: sr-distribution
+[[file:fig/sr-distribution.pdf]]
+
+
 #+name: sr-times
 #+begin_src R  :results output graphics :exports results  :file fig/sr-times.pdf
 sr_data <- readRDS(file="./logs/sr_counts/sr-times.Rda")
@@ -1613,6 +1618,12 @@ g2
 #+name: sr-par-threshold
 #+begin_src R :results output graphics :exports results   :file fig/sr-par-threshold.pdf
 precise <- readRDS(file="./logs/sr_counts/precise.Rda")
+
+#La idea seria comparar a cada scheduling round y hacer el speedup de cada una. 
+# Por ejemplo, la SR tiene 23 procesos, por lo tanto ese speedup va en x=23. En el eje 'y'
+# iria el speedup de la comparacion entre la version sequencial y la paralela.
+# Problema: NO SE SI SE PUEDE COMPARAR LOS SR DE UNA SECUENCIAL CON UNA PARALELA,
+# NO CREO QUE SEAN IGUALES
 
 g2<-ggplot(data=precise, geom="histogram", aes(x=V3, y=speedup)) +geom_point() + xlim(1,100) + stat_smooth(se=FALSE) + theme(panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
     panel.background = element_blank(), axis.line=element_line(),
