@@ -91,46 +91,51 @@ work.
 * Context
 #+LaTeX: \label{sec:context}
 
-In the previous work ~\cite{previous} we proposed to parallelize the execution
-of the user code while keeping the simulation engine sequential.  This is
-enabled by applying classical concepts of OS design to this new context: every
-interaction between the user processes (from now on, user processes and
-processes mean the same thing) and the simulated environment passes through a
-specific layer that act as an OS kernel.
+In the previous work ~\cite{previous} we proposed to parallelize the
+execution of the user code while keeping the simulation engine
+sequential.  This is enabled by applying classical concepts of OS
+design to this new context: every interaction between the user
+processes (from now on, user processes and processes mean the same
+thing) and the simulated environment passes through a specific layer
+that act as an OS kernel.
 
-A novel way to virtualize user processes (\emph{raw contexts}) was crafted to
-improve efficiency and avoid unnecesary system calls, but other ways to do this
-can be found for the sake of portability, such as full featured threads, or
-POSIX ucontexts. A new data structure to store the shared state of the system
-and synchronize the process execution was implemented as well.
+A novel way to virtualize user processes (\emph{raw contexts}) was
+crafted to improve efficiency and avoid unnecesary system calls, but
+other ways to do this can be found for the sake of portability, such
+as full featured threads, or POSIX ucontexts. A new data structure to
+store the shared state of the system and synchronize the process
+execution was implemented as well (\emph{parmap}).
 
-A new specific layer that acts as the OS kernel was implemented in SimGrid to
-emulate systems calls, called \emph{requests}, and each time a user process want
-to interact with other process, or the kernel itself, it raises a
-\emph{request}.  After that, the engine takes control of the program and answer
-the \emph{requests} of each process. This way the user processes can be
-parallelized in a safe manner.
+A new specific layer that acts as the OS kernel was implemented in
+SimGrid to emulate systems calls, called \emph{requests}, and each
+time a user process want to interact with other process, or the kernel
+itself, it raises a \emph{request}.  After that, the engine takes
+control of the program and answer the \emph{requests} of each
+process. This way the user processes can be parallelized in a safe
+manner.
 
-Experimental results showed that the new design does not hinder the tool
-scalability. In fact, the sequential version of SimGrid remains orders of
-magnitude more scalable than state of the art simulators.  The difficulty to get
-a parallel version of a P2P simulator faster than its sequential counterpart was
-also revealed in ~\cite{previous}, being the first time that a parallel
-simulation of Chord runs faster than the best known sequential implementation.
+Experimental results showed that the new design does not hinder the
+tool scalability, and even the sequential version is more scalable
+than state of the art simulators.  The difficulty to get a parallel
+version of a P2P simulator faster than its sequential counterpart was
+also revealed in ~\cite{previous}, being the first time that a
+parallel simulation of Chord runs faster than the best known
+sequential implementation.
 
-An interesting result showed in the previous work is that the speedups only
-increased up to a certain point when increasing the amount of working threads.
-We also have proved that for small instances, parallelism actually hinders the
-performance, and that the relative gain of parallelism seems even strictly
-increasing with the system size.
+An interesting result showed in the previous work is that the speedups
+only increased up to a certain point when increasing the amount of
+working threads.  We also have proved that for small instances,
+parallelism actually hinders the performance, and that the relative
+gain of parallelism seems even strictly increasing with the system
+size.
 
-Now we are closer to the optimal Amdahl's law threshold, that means that we have
-reach a limit on the parallelizable portions of the code in our proposed model.
-The remaining optimizations seek for a final speedup, trying to get a better
-parallel threshold dynamically depending on the simulation, and better
-performance of the threads taking in count their distribution on the CPU cores
-and the different synchronization modes (futex, POSIX primitives or busy
-waiters).
+Now we are closer to the optimal Amdahl's law threshold, that means
+that we have reach a limit on the parallelizable portions of the code
+in our proposed model.  The remaining optimizations seek for a final
+speedup, trying to get a better parallel threshold dynamically
+depending on the simulation, and better performance of the threads
+taking in count their distribution on the CPU cores and the different
+synchronization modes (futex, POSIX primitives or busy waiters).
 
 * Performance Analysis
 #+LaTeX: \label{sec:problem}
@@ -146,11 +151,10 @@ precise mode are presented in the table \ref{tab:one}.
 
 The memory consumptions reported in all the experiments show that each
 node is using around 25 KB and 30 KB. A simulation with 1000 nodes,
-takes around 30 MB (independent of the amount of threads launched) and
-around 5 seconds in a serial execution, while when simulating 3000000
-nodes, the maximum memory used is between 7.38 and 7.60 GB and it takes around .
-
-TODO: wait until 1m/2m simulations finish and put that data too.
+has a peak memory consumpton around 30 MB (regardless of the amount of
+threads launched) and finishes in around 5 seconds in a serial
+execution, and one with 1000000 nodes takes 24-25GB of memory and
+3h47m to finish in the best case (parallel execution with 8 threads).
 
 #+caption: Execution times (seconds) of a normal execution of Chord with different sizes, serial and with 2 and 8 threads. The average memory consumption is reported in GB.
 #+name: tab:one
@@ -169,9 +173,16 @@ TODO: wait until 1m/2m simulations finish and put that data too.
 
 The actual speedup obtained can be seen in the Figure \ref{fig:one}.
 It is clear from that graph that the real speedup with our parallel
-model is obtained when the size of the problem is bigger than 100000
+model is obtained when the size of the problem is bigger than 300000
 nodes.  This is a proof that what was proved in our previous work
 ~\cite{previous} is still valid.
+
+Figure \ref{fig:one} also shows that increasing the number of threads
+may not be the best option to increase performance, since the best
+speedups are achieved with 2,4 and 8 threads. Some of the optimizations
+proposed in section \ref{sec:parallel} show speedups in simulations with 16
+and 24 threads, but their total times are still behind the ones of the
+simulations with lesser amount of threads.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:one
@@ -181,7 +192,7 @@ nodes.  This is a proof that what was proved in our previous work
 
 
 # NOW THE AMDAHL THING.
-What we want to see now is how far are we from the ideal speedup that
+We want to see now is how far are we from the ideal speedup that
 would be achieved according to the Amdahl law.  For that, a benchmark
 test is run to get the timings of the sequential and parallel parts of
 the executions, and the calculate that speedup using the Amdahl
@@ -196,11 +207,15 @@ in the timings of both experiments.
 
 Using the Chord simulation, the experiment showed us that the maximum
 difference in the execution time of both versions is lesser than 10%
-in most of the cases, and is even lower with sizes bigger that 100000
-nodes, which allow us to conclude that the benchmarking is, indeed,
-not intrusive.
+in most of the cases, and is even lower with sizes bigger than 100000
+nodes, which allow us to conclude the benchmarking is, indeed, not
+intrusive.
 
-Applying the Amdahl law, we can see that... TODO: proper use of data to conclude something here.
+Using only the times of the parallel part of the executions we can now
+approximate what would be the maximum speedup achieved in our model if
+the parallelization was done in an ideal way.
+
+TODO: proper use of data to conclude something here.
 
 ** Parallelizable portions of the problem
 This experiment is based on a typical Chord simulation, and the data
@@ -239,37 +254,42 @@ SR's can help to increase the performance.
 #+LaTeX: \label{sec:parallel}
 ** Binding threads to physical cores
 Regarding the multicore architectures (like almost every modern CPU),
-parallelization through threads is well proved to be a good optimization, as we
-said in the previous section \ref{sec:problem}. But there are still some
-improvements that can be done.
+parallelization through threads is well proved to be a good
+optimization, as we said in the previous section
+\ref{sec:problem}. But there are still some improvements that can be
+done.
 
-Thread execution depends heavily on the operative system scheduler: when one
-thread is \emph{idle}, the scheduler may decide to switch it for another thread
-ready to work, so it can maximize the occupancy of the cpu cores, and probably,
-run a program in a faster way. Or it may just want to switch threads because
-their execution time quote is over.
+Thread execution depends heavily on the operative system scheduler:
+when one thread is \emph{idle}, the scheduler may decide to switch it
+for another thread ready to work, so it can maximize the occupancy of
+the cpu cores, and probably, run a program in a faster way. Or it may
+just want to switch threads because their execution time quote is
+over.
 
-And when the first thread is ready to work again, the cpu core where it was
-before might be occupied, forcing the system to run the thread in another
-core. Of course this depend on which scheduler implementation we are using.
+And when the first thread is ready to work again, the cpu core where
+it was before might be occupied, forcing the system to run the thread
+in another core. Of course this depend on which scheduler
+implementation we are using.
 
-Regardless of the situation, migration of threads between cores entails an
-increase of cache misses, and the amount of CPU migrations in a big size
-simulation can be detrimental for the performance.
+Regardless of the situation, migration of threads between cores
+entails an increase of cache misses, and the amount of CPU migrations
+in a big size simulation can be detrimental for the performance.
 
-In order to avoid these CPU migrations produced by a constant context switching
-of threads, Glib offers a way to bind each thread to a physical core of the
-CPU. Note that this is only available in Linux platforms.
+In order to avoid these CPU migrations produced by a constant context
+switching of threads, Glib offers a way to bind each thread to a
+physical core of the CPU. Note that this is only available in Linux
+platforms.
 
-A Chord simulation was run in a parapluie node, with 24 cores, binding the
-threads to physical cores. The CPU migration was drastically reduced (almost
-97\% less migrations) in all the cases.  The speedup obtained with few threads
-(2, 4 and 8) was not big enough: x1.63 in the best case, and x1.23 in average.
-But when the simulation is run with a bigger amount of threads (16 or 24), the
-impact of having less CPU migrations is notable, being obtained speedups between
-x2.44 and almost x15 (depending on the amount of threads and the size of the
-simulation).  This proves that physical binding of threads to CPU cores can be
-useful when a big amount of threads is needed.
+A Chord simulation was run in a parapluie node, with 24 cores, binding
+the threads to physical cores. The CPU migration was drastically
+reduced (almost 97\% less migrations) in all the cases.  The speedup
+obtained with few threads (2, 4 and 8) was not big enough: x1.63 in
+the best case, and x1.23 in average.  But when the simulation is run
+with a bigger amount of threads (16 or 24), the impact of having less
+CPU migrations is notable, being obtained speedups between x2.44 and
+almost x15 (depending on the amount of threads and the size of the
+simulation).  This proves that physical binding of threads to CPU
+cores can be useful when a big amount of threads is needed.
 
 ** Parmap between N cores
 
@@ -466,15 +486,18 @@ experiments. Thus, is mandatory to run this snippets.
 
 #+begin_src sh :session org-sh
 BASE_DIR=$PWD
-sizes=(1000 5000 10000 15000)
+sizes=(1000 5000 10000 15000 20000 25000 30000 35000 40000 45000 50000 55000 60000 65000 70000 75000 80000 85000 90000 95000 100000 300000 500000 1000000)
+
 threads=(1 2 4 8 16 24)
 #+end_src
 
+#+RESULTS:
+
 
 #+begin_src python :session
-  #SIZES = [1000,5000,10000,15000,20000,25000,30000,35000,40000,45000,50000,55000,60000,65000,70000,75000,80000,85000,90000,95000,100000,300000,500000]
-  SIZES = [1000,5000,10000,50000,100000]
-  THREADS = [2, 4, 8, 16, 24]
+  SIZES = [1000,5000,10000,15000,20000,25000,30000,35000,40000,45000,50000,55000,60000,65000,70000,75000,80000,85000,90000,95000,100000,300000,500000,1000000]
+  #SIZES = [1000,5000,10000,50000,100000]
+  THREADS = [1, 2, 4, 8, 16, 24]
   # All the benchmarks can be done using both modes, but note that this
   # paper uses only precise
   MODES = ['precise']
@@ -1480,6 +1503,8 @@ saveRDS(df6,file="./logs/sr_counts/constant.Rda")
 #+call: create_table(0, 1, 0, '"logs/amdahl/logs"', '"logs/amdahl/total_times_amdahl.csv"') :session
 #+call: create_table(1,0,0,'"logs/timings/logs"','"logs/timings/total_times.csv"') :session
 
+#+RESULTS:
+
 #+begin_src python :session
   # We only test performance improvements in parallel executions with
   # adaptive algorithm and busy_waiters.
@@ -1575,9 +1600,6 @@ title(xlab = "Amount of nodes simulated", line=4)
 #   xlab("Amount of nodes simulated") + ylab("Percentage of SR's containing 1,2 or >3 processes")
 #g
 #+end_src
-
-#+RESULTS: sr-distribution
-[[file:fig/sr-distribution.pdf]]
 
 
 #+name: sr-times
