@@ -2,8 +2,10 @@ DIR = "../../logs/timings/logs"    # The dir where to gather the logs
 MODES = ['constant', 'precise']    # The modes to analyse
 OUTPUT_FILE = "./total_times.csv"  # Put proper name here
 
-SIZES = ['1000', '3000', '10000', '25000', '50000', '75000', '100000']
-THREADS = ['2', '4', '8', '16', '24']
+SIZES = ['1000']
+SIZES += [str(elem) for elem in range(5000,100000,5000)]
+SIZES += ['100000','300000','500000','1000000', '2000000']
+THREADS = ['1','2', '4', '8', '16', '24']
 
 # If you make several test of the same experiment, you can name the log files
 # with a prefix ('1_chord..., 2_chord...') and then put the prefixes
