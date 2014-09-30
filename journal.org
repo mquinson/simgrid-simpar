@@ -388,41 +388,55 @@ CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
   - [X] Add get_times script
   - [X] Integration test: run exp, gather data, do plot.
 
-** 24 [20%]
+** 24 [100%]
   - [X] Put code snippets to change dir and redefine BASE_DIR and name them. They are useful.
-  - [ ] Learn how to launch an experiment for a weekend (if thats
-    possible)
-  - [ ] Absolute numbers in section 5.2 (Adaptive algorithm). Write
-    something + maybe a table with absolute times. (Add millions when ready)
+  - [X] Improve mem consumpion table generation. 
+** 25 [100%]
+  - [X] Plot proportions of SR as stacked chart.
+  - [X] Start launching the remaining exps.
+** 26 [100%]
+  - [X] Make new SR chart. Run pertinent experiments (This was a half-day)
+** 29 [100%]
+  - [X] Prepare code to launch remaining experiments. Modify adapt. algorithm to save threshold
+  - [X] Better timings code for SR exp. Push that.
+** 30 [25%]
+  - [X] Fix bug in adaptive algorithm.  Note: the evolution of the
+    threshold over a simulation strongly dependends on the initial
+    value of the threshold. What I observed, is that there's a general
+    tendence to increase/decrease the threshold in the same points of
+    a simulation, but the values are not the same.
+
+Idea: launch timers every 100 SR may improve performance?
+
+  - [ ] Prepare code with last version with all optimizations.
+  - [ ] Check two tables and add values of 1m,2m when ready.
   - [ ] Figure 1:
     - be actually run with SimGrid v3.11 maybe (not sure)
     - Make the speedup chart and also the amdahl one. Or put those
       two in the same graph
     - Add memory used with 1m, 2m nodes when ready
     - Add units of values in table.
-  - [ ] Make new plot of SR w/new idea.
-  - [ ] Plot proportions of SR as stacked chart.
-  - [ ] Push adaptive algorithm code to repository.
+
   - Compare sequential time of 3.11 against newer version too.
   - https://github.com/mquinson/simgrid-simpar/issues
 
 For a weekend:
 All of these have to be done with the same sizes.
-  - bench 3.11
+  - bench 3.11. Does this make sense? because of the performance problem that 3.11 carries...
   - bench adaptive w/bigger sizes. Keep track of threshold to plot
     another graph w/it (Maybe do a graph where the simulated time (the
     differing SRs) are given in abscisse and the adaptative threshold
     computed at that point is given in ordinate. And maybe use several
     curves on that graph, for several sizes of simulation.)
   - bench busy_waiters w/bigger sizes
-  - fix SR's exp. and bench with bigger sizes. 
+  - fix SR's exp. and bench with bigger sizes.
+  - final exp w/adaptive algorithm + binding + busy_waiters + initial optimal threshold
   - run all the exps with other examples
 
 Other things:
   - To Amdahl plot: measure sequential time and then add SR
     times. That way, we can tell what should be the theoretical
     speedup achieved, maybe.
-  - Improve adaptive algorithm.
 
 * Useful info:
 ** List of recommended packages/software to run experiments
