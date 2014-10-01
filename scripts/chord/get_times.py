@@ -1,3 +1,5 @@
+import datetime
+
 DIR = "../../logs/timings/logs"    # The dir where to gather the logs
 MODES = ['constant', 'precise']    # The modes to analyse
 OUTPUT_FILE = "./total_times.csv"  # Put proper name here
@@ -99,8 +101,8 @@ def parse_files(elapsed=False, amdahl=False, mem=False):
 
                 if leng != 0:
                     if mem and elapsed:
-                        temp_line += ",{0},{1:.2f}".format(int(sum_l / float(leng)),
-                                                          (mem_used / float(leng)))
+                        temp_line += ",{0},{1:.2f}".format(datetime.timedelta(seconds=int(sum_l / float(leng))),
+                                                           (mem_used / float(leng)))
                     else:
                         temp_line += ",{}".format(sum_l / float(leng))
                 else:
