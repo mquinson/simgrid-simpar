@@ -1,20 +1,21 @@
 #!/bin/bash
 
-# This script is to benchmark the Chord simulation that can be found
-# in examples/msg/chord folder.
+# This script is to benchmark the some examples simulations that can be found
+# in examples/msg/ folder.
 # The benchmark is done with both Constant and Precise mode, using
 # different sizes and number of threads (which can be modified).
 # This script also generate a table with all the times gathered, that can ease
 # the plotting, compatible with gnuplot/R.
-# By now, this script copy all data (logs generated an final table) to a 
-# personal frontend-node in Grid5000. This should be modified in the near
-# future.
 
 ###############################################################################
 # MODIFIABLE PARAMETERS: SGPATH, SGHASH, sizes, threads, log_folder, file_table
-# host_info, timefmt, cp_cmd, dest.
+# host_info, timefmt, cp_cmd, dest, example.
 
-# Path to installation folder needed to recompile chord
+# Change this for the example of examples/msg/ you want to try (tested with
+# Pastry, Chord, Kademlia).
+example="chord"
+
+# Path to installation folder needed to recompile the example
 # If it is not set, assume that the path is '/usr/local'
 if [ -z "$1" ]
 then
@@ -27,16 +28,16 @@ fi
 SGHASH=$(git rev-parse --short HEAD)
 
 # List of sizes to test. Modify this to add different sizes.
-sizes=(1000) # 3000 5000 10000 25000 50000 75000)
+sizes=(1000 10000 25000 50000 75000)
 
 # Number of threads to test. 
-threads=(2) # 4 8 16 24)
+threads=(1 2 4 8 16 24)
 
 # Path where to store logs, and filenames of times table, host info
 log_folder="log/"
 if [ ! -d "$log_folder" ]; then
-    echo "Please create $log_folder directory before."
-    exit 1
+    echo "Creating $log_folder folder"
+    mkdir -p $log_folder
 fi
 
 file_table="timings_$SGHASH.csv"
@@ -54,14 +55,9 @@ dest=$log_folder # change for <user>@<node>.grid5000.fr:~/$log_folder if necessa
 ###############################################################################
 
 ###############################################################################
-echo "Recompile the binary against $SGPATH"
-export LD_LIBRARY_PATH="$SGPATH/lib"
-rm -rf chord
-gcc chord.c -L$SGPATH/lib -I$SGPATH/include -I$SGPATH/src/include -lsimgrid -o chord
-
-if [ ! -e "chord" ]; then
-    echo "chord does not exist"
-    exit;
+if [ ! -e $example ]; then
+    echo "$example does not exist"
+    exit 1;
 fi
 ###############################################################################
 
@@ -143,7 +139,7 @@ for size in "${sizes[@]}"; do
     line_table=$size
     # CONSTANT MODE
     for thread in "${threads[@]}"; do
-        filename="chord_${size}_threads${thread}_constant.log"
+        filename="${example}_${size}_threads${thread}_constant.log"
         rm -rf $filename
 
         if [ ! -f  chord$size.xml ]; then
@@ -156,7 +152,7 @@ for size in "${sizes[@]}"; do
 
 
         echo "$size nodes, constant model, $thread threads"
-        cmd="./chord One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0"
+        cmd="./$example One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0 --cfg=clean_atexit:no"
 
         /usr/bin/time -f "$timefmt" -o $me.timings $cmd $cmd 1>/tmp/stdout-xp 2>/tmp/stderr-xp
 
@@ -190,9 +186,9 @@ for size in "${sizes[@]}"; do
     #PRECISE MODE    
     for thread in "${threads[@]}"; do
         echo "$size nodes, precise model, $thread threads"
-        filename="chord_${size}_threads${thread}_precise.log"
+        filename="${example}_${size}_threads${thread}_precise.log"
 
-        cmd="./chord One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=maxmin/precision:0.00001 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0"
+        cmd="./$example One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=maxmin/precision:0.00001 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0 --cfg=clean_atexit:no"
 
         /usr/bin/time -f "$timefmt" -o $me.timings $cmd $cmd 1>/tmp/stdout-xp 2>/tmp/stderr-xp
 
