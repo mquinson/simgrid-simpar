@@ -169,8 +169,8 @@ precise mode are presented in the table \ref{tab:one}.
 
 As it can be seen in Figure \ref{fig:one.one}, the memory consumption
 linearly increases with respect to the number of simulated nodes, and
-shows that each node is using around 25 KB and 30 KB. A simulation
-with 1000 nodes, has a peak memory consumption around 30 MB
+shows that each node is using around 25 KB and 30 KB of memory. A
+simulation with 1000 nodes, has a peak memory consumption around 30 MB
 (regardless of the amount of threads launched) and finishes in 4
 seconds in a serial execution, and one with 1000000 nodes takes
 24-25GB of memory and 3h47m to finish in the best case (parallel
@@ -227,15 +227,12 @@ wanted is the following: ID of each Scheduling Round, time taken by
 each Scheduling Round and number of process executed in each
 scheduling round.
 
-What we want to prove is that the limit on the speed up reached is due
-to the fact that we are very closer to the line that define what is
-parallelizable in our model and what is executed sequentially.  As it
-can be seen in the Figure \ref{fig:two} , the amount of processes
-computed by each scheduling round is only one most of the times
-(between 50-60\%), so the parallel execution is not possible in that
-instances. The remaining processes are executed in parallel due to the
-parallel execution threshold already setted up in SimGrid (which can
-be modified).
+As it can be seen in the Figure \ref{fig:two}, the amount of SR's
+having just one process varies between 26% and 48% (the larger the
+simulated s size, the lower the amount of SR's that have only one
+process) while the others involve two or more processes. These remaining
+processes are executed in parallel due to the parallel execution
+threshold already setted up in SimGrid (which can be modified).
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:two
@@ -248,7 +245,8 @@ the costs of synchronization of threads.  Even when Figure
 the bigger the execution time, there is no speedup obtained from
 executing small amounts of processes in parallel, as we will see in
 Section \ref{sec:adaptive}. Also, in that section we will try to find
-what is the optimal threshold between serial and parallel executions.
+what is the optimal threshold between serial and parallel executions
+of SR's.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:three
@@ -304,12 +302,11 @@ sleep and let the worker threads do all the computing; the last one
 involves the creation of one extra thread and make all this N threads
 work while maestro sleeps.
 
-The experiments were made using up to 75000 nodes in a Chord
-simulation with Precise mode, but no performance gain was achieved. In
-fact, the creation of one extra thread proved to be slightly more
-slower than the original version of parmap, while sending maestro to
-sleep and make its N-1 threads do the computation did not show any
-improvement or loss in performance.
+The experiments were made using Chord Protocol with Precise mode, but
+no performance gain was achieved. In fact, the creation of one extra
+thread proved to be slower than the original version of parmap, while
+sending maestro to sleep and make its N-1 threads do the computation
+did not show any improvement or loss in performance.
 
 ** Busy Waiting versus Futexes
 SimGrid provides several types of synchronization between threads:
@@ -353,7 +350,7 @@ each SR.
 #+results:sr-par-threshold
 [[file:fig/sr-par-threshold.pdf]]
 
-As it can be seen in Figure \ref{fig:five}, the speedup is bigger than one TODO
+As it can be seen in Figure \ref{fig:five}, the speedup is bigger than one when... TODO
 
 ** Adaptive algorithm to calculate threshold
 Finding an optimal threshold and keep it during all the simulation
@@ -1522,8 +1519,6 @@ saveRDS(df5, file="./logs/sr_counts/precise.Rda")
 
 #+call: create_table(1,0,1,'"logs/timings/logs"','"logs/timings/total_times_memory_adaptive.csv"') :session
 
-#+RESULTS:
-
 ** Plotting
 #+name: baseline_perf
 #+begin_src R  :results output graphics :exports results :file fig/baseline-perf.pdf
@@ -1591,7 +1586,7 @@ head <- sort(head)
 cols <- c()
 for(e in head){ cols <- c(cols,toString(e))}
 proportions <- proportions[,cols]
-b <- barplot(as.matrix(proportions), ylab="Proportion of SR's",
+b <- barplot(as.matrix(proportions), ylab="Proportion of SR's having different number of processes",
 legend=rownames(proportions), args.legend = list(x = ncol(proportions) + 5.5, bty = "n"),
 xlim=c(0, ncol(proportions) + 4), las=2, cex.axis = 0.8)
 title(xlab = "Amount of nodes simulated", line=4)
@@ -1685,6 +1680,20 @@ g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line
     panel.background = element_blank(), axis.line=element_line(),
     legend.position="right") + xlab("Amount of nodes simulated") + ylab("Memory Consumption (GB)") + 
     scale_fill_discrete(name="threads") + scale_color_manual(values=c('brown1','darkblue','darkorange2','cadetblue2','gold','hotpink4'),labels = c("1","2","4","8","16","24"))
+g2
+#+end_src
+
+#+name: real-elapsed-times
+#+begin_src R :results output graphics :exports results  :file fig/real-elapsed-times.pdf
+data = read.csv("./logs/timings/total_times.csv", head=TRUE, sep=',')
+df2 <- melt(data,  id = 'nodes', variable_name = 'threads')
+
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + theme(axis.text.x = element_text(angle = -45, hjust = 0),
+    panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
+    panel.background = element_blank(), axis.line=element_line(),
+    legend.position="right") + xlab("Amount of nodes simulated") + ylab("Elapsed time of simulation (seconds)") + 
+    scale_fill_discrete(name="threads") + scale_color_manual(values=c('brown1','darkblue','darkorange2','cadetblue2','gold','hotpink4'),labels = c("1","2","4","8","16","24"))
+
 g2
 #+end_src
 
