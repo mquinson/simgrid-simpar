@@ -514,9 +514,9 @@ a deployed node and still be able to setup your environment.  Run this
 two code chunks one after other in order to create folders, install
 packages and create required deployment/platform files.
 
-If the [[setup_and_install]] snippet was run before, or everything is
+If the [[setup\_and\_install]] snippet was run before, or everything is
 already installed and set up, then check/modify the parameters of the
-shell session with the snippets [[check_args]] and [[go_to_chord]]
+shell session with the snippets [[check\_args]] and [[go\_to\_chord]]
 
 #+name: setup_and_install
 #+begin_src sh :session org-sh
@@ -1149,16 +1149,16 @@ The script is self-documented.
 
 ** SR Distribution
 To enable Scheduling Rounds benchmarks, the constant TIME_BENCH_PER_SR
-has to be defined. It can be defined in src/simix/smx_private.h
+has to be defined. It can be defined in src/simix/smx\_private.h
 The logs give information about the time it takes to run a scheduling
 round, as well as the amount of processes each SR takes.
 For this experiment, we are only interested in the amount of processes
 taken by each SR.
 
-The script to run this experiment is ./scripts/chord/testall_sr.sh,
+The script to run this experiment is ./scripts/chord/testall\_sr.sh,
 the id of SR, time of SR and num processes of SR, in a table format.
 
-This can be run from here or just by running testall_sr.sh in in the
+This can be run from here or just by running testall\_sr.sh in in the
 examples/msg/chord folder of your SimGrid install.
 
 #+call: check_args[:session org-sh]()
@@ -1193,8 +1193,8 @@ This is the default setting and the standard benchmark can be used.
 
 *** maestro sleeps with N-1 threads
 To avoid that maestro works with the threads, comment out the line:
-    xbt_parmap_work(parmap);
-from the function xbt_parmap_apply() in src/xbt/parmap.c
+    xbt\_parmap\_work(parmap);
+from the function xbt\_parmap\_apply() in src/xbt/parmap.c
 
 #+call: check_args[:session org-sh]()
 
@@ -1218,7 +1218,7 @@ num_workers parameter.
 
 ** Busy Waiters vs. Futexes performance
 Enable the use of busy waiters running chord with the extra option:
-    --cfg=contexts/synchro:busy_wait
+    --cfg=contexts/synchro:busy\_wait
 The experiment was run with testall.sh using that extra option in the
 chord command inside the script. The tables were constructed using get_times.py
 The data regarding the futexes synchro times is the same gathered in Amdahl
@@ -1350,8 +1350,8 @@ sr_data2 = as.data.frame.matrix(sr_data2)
 #temp3 <- temp3[grepl("constant", temp3)]
 #flist <- lapply(temp3, read.table)
 #sr_data3 <- rbindlist(flist)
-#sr_data[, "V1"] <- NULL
-sr_data3 = as.data.frame.matrix(sr_data3)
+#sr_data3[, "V1"] <- NULL
+#sr_data3 = as.data.frame.matrix(sr_data3)
 #df3 <- ddply(sr_data3, .(V3), summarize, mean_value = mean(V2))
 
 
@@ -1362,7 +1362,7 @@ sr_data3 = as.data.frame.matrix(sr_data3)
 #temp4 <- temp4[-grep("75000", temp4)]
 #flist2 <- lapply(temp4, read.table)
 #sr_data4 <- rbindlist(flist2)
-#sr_data2[, "V1"] <- NULL
+#sr_data4[, "V1"] <- NULL
 #sr_data4 = as.data.frame.matrix(sr_data4)
 #df4 <- ddply(sr_data4, .(V3), summarize, mean_value = mean(V2))
 
