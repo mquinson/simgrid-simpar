@@ -399,38 +399,47 @@ CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
 ** 29 [100%]
   - [X] Prepare code to launch remaining experiments. Modify adapt. algorithm to save threshold
   - [X] Better timings code for SR exp. Push that.
-** 30 [25%]
-  - [X] Fix bug in adaptive algorithm.  Note: the evolution of the
-    threshold over a simulation strongly dependends on the initial
-    value of the threshold. What I observed, is that there's a general
-    tendence to increase/decrease the threshold in the same points of
-    a simulation, but the values are not the same.
+** 30 [100%]
+  - [X] Fix bug in adaptive algorithm and launch exps.  Note: the
+    evolution of the threshold over a simulation strongly dependends
+    on the initial value of the threshold. I observed that there's a
+    general tendence to increase/decrease the threshold in the same
+    points of a simulation, but its values are not the same.
+  - [X] Idea: launch timers every 100 SR may improve performance?. Answer: No.
 
-Idea: launch timers every 100 SR may improve performance?
+* October
+** 1 [100%]
+  - [X] I ran almost all experiments with adaptive algorithm
+  - Kademlia seems like an interesting example to benchmark.
+** 2 [%]
+  - [ ] Finish adaptive algorithm benchs. (In Progress)
+  - [ ] Start benchmark of SR (In Progress)
+  - [ ] Start benchmark of busy waiter. (In Progress) Add conclusion with big sizes when finishing experiments.
+  - [ ] Start benchmark of binding (In Progress)
+  - [ ] Start Pmap exps.
 
-  - [ ] Prepare code with last version with all optimizations.
+  - [ ] Update plots of sr-distribution, sr-times, sr-par-threshold
+  - [ ] Check conclusions in report. Make it coherent.
+
+  - [ ] Start benchmark of last version with all optimizations enabled.
   - [ ] Check two tables and add values of 1m,2m when ready.
-  - [ ] Figure 1:
+
+
+  - Figure 1:
     - be actually run with SimGrid v3.11 maybe (not sure)
     - Make the speedup chart and also the amdahl one. Or put those
       two in the same graph
-    - Add memory used with 1m, 2m nodes when ready
-    - Add units of values in table.
-
-  - Compare sequential time of 3.11 against newer version too.
+    - Add memory used with 2m nodes when ready
   - https://github.com/mquinson/simgrid-simpar/issues
 
-For a weekend:
-All of these have to be done with the same sizes.
-  - bench 3.11. Does this make sense? because of the performance problem that 3.11 carries...
-  - bench adaptive w/bigger sizes. Keep track of threshold to plot
+  - bench 3.11. Does this make sense? because of the performance problem that 3.11 has...
+  - bench adaptive w/bigger sizes. Keep track of threshold to plot?
+    Note: the final threshold depends on the initial one, does it make sense to plot it?
+
     another graph w/it (Maybe do a graph where the simulated time (the
     differing SRs) are given in abscisse and the adaptative threshold
     computed at that point is given in ordinate. And maybe use several
     curves on that graph, for several sizes of simulation.)
-  - bench busy_waiters w/bigger sizes
-  - fix SR's exp. and bench with bigger sizes.
-  - final exp w/adaptive algorithm + binding + busy_waiters + initial optimal threshold
   - run all the exps with other examples
 
 Other things:
