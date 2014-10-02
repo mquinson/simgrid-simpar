@@ -1,6 +1,6 @@
 
 #+TITLE: Parallel and Distributed Simulation of Large-Scale Distributed Applications
-#+AUTHOR:  Ezequiel Torti Lòpez, Martin Quinson
+#+AUTHOR:  Ezequiel Torti Lopez, Martin Quinson
 #+OPTIONS: H:5 title:nil date:nil author:nil email:nil creator:nil timestamp:nil skip:nil toc:nil
 #+STARTUP: indent hideblocks
 #+TAGS: noexport(n)
@@ -24,6 +24,7 @@
 #+LATEX_HEADER: \usepackage{algorithm}
 #+LATEX_HEADER: \usepackage[noend]{algpseudocode}
 #+LATEX_HEADER: \renewcommand{\algorithmiccomment}[1]{// #1}
+
 
 * Motivation and Problem Statement
 
@@ -137,6 +138,7 @@ depending on the simulation, and better performance of the threads
 taking in count their distribution on the CPU cores and the different
 synchronization modes (futex, POSIX primitives or busy waiters).
 
+
 * Performance Analysis
 #+LaTeX: \label{sec:problem}
 ** Current speedup achieved
@@ -148,13 +150,6 @@ threads (1, 2, 4, 8, 16 and 24) were done.
 
 The total times of a normal execution for the Chord simulation in the
 precise mode are presented in the table \ref{tab:one}.
-
-The memory consumptions reported in all the experiments show that each
-node is using around 25 KB and 30 KB. A simulation with 1000 nodes,
-has a peak memory consumption around 30 MB (regardless of the amount
-of threads launched) and finishes in 4 seconds in a serial execution,
-and one with 1000000 nodes takes 24-25GB of memory and 3h47m to finish
-in the best case (parallel execution with 8 threads).
 
 #+caption: Execution times of a normal execution of Chord with different sizes, serial and with 2 and 8 threads. The average memory consumption is reported in GB.
 #+name: tab:one
@@ -172,6 +167,20 @@ in the best case (parallel execution with 8 threads).
 | # | 1m    | 4:05:41 | 24.53 | 4:00:42 | 24.89 | 3:47:28 | 24.91 |
 |---+-------+---------+-------+---------+-------+---------+-------|
 
+As it can be seen in Figure \ref{fig:one.one}, the memory consumption
+linearly increases with respect to the number of simulated nodes, and
+shows that each node is using around 25 KB and 30 KB. A simulation
+with 1000 nodes, has a peak memory consumption around 30 MB
+(regardless of the amount of threads launched) and finishes in 4
+seconds in a serial execution, and one with 1000000 nodes takes
+24-25GB of memory and 3h47m to finish in the best case (parallel
+execution with 8 threads).
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:one.one
+#+caption: Memory consumptions reported in GB
+#+results: memory-consumption
+[[file:fig/memory-consumption.pdf]]
 
 The actual speedup obtained can be seen in the Figure \ref{fig:one}.
 It is clear from that graph that the real speedup with our parallel
@@ -193,36 +202,24 @@ amount of threads.
 #+results: baseline-perf
 [[file:fig/baseline-perf.pdf]]
 
-We want to see now is how far are we from the ideal speedup that
-would be achieved according to the Amdahl law.  For that, a benchmark
-test is run to get the timings of the sequential and parallel parts of
-the executions, and the calculate that speedup using the Amdahl
-equation.
+# We want to see now is how far are we from the ideal speedup that
+# would be achieved according to the Amdahl law.  For that, a benchmark
+# test is run to get the timings of the sequential and parallel parts of
+# the executions, and the calculate that speedup using the Amdahl
+# equation.
 
-But first we want to prove that our benchmarks are not intrusive, that
-is, our measures of parallel and sequential times do not really affect
-the overall performance of the system. For that, the experiments are
-run with and without benchmarking, using the Precise mode, and then a
-comparison of both is made to find if there is a significative breach
-in the timings of both experiments.
+# But first we want to prove that our benchmarks are not intrusive, that
+# is, our measures of parallel and sequential times do not really affect
+# the overall performance of the system. For that, the experiments are
+# run with and without benchmarking, using the Precise mode, and then a
+# comparison of both is made to find if there is a significative breach
+# in the timings of both experiments.
 
-Using the Chord simulation, the experiment showed us that the maximum
-difference in the execution time of both versions is lesser than 10%
-in most of the cases, and is even lower with sizes bigger than 100000
-nodes, which allow us to conclude the benchmarking is, indeed, not
-intrusive.
-
-TODO: better benchmark for this: To avoid synchro costs, measure
-parmap_work() (in master thread and worker threads). That will give
-the approximate times of the computation of the processes but without
-the synchronization costs.  The only possible problem is how to
-implement it: we need an array inside paramap to save the sum of times
-of each worker thread and when the SR ends, maestro calculates the
-maximum time (and that will be the theoretical time of that SR, since
-we are not counting the synchro costs).
-
-
-TODO: proper use of data to conclude something here.
+# Using the Chord simulation, the experiment showed us that the maximum
+# difference in the execution time of both versions is lesser than 10%
+# in most of the cases, and is even lower with sizes bigger than 100000
+# nodes, which allow us to conclude the benchmarking is, indeed, not
+# intrusive.
 
 ** Parallelizable portions of the problem
 This experiment is based on a typical Chord simulation, and the data
@@ -258,7 +255,6 @@ what is the optimal threshold between serial and parallel executions.
 #+caption: Times of SR's sequential executions depending on the amount of processes of each SR.
 #+results: sr-times
 [[file:fig/sr-times.pdf]]
-
 
 * Optimizations
 #+LaTeX: \label{sec:parallel}
@@ -325,13 +321,12 @@ parmap abstraction, in user space only.  But even when they are more
 efficient than classical mutexes, which run in kernel space, they may
 present performance drawbacks.  In this section we compare the busy
 waiters vs. futexes synchronization types, using the chord simulation
-in both Precise mode, and we found that using busy waiters instead of
-futexes can result in a speedup between 1.08 and 1.53 using few
-threads (up to 8), and from 1.15 to 3 when the amount of threads is
-big enough (16 or 24).
+in both Precise mode, and we found that using busy waiters can result
+in a speedup between x1.08 and x1.53 using few threads (up to 8)
+against the same parallel version using futexes, and from 1.15 to 3
+when the amount of threads is big enough (16 or 24).
 
-Therefore it is recommended to use busy waiters in simulations whose
-size is less than 300000 nodes.
+TODO: conclusion about big sizes?
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:four
@@ -466,8 +461,6 @@ speedup.
 |--------+--------+------+--------+------+--------+------|
 
 
-
-
 * Conclusion
 #+LaTeX: \label{sec:cc}
 
@@ -504,12 +497,11 @@ sizes=(1000 5000 10000 15000 20000 25000 30000 35000 40000 45000 50000 55000 600
 threads=(1 2 4 8 16 24)
 #+end_src
 
-#+RESULTS:
-
-
+#+name: set_python_args
 #+begin_src python :session
-  SIZES = [1000,5000,10000,15000,20000,25000,30000,35000,40000,45000,50000,55000,60000,65000,70000,75000,80000,85000,90000,95000,100000,300000,500000,1000000]
-  #SIZES = [1000,5000,10000,50000,100000]
+  SIZES = [1000]
+  SIZES += [elem for elem in range(5000,100000,5000)]
+  SIZES += [100000,300000,500000,1000000]
   THREADS = [1, 2, 4, 8, 16, 24]
   # All the benchmarks can be done using both modes, but note that this
   # paper uses only precise
@@ -517,8 +509,6 @@ threads=(1 2 4 8 16 24)
   nb_bits = 32
   end_date = 10000
 #+end_src
-
-#+RESULTS:
 
 ** Setting up the machine
 Install required packages to compile/run SimGrid experiments. If you
@@ -1268,9 +1258,7 @@ install.packages("stringr")
 install.packages("grid")
 #+end_src
 
-#+RESULTS:
-
-** Libraries/Auxiliar functions
+** Libraries/Auxiliary functions
 #+begin_src R  :exports none
 # If you miss the libraries, try typing >>>install.packages("data.table")<<< in a R console
 library('ggplot2')
@@ -1319,8 +1307,6 @@ g_legend<-function(a.gplot){
     return(legend)
 }
 #+end_src
-
-#+RESULTS:
 
 ** Pre-processing of datasets
 Here we pre process some data to make the plotting stage faster. Also,
@@ -1394,6 +1380,9 @@ saveRDS(df5, file="./logs/sr_counts/precise.Rda")
 #df6[, 'speedup'] <- df6[,'mean_value.x'] / df6[, 'mean_value.y']
 #saveRDS(df6,file="./logs/sr_counts/constant.Rda")
 #+end_src
+
+# OPTIONAL: Maybe you want to call this function to be sure that the THREADS and SIZES are the ones you want to plot.
+#+call: set_python_args() :session
 
 #+name: create_table
 #+begin_src python :session :var elapsed=0 :var amdahl=0 :var memory=0 :var logs_path='"logs"' :var output_file='"logs/total_times.csv"' :results output
@@ -1515,11 +1504,11 @@ saveRDS(df5, file="./logs/sr_counts/precise.Rda")
   parse_files(elapsed, amdahl, memory, logs_path, output_file)
 #+end_src
 
-#+call: create_table(0, 1, 0, '"logs/amdahl/logs"', '"logs/amdahl/total_times_amdahl.csv"') :session
+#+call: create_table(0,1,0,'"logs/amdahl/logs"','"logs/amdahl/total_times_amdahl.csv"') :session
 #+call: create_table(1,0,0,'"logs/timings/logs"','"logs/timings/total_times.csv"') :session
+#+call: create_table(0,0,1,'"logs/timings/logs"','"logs/timings/memory_consumption.csv"') :session
 
-#+RESULTS:
-
+# Call this to change the amount of threads: in the next 2 tables, we dont take the serial benchmarks.
 #+begin_src python :session
   # We only test performance improvements in parallel executions with
   # adaptive algorithm and busy_waiters.
@@ -1529,7 +1518,7 @@ saveRDS(df5, file="./logs/sr_counts/precise.Rda")
 #+call: create_table(1,0,0,'"logs/busy_waiters/logs"','"logs/busy_waiters/total_times_busy.csv"')  :session
 #+call: create_table(1,0,0,'"logs/adaptive_algorithm/logs"','"logs/adaptive_algorithm/total_times_adaptive.csv"') :session
 
-# This csv is useful for the table of Section 5.2
+# OPTIONAL: This csv is useful for the table of Section 5.2
 
 #+call: create_table(1,0,1,'"logs/timings/logs"','"logs/timings/total_times_memory_adaptive.csv"') :session
 
@@ -1616,7 +1605,6 @@ title(xlab = "Amount of nodes simulated", line=4)
 #g
 #+end_src
 
-
 #+name: sr-times
 #+begin_src R  :results output graphics :exports results  :file fig/sr-times.pdf
 sr_data <- readRDS(file="./logs/sr_counts/sr-times.Rda")
@@ -1685,6 +1673,18 @@ g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line
     scale_x_continuous(breaks=c(1000,5000,10000,25000,50000,75000)) + 
     scale_y_continuous(breaks=c(1,2,3,4)) + ylab("Speedup-Precise mode") +
     xlab("Amount of nodes simulated")
+g2
+#+end_src
+
+#+name: memory-consumption
+#+begin_src R :results output graphics :exports results  :file fig/memory-consumption.pdf
+data = read.csv("./logs/timings/memory_consumption.csv", head=TRUE, sep=',')
+df2 <- melt(data,  id = 'nodes', variable_name = 'threads')
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + theme(axis.text.x = element_text(angle = -45, hjust = 0),
+    panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
+    panel.background = element_blank(), axis.line=element_line(),
+    legend.position="right") + xlab("Amount of nodes simulated") + ylab("Memory Consumption (GB)") + 
+    scale_fill_discrete(name="threads") + scale_color_manual(values=c('brown1','darkblue','darkorange2','cadetblue2','gold','hotpink4'),labels = c("1","2","4","8","16","24"))
 g2
 #+end_src
 
