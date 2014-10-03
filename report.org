@@ -460,7 +460,48 @@ speedup.
 
 * Conclusion
 #+LaTeX: \label{sec:cc}
+We have showed in this work several ways to optimize large scale
+distributed simulations, namely, binding threads to physical cores,
+choosing a better threshold for parallel execution or choosing between
+futexes or busy waiters. The optimizations were done over the
+open-source multi-purpose SimGrid simulation framework, in its
+development version (3.12). Some of the changes proposed worked in
+some scenarios better than others (for instance, the binding threads
+to cores optimization showed a real speedup in simulations using
+bigger amount of threads, such as 16 or 24, while using busy waiters
+outperforms futexes in simulations with small sizes and small amount
+of threads). Also, some of the modifications did not affect the
+overall performance, or even made it worst, like the parmap changes
+proposed in Section \ref{sec:parallel}.
 
+It is important to say, the majority of the speedups achieved were
+done with big size simulations (up to 500000 nodes), which shows the
+difficulty of parallelize user code efficiently with small sizes.
+
+We certainly arrived to a point where optimization depends heavily on
+reducing the synchronization costs and playing with low level features
+of the code. An intelligent choice of when to launch processes within
+threads and when to do it in a serial way proved to help, if the
+initial parallel threshold is good enough. Currently, our adaptive
+algorithm proposed is sensitive to that initial threshold, and the
+final value will strongly depend on the one set up at the beginning.
+
+Due to the fact that we found that executing Scheduling Rounds in
+parallel is efficient only when the amount of processes surpass
+300000, is understandable that with small simulations the adaptive
+algorithm will not find the very optimal threshold, but it will stand
+a chance of making the simulation a bit faster.
+
+As future work, the adaptive algorithm should be improved to determine
+a better and unique threshold over different simulations regardless of
+the initial one at the beginning.
+
+In a final note, the present work was done with the reproducible
+research approach in mind. Thus, the steps and scripts needed to run
+the experiment (as well as the data of the benchmarks done) can be
+found at [[link to somewhere]] , as well in the appendix section.
+
+* Acknowledgments
 
 #+LaTeX: \onecolumn
 #+LaTeX: \appendix
