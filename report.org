@@ -25,7 +25,6 @@
 #+LATEX_HEADER: \usepackage[noend]{algpseudocode}
 #+LATEX_HEADER: \renewcommand{\algorithmiccomment}[1]{// #1}
 
-
 * Motivation and Problem Statement
 
 Simulation is the third pillar of science, allowing to study complicated
@@ -502,6 +501,10 @@ the experiment (as well as the data of the benchmarks done) can be
 found at [[link to somewhere]] , as well in the appendix section.
 
 * Acknowledgments
+ Experiments presented in this paper were carried out using the Grid'5000
+ experimental testbed, being developed under the INRIA ALADDIN development 
+ action with support from CNRS, RENATER and several Universities as well 
+ as other funding bodies (see https://www.grid5000.fr).
 
 #+LaTeX: \onecolumn
 #+LaTeX: \appendix
@@ -1364,7 +1367,7 @@ saveRDS(sr_data, file="./logs/sr_counts/sr-times.Rda")
 #+begin_src R
 #PRECISE MODE
 #SEQUENTIAL
-temp = list.files(path='../code_chunks/other_logs/sr_counts/new', pattern="threads1_", full.names = TRUE)
+temp = list.files(path='./logs/sr_counts/logs', pattern="threads1_", full.names = TRUE)
 temp <- temp[grepl("precise", temp)]
 temp <- temp[grepl("25000", temp)]
 #temp <- temp[-grep("50000", temp)]
@@ -1376,7 +1379,7 @@ sr_data = as.data.frame.matrix(sr_data)
 #df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
 
 #PARALLEL:
-temp2 = list.files(path='../code_chunks/other_logs/sr_counts/new', pattern="threads4_", full.names = TRUE)
+temp2 = list.files(path='./logs/sr_counts/logs', pattern="threads4_", full.names = TRUE)
 temp2 <- temp2[grepl("precise", temp2)]
 temp2 <- temp2[grepl("25000", temp2)]
 flist2 <- lapply(temp2, read.table)
@@ -1410,7 +1413,6 @@ sr_data2 = as.data.frame.matrix(sr_data2)
 #Merge PRECISE datasets
 df5 = merge(sr_data, sr_data2, by = 'V1', incomparables = NULL)
 df5 <- transform(df5, speedup = V2.x / V2.y)
-#df5[, 'speedup'] <- df5[,'mean_value.x'] / df5[, 'mean_value.y']
 saveRDS(df5, file="./logs/sr_counts/precise.Rda")
 #Merge CONSTANT datasets
 #df6 = merge(sr_data3, sr_data4, by = 'V1', incomparables = NULL)
