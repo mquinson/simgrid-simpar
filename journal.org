@@ -411,19 +411,21 @@ CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
 ** 1 [100%]
   - [X] I ran almost all experiments with adaptive algorithm
   - Kademlia seems like an interesting example to benchmark.
-** 2 [%]
-  - [ ] Finish adaptive algorithm benchs. (In Progress)
-  - [ ] Start benchmark of SR (In Progress)
-  - [ ] Start benchmark of busy waiter. (In Progress) Add conclusion with big sizes when finishing experiments.
-  - [ ] Start benchmark of binding (In Progress)
+** 2 [100%]
+  - [X] Start benchmark of SR (In Progress)
+  - [X] Start benchmark of busy waiter. (In Progress) Add conclusion with big sizes when finishing experiments.
+  - [X] Start benchmark of binding (In Progress)
+  - [X] Update plots of SR. Make report coherent with these plots.
+  - [X] add memory consumption plots
+** 3 [100%]
+  - [X] draft of the conclussion
+  - [X] Keep with benchmarks of SR, binding, busy, adaptive.
+** 6 [%]
   - [ ] Start Pmap exps.
 
-  - [ ] Update plots of sr-distribution, sr-times, sr-par-threshold
-  - [ ] Check conclusions in report. Make it coherent.
-
-  - [ ] Start benchmark of last version with all optimizations enabled.
+  - [ ] Start benchmark of last version with all optimizations enabled
+    (core binding, busy_waiter, adaptive)
   - [ ] Check two tables and add values of 1m,2m when ready.
-
 
   - Figure 1:
     - be actually run with SimGrid v3.11 maybe (not sure)
