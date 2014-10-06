@@ -420,28 +420,43 @@ CUANDO SE AUMENTAN LOS THREADS AUMENTAN LAS SCHEDULING ROUNDS, POR???
 ** 3 [100%]
   - [X] draft of the conclussion
   - [X] Keep with benchmarks of SR, binding, busy, adaptive.
-** 6 [%]
-  - [ ] Start Pmap exps.
+** 6 [100%]
+  - [X] Update adaptive threshold in report.
+  - Idea: instead of using the old method to calculate the optimal
+threshold, do this: Use adaptive algorithm (or not), and do
+experiments with differents tresholds. The one which gets more
+speedup, the more optimal threshold it is.
 
+** 7 [%]
+  - [ ] Start Pmap exps.
+  - [ ] Start adaptive algorithm experiment with different threshold (try 100,1000,10000). 
   - [ ] Start benchmark of last version with all optimizations enabled
-    (core binding, busy_waiter, adaptive)
+    (core binding, adaptive, real threshold)
   - [ ] Check two tables and add values of 1m,2m when ready.
+  - sr-par-threshold: used density function, not dots.
+  - sr-times and sr-par-threshold with .png's
+
 
   - Figure 1:
-    - be actually run with SimGrid v3.11 maybe (not sure)
     - Make the speedup chart and also the amdahl one. Or put those
       two in the same graph
     - Add memory used with 2m nodes when ready
   - https://github.com/mquinson/simgrid-simpar/issues
 
-  - bench 3.11. Does this make sense? because of the performance problem that 3.11 has...
+  - instead of calculate the last ratio, better calculate an average
+    value of ratios during the simulation. That would solve the
+    problems of noise at the end, right?
+  - bench 3.11. Does this make sense? because of the performance
+    problem that 3.11 has...
   - bench adaptive w/bigger sizes. Keep track of threshold to plot?
-    Note: the final threshold depends on the initial one, does it make sense to plot it?
+    Note: the final threshold depends on the initial one, does it make
+    sense to plot it?
 
     another graph w/it (Maybe do a graph where the simulated time (the
     differing SRs) are given in abscisse and the adaptative threshold
     computed at that point is given in ordinate. And maybe use several
     curves on that graph, for several sizes of simulation.)
+
   - run all the exps with other examples
 
 Other things:
