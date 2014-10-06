@@ -435,6 +435,7 @@ speedup, the more optimal threshold it is.
   - [ ] Check two tables and add values of 1m,2m when ready.
   - sr-par-threshold: used density function, not dots.
   - sr-times and sr-par-threshold with .png's
+  - captions are not showing, why?
 
 
   - Figure 1:
