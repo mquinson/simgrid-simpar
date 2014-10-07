@@ -249,7 +249,7 @@ of SR's.
 #+label: fig:three
 #+caption: Times of SR's sequential executions depending on the amount of processes of each SR.
 #+results: sr-times
-[[file:fig/sr-times.pdf]]
+[[file:fig/sr-times.png]]
 
 * Optimizations
 #+LaTeX: \label{sec:parallel}
@@ -323,7 +323,6 @@ TODO: conclusion about big sizes?
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:four
 #+caption: Relative speedup of busy waiters vs. futexes in Chord simluation.
-#+results:busy
 [[file:fig/busy.pdf]]
 
 ** Performance Regression Testing
@@ -347,7 +346,6 @@ it is understandable that we will not find a clear speedup in smaller
 simulations. This situation can be seen in the Figure XXXX, where the
 speedup is visible after SR's with 300000 or more processes.
 
-
 However, analyzing the plot again, we can see that a
 percentage of SR's have obtained a gain in performance.  To take
 advantage of this situation, we could try to use an new way of
@@ -358,8 +356,7 @@ tries to tackle this situation.
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:five
 #+caption: Speedup of parallel vs. sequential executions of SR's, depending in the number of processes taken by each SR
-#+results:sr-par-threshold
-[[file:lsr-par-threshold_1000.pdf]]
+[[file:fig/sr-par-threshold_40000.png]]
 
 ** Adaptive algorithm to calculate threshold
 Finding an optimal threshold and keep it during all the simulation
@@ -432,7 +429,7 @@ increased otherwise.
 A first experiment was run with the parallel threshold by default
 (this is, run in parallel when we have 2 or more processes).  This
 resulted in a small relative improvement in performance (Figure
-\ref{fig:six}). The times were certainly reduces with small sizes,
+\ref{fig:six}). The times were certainly reduced with small sizes,
 since the algorithm chooses to execute the majority of the processes
 sequentially, while with bigger sizes (more than 100000 nodes), the
 speedup is insignificant, and in terms of absolute times, we can see
@@ -442,19 +439,17 @@ threads).
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:six
-#+caption: Speedup achieved with Adaptive Algorithm. Chord simulation, Precise mode.
-#+results: adapt-algorithm
+#+caption: Speedup achieved with Adaptive Algorithm. Chord simulation.
 [[file:fig/adapt-algorithm.pdf]]
 
-
 Regarding the memory consumption, the values remain the same in
-general, as it can be seen in Table /ref{tab:two}. 
+general, as it can be seen in Table /ref{tab:two}.
 
 #+caption: Execution times (seconds) of the Adaptive algorithm, with 2,4 and 8 threads. The average memory consumption is reported in GB.
 #+name: tab:two
 |---+-------+---------+-------+---------+-------+---------+-------|
 |   | nodes |  2 thr. |   Mem |  4 thr. |   Mem |  8 thr. |   Mem |
-| / | <>    |       < |     > |       < |     > |       < |       |
+| / | <>    |       < |     > |       < |     > |       < |  >    |
 |---+-------+---------+-------+---------+-------+---------+-------|
 | # | 10k   | 0:01:19 |  0.26 | 0:01:20 |  0.26 | 0:01:27 |  0.25 |
 | # | 50k   | 0:07:21 |  1.27 | 0:07:28 |  1.27 | 0:07:30 |  1.26 |
@@ -504,8 +499,7 @@ the initial one at the beginning.
 
 In a final note, the present work was done with the reproducible
 research approach in mind. Thus, the steps and scripts needed to run
-the experiment (as well as the data of the benchmarks done) can be
-found at [[link to somewhere]] , as well in the appendix section.
+the experiment can be found in the appendix section.
 
 * Acknowledgments
  Experiments presented in this paper were carried out using the Grid'5000
@@ -1359,12 +1353,12 @@ g_legend<-function(a.gplot){
 #+RESULTS:
 
 ** Pre-processing of datasets
-Here we pre process some data to make the plotting stage faster. Also,
-the .csv files needed for almost all plots are created here.
+The .csv files needed for almost all plots are created here, as well
+as some R data sets that speed things up a little bit.
 
 #+name: process_data_sr-times
 #+begin_src R
-temp = list.files(path='./logs/sr_counts/sequential', pattern="*precise*", full.names = TRUE)
+temp = list.files(path='./logs/sr_counts/logs', pattern="sr_20000_threads1_precise.log", full.names = TRUE)
 flist <- lapply(temp, read.table)
 sr_data <- rbindlist(flist)
 sr_data[, "V1"] <- NULL
@@ -1653,15 +1647,15 @@ title(xlab = "Amount of nodes simulated", line=4)
 #+end_src
 
 #+name: sr-times
-#+begin_src R  :results output graphics :exports results  :file fig/sr-times.pdf
+#+begin_src R  :results output graphics :exports results  :file fig/sr-times.png
 sr_data <- readRDS(file="./logs/sr_counts/sr-times.Rda")
 #df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
-ggplot(data=sr_data, geom="histogram", aes(x=V3, y=V2)) + xlim(0,500) + xlab("Processes in SR") + ylab("Time consumed to compute SR's") + ylim(0,0.005) + geom_point(size = 1) # Replace V2 for 'mean_value' if dont want to plot every dot; and uncomment line above.
+ggplot(data=sr_data, geom="histogram", aes(x=V3, y=V2)) + xlim(0,5000) + xlab("Number of processes in SR") + ylab("Time consumed to compute SR (seconds)") + ylim(0,0.005) + geom_point(size = 1) # Replace V2 for 'mean_value' if dont want to plot every dot; and uncomment line above.
 #+end_src
 
 #+name: busy
 #+begin_src R :results output graphics :exports results :file fig/busy.pdf
-orig_data = read.csv("./logs/timings/total_times.csv", head=TRUE, sep=',')
+orig_data = read.csv("./logs/busy_waiters/total_times_orig.csv", head=TRUE, sep=',')
 opt_data = read.csv("./logs/busy_waiters/total_times_busy.csv", head=TRUE, sep=',')
 
 # Speedups of Precise Mode
@@ -1681,14 +1675,14 @@ g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line
     panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
     panel.background = element_blank(), axis.line=element_line(),
     legend.position="right") + 
-    scale_y_continuous(breaks=c(1,2,3,4)) + ylab("Speedup-Precise mode") +
+    scale_y_continuous(breaks=c(1,2,3,4)) + ylab("Speedup") +
     xlab("Amount of nodes simulated")
 g2
 #+end_src
 
 #+name: sr-par-threshold
-#+begin_src R :results output graphics :exports results   :file fig/sr-par-threshold.pdf
-precise <- readRDS(file="./logs/sr_counts/precise.Rda")
+#+begin_src R :results output graphics :exports results   :file fig/sr-par-threshold_40000.png
+precise <- readRDS(file="./logs/sr_counts/logs/precise_40000.Rda")
 
 ggplot(data=precise, geom="histogram", aes(x=V3.x, y=speedup)) +geom_point() +
  xlim(1,500) +ylim(0,2) +
