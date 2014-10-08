@@ -430,7 +430,23 @@ speedup, the more optimal threshold it is.
 ** 7 [100%]
   - [X] In Progress: experiments of today (order): busy, binding, with all enabled (core binding, adaptive, real threshold)
   - [X] sr-times and sr-par-threshold with .png's. Fix captions
-** 8 [%]
+** 8 [100%]
+  - Adaptive algorithm: instead of calculate the last ratio, better
+    calculate an average value of ratios during the simulation. That
+    would solve the problems of noise at the end, right?
+
+  - Adaptive algorithm: proved to be better if we calculate ratio with
+    the total amount of time, instead of the new calculated ratio.
+    Anyway, keep the old logs, and create new ones, then compare them.
+
+  - [X] Adaptive algorithm: keep average num of processes that run in
+    parallel and sequential. That way, if a certain amount dont cross
+    the average value, dont modify the threshold, but if it surpass
+    the average (and is under/over the current treshold) do the
+    benchmark and update the treshold This way we could avoid that
+    extremely giant/small numbers introduce noise in the estimation.
+
+** 9 [%]
   - [ ] Start Pmap exps.
   - [ ] Start adaptive algorithm experiment with different threshold (try 100,1000,10000).
 
@@ -442,25 +458,6 @@ speedup, the more optimal threshold it is.
       two in the same graph
     - Add memory used with 2m nodes when ready
   - https://github.com/mquinson/simgrid-simpar/issues
-
-  - Adaptive algorithm proved to be better if we calculate ratio with
-    the total amount of time, instead of the new calculated ratio.
-    Anyway, keep the old logs, and create new ones, then compare them.
-
-  - Adaptive algorithm: llevar media de num de procesos que se corren
-    en parallelo y sequential.  De esa forma, cuando una cierta
-    cantidad no sobrepasa la media, no modificar el threshold, pero
-    cuando sobrepasa la media (y queda bajo del treshold actual) medir
-    los tiempos y modificar o no el threshold.  De esa forma se
-    podrian evitar que numeros chicos de procesos (como 20) afecten el
-    treshold.
-
-Maybe is not a good idea, maybe is better to just use the mean. Try to fix it tomorrow
-Maybe the problem is with that possible division by zero when calculating averages. I think it never enters that if before the runall_parallel/sequential...
-
-  - instead of calculate the last ratio, better calculate an average
-    value of ratios during the simulation. That would solve the
-    problems of noise at the end, right?
   - bench 3.11. Does this make sense? because of the performance
     problem that 3.11 has...
   - bench adaptive w/bigger sizes. Keep track of threshold to plot?
