@@ -176,7 +176,6 @@ execution with 8 threads).
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:one.one
 #+caption: Memory consumptions reported in GB
-#+results: memory-consumption
 [[file:fig/memory-consumption.pdf]]
 
 The actual speedup obtained can be seen in the Figure \ref{fig:one}.
@@ -196,7 +195,6 @@ amount of threads.
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:one
 #+caption: Baseline performance of SimGrid 3.11. Speedups achieved using multithreaded executions against the sequential ones.
-#+results: baseline-perf
 [[file:fig/baseline-perf.pdf]]
 
 # We want to see now is how far are we from the ideal speedup that
@@ -248,7 +246,6 @@ of SR's.
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:three
 #+caption: Times of SR's sequential executions depending on the amount of processes of each SR.
-#+results: sr-times
 [[file:fig/sr-times.png]]
 
 * Optimizations
@@ -284,8 +281,9 @@ reduced (almost 97\% less migrations) in all the cases, but the
 relative speedup was not significant: always lower than x1.5,
 regardless the amount of threads/sizes.  However, the bigger speedups
 were obtained with sizes less than 100000 nodes, which allow us to
-conclude that CPU migrations are an important thing to avoid when the
-simulation is small enough.
+conclude that CPU migrations should be avoided when the simulation is
+small enough, since they introduce an unwanted overhead to the
+simulation.
 
 ** Parmap between N cores
 
@@ -304,6 +302,7 @@ sending maestro to sleep and make its N-1 threads do the computation
 did not show any improvement or loss in performance.
 
 ** Busy Waiting versus Futexes
+
 SimGrid provides several types of synchronization between threads:
 Fast Userspace Mutex (futex), the classical POSIX synchronization
 primitives and busy waiters.  While each of them can be chosen when
@@ -311,18 +310,19 @@ running the simulation, futexes are the default option, since they
 have the advantage to implement a fast synchronization mode within the
 parmap abstraction, in user space only.  But even when they are more
 efficient than classical mutexes, which run in kernel space, they may
-present performance drawbacks.  In this section we compare the busy
-waiters vs. futexes synchronization types, using the chord simulation
-in both Precise mode, and we found that using busy waiters can result
-in a speedup between x1.08 and x1.53 using few threads (up to 8)
-against the same parallel version using futexes, and from 1.15 to 3
-when the amount of threads is big enough (16 or 24).
+present performance drawbacks that inherently come with
+synchronization costs. In this section we compare busy waiters
+and futexes performances, using the chord simulation in
+Precise mode.
 
-TODO: conclusion about big sizes?
+As it can be seen in Figure \ref{fig:four}, the gain in speed is
+immediate. With small sizes, the elimination of any synchronization
+call makes the simulation run up to 3 times faster, while with big
+sizes (more than 100000 nodes) is not interesting enough.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:four
-#+caption: Relative speedup of busy waiters vs. futexes in Chord simluation.
+#+caption: Relative speedup of busy waiters vs. futexes in Chord simulation.
 [[file:fig/busy.pdf]]
 
 ** Performance Regression Testing
@@ -371,12 +371,59 @@ The main idea behind this algorithm (\ref{adaptive-algorithm}) is to
 calculate the optimal number of processes that can be run in parallel
 during the execution of the simulation.
 
-For that purpose, the times of five scheduling round are measured. A
-performance ratio for both of the possible parallel and sequential
-executions is calculated, simply by dividing the time taken by the
-amount of processes computed.  If the sequential ratio turns to be
-bigger than the parallel one, then the threshold is decreased, and
+For that purpose, the time of a certain amount of scheduling round is
+measured. A performance ratio for both of the possible parallel and
+sequential executions is calculated, simply by dividing the time taken
+by the amount of processes computed.  If the sequential ratio turns to
+be bigger than the parallel one, then the threshold is decreased, and
 increased otherwise.
+
+A naive implementation of this algorithm, along with the parallel
+threshold by default (2 or more processes), showed a small relative
+improvement in performance (Figure \ref{fig:six}). The times were
+certainly reduced with small sizes, since the algorithm chooses to
+execute the majority of the processes sequentially, while with bigger
+sizes (more than 100000 nodes), the speedup is insignificant, and in
+terms of absolute times, we can see that the execution times have been
+slightly reduced (up to ten minutes less in a one million nodes
+simulation in the best case, with 8 threads).
+
+This improvements may be small due to the fact that we are calculating
+the ratio with the latest values, and in consequence, using values that
+may not represent the general situation.
+
+A new approach, using a cumulative ratio (during all the simulation)
+instead of the one calculated with the latest values, proved to gain
+performance.
+
+Instead of benchmarking the SR's each time, we benchmark the SR's that
+have certain amount of processes, determined by an upper limit for
+parallel execution and a lower limit for the sequential ones. This is
+a way to prevent the timing of extreme cases which may introduce
+errors in the estimation of the threshold.
+
+These limits are calculated along the simulation and use the average
+amount of processes that have been run so far in parallel (or serial),
+plus the standard deviation. Since we never know beforehand the amount
+of SR's we will have, the average and the standard deviation are
+computed using the algorithm of Welford.
+
+When a prefixed amount of parallel and sequential SR's have been run,
+we proceed to update the threshold applying a similar rule of thumb:
+if the sequential executions were better and we have a bigger number
+of processes than the corresponding average, we increase the
+threshold, giving a chance to the serial executions to prove they are
+better. Otherwise, if the parallel executions performed better and the
+number of processes of the current SR is smaller than the average, we
+decrease the threshold.
+
+This new implementation proved to be faster than the original parallel
+version, and also avoids the increase of the threshold to unrealistic
+values (which may happen in the naive version of the algorithm due to
+the fact that we increase the threshold each time a sequential
+execution performs better than a parallel, and the fact that we have a
+lot of SR's with small amount of processes that are computed
+sequentially)
 
 #+begin_latex
 \begin{algorithm}
@@ -407,8 +454,6 @@ increased otherwise.
 \Else
 \State increase($parallel\_threshold$)
 \EndIf
-\State $seq\_time,par\_time \gets \textit{0}$
-\State $process\_seq,process\_par \gets \textit{0}$
 \EndIf
 
 \State
@@ -426,16 +471,8 @@ increased otherwise.
 \end{algorithm}
 #+end_latex
 
-A first experiment was run with the parallel threshold by default
-(this is, run in parallel when we have 2 or more processes).  This
-resulted in a small relative improvement in performance (Figure
-\ref{fig:six}). The times were certainly reduced with small sizes,
-since the algorithm chooses to execute the majority of the processes
-sequentially, while with bigger sizes (more than 100000 nodes), the
-speedup is insignificant, and in terms of absolute times, we can see
-that the execution times have been slightly reduced (up to ten minutes
-less in a one million nodes simulation in the best case, with 8
-threads).
+# \State $seq\_time,par\_time \gets \textit{0}$
+# \State $process\_seq,process\_par \gets \textit{0}$
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:six
@@ -476,18 +513,18 @@ overall performance, or even made it worst, like the parmap changes
 proposed in Section \ref{sec:parallel}.
 
 It is important to say, the majority of the speedups achieved were
-done with big size simulations (up to 500000 nodes), which shows the
+achieved with big size simulations (up to 500000 nodes), which shows the
 difficulty of parallelize user code efficiently with small sizes.
 
 We certainly arrived to a point where optimization depends heavily on
 reducing the synchronization costs and playing with low level features
 of the code. An intelligent choice of when to launch processes within
-threads and when to do it in a serial way proved to help, if the
-initial parallel threshold is good enough. Currently, our adaptive
-algorithm proposed is sensitive to that initial threshold, and the
-final value will strongly depend on the one set up at the beginning.
+threads and when to do it in a serial way proved to help. Currently,
+our adaptive algorithm proposed is sensitive to that initial
+threshold, and the final value will strongly depend on the one set up
+at the beginning.
 
-Due to the fact that we found that executing Scheduling Rounds in
+Due to the fact that executing Scheduling Rounds in
 parallel is efficient only when the amount of processes surpass
 300000, is understandable that with small simulations the adaptive
 algorithm will not find the very optimal threshold, but it will stand
