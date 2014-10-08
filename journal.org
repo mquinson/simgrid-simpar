@@ -427,22 +427,36 @@ threshold, do this: Use adaptive algorithm (or not), and do
 experiments with differents tresholds. The one which gets more
 speedup, the more optimal threshold it is.
 
-** 7 [%]
+** 7 [100%]
+  - [X] In Progress: experiments of today (order): busy, binding, with all enabled (core binding, adaptive, real threshold)
+  - [X] sr-times and sr-par-threshold with .png's. Fix captions
+** 8 [%]
   - [ ] Start Pmap exps.
-  - [ ] Start adaptive algorithm experiment with different threshold (try 100,1000,10000). 
-  - [ ] Start benchmark of last version with all optimizations enabled
-    (core binding, adaptive, real threshold)
-  - [ ] Check two tables and add values of 1m,2m when ready.
-  - sr-par-threshold: used density function, not dots.
-  - sr-times and sr-par-threshold with .png's
-  - captions are not showing, why?
+  - [ ] Start adaptive algorithm experiment with different threshold (try 100,1000,10000).
 
-
+  - sr-par-threshold: use density function, not dots.
+ 
+  - randomize experiments: instead of explicitly choose the breaks, do some random choice of sizes.
   - Figure 1:
     - Make the speedup chart and also the amdahl one. Or put those
       two in the same graph
     - Add memory used with 2m nodes when ready
   - https://github.com/mquinson/simgrid-simpar/issues
+
+  - Adaptive algorithm proved to be better if we calculate ratio with
+    the total amount of time, instead of the new calculated ratio.
+    Anyway, keep the old logs, and create new ones, then compare them.
+
+  - Adaptive algorithm: llevar media de num de procesos que se corren
+    en parallelo y sequential.  De esa forma, cuando una cierta
+    cantidad no sobrepasa la media, no modificar el threshold, pero
+    cuando sobrepasa la media (y queda bajo del treshold actual) medir
+    los tiempos y modificar o no el threshold.  De esa forma se
+    podrian evitar que numeros chicos de procesos (como 20) afecten el
+    treshold.
+
+Maybe is not a good idea, maybe is better to just use the mean. Try to fix it tomorrow
+Maybe the problem is with that possible division by zero when calculating averages. I think it never enters that if before the runall_parallel/sequential...
 
   - instead of calculate the last ratio, better calculate an average
     value of ratios during the simulation. That would solve the
@@ -582,5 +596,4 @@ SimGrid3.10   772d63cca583f5d16096fa9f487b4ab07d9af8f0
 2) we want to run in parallel not only the threads but also the events
    in each thread?
 3) we want to find the independent events and run them in parallel.
-
 
