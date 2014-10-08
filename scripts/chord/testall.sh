@@ -45,7 +45,7 @@ host_info="host_info.org"
 rm -rf $host_info
 
 # The las %U is just to ease the parsing for table
-timefmt="clock:%e user:%U sys:%S telapsed:%e swapped:%W exitval:%x max:%Mk avg:%Kk %U"
+timefmt="clock:%e user:%U sys:%S telapsed:%e swapped:%W exitval:%x max:%Mk avg:%Kk %e"
 
 # Copy command. This way one can use cp, scp and a local folder or a folder in 
 # a cluster.
