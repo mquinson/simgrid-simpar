@@ -372,35 +372,36 @@ calculate the optimal number of processes that can be run in parallel
 during the execution of the simulation.
 
 For that purpose, the time of a certain amount of scheduling round is
-measured. A performance ratio for both of the possible parallel and
-sequential executions is calculated, simply by dividing the time taken
-by the amount of processes computed.  If the sequential ratio turns to
-be bigger than the parallel one, then the threshold is decreased, and
+measured. A performance ratio for the parallel and sequential
+executions is calculated, simply by dividing the time taken by the
+amount of processes computed.  If the sequential ratio turns to be
+bigger than the parallel one, then the threshold is decreased, and
 increased otherwise.
 
-A naive implementation of this algorithm, along with the parallel
-threshold by default (2 or more processes), showed a small relative
-improvement in performance (Figure \ref{fig:six}). The times were
-certainly reduced with small sizes, since the algorithm chooses to
-execute the majority of the processes sequentially, while with bigger
-sizes (more than 100000 nodes), the speedup is insignificant, and in
-terms of absolute times, we can see that the execution times have been
-slightly reduced (up to ten minutes less in a one million nodes
-simulation in the best case, with 8 threads).
+A naive implementation of this algorithm using the parallel threshold
+by default (2 or more processes), showed a small relative improvement
+in performance (Figure \ref{fig:six}). The times were certainly
+reduced with small sizes, since the algorithm chooses to execute the
+majority of the processes sequentially, while with bigger sizes (more
+than 100000 nodes), the speedup is insignificant, and in terms of
+absolute times, we can see that the execution times have been slightly
+reduced (up to ten minutes less in a one million nodes simulation in
+the best case, with 8 threads).
 
 This improvements may be small due to the fact that we are calculating
 the ratio with the latest values, and in consequence, using values that
 may not represent the general situation.
 
-A new approach, using a cumulative ratio (during all the simulation)
-instead of the one calculated with the latest values, proved to gain
-performance.
-
-Instead of benchmarking the SR's each time, we benchmark the SR's that
-have certain amount of processes, determined by an upper limit for
-parallel execution and a lower limit for the sequential ones. This is
-a way to prevent the timing of extreme cases which may introduce
-errors in the estimation of the threshold.
+A new approach, using a cumulative ratio (calculated during all the
+simulation) instead of the one computed with the latest values, proved
+to gain performance. This approach also changes the way we do the
+timings: instead of benchmarking the SR's each time, we benchmark the
+SR's that have certain amount of processes, limited by an upper limit
+for parallel execution and a lower limit for the sequential ones. This
+is a way to prevent the timing of extreme cases (very big or very
+small number of processes) which may introduce errors in the
+estimation of the threshold, and acts like a 'window' to filter the
+cases we are interested in.
 
 These limits are calculated along the simulation and use the average
 amount of processes that have been run so far in parallel (or serial),
@@ -420,10 +421,9 @@ decrease the threshold.
 This new implementation proved to be faster than the original parallel
 version, and also avoids the increase of the threshold to unrealistic
 values (which may happen in the naive version of the algorithm due to
-the fact that we increase the threshold each time a sequential
-execution performs better than a parallel, and the fact that we have a
-lot of SR's with small amount of processes that are computed
-sequentially)
+fact that we have a lot of SR's with small amount of processes that
+are computed sequentially and the fact that we increase the threshold
+each time a sequential execution performs better than a parallel)
 
 #+begin_latex
 \begin{algorithm}
@@ -513,26 +513,19 @@ overall performance, or even made it worst, like the parmap changes
 proposed in Section \ref{sec:parallel}.
 
 It is important to say, the majority of the speedups achieved were
-achieved with big size simulations (up to 500000 nodes), which shows the
+achieved with big size simulations (up to 300000 nodes), which shows the
 difficulty of parallelize user code efficiently with small sizes.
 
 We certainly arrived to a point where optimization depends heavily on
 reducing the synchronization costs and playing with low level features
-of the code. An intelligent choice of when to launch processes within
-threads and when to do it in a serial way proved to help. Currently,
-our adaptive algorithm proposed is sensitive to that initial
-threshold, and the final value will strongly depend on the one set up
-at the beginning.
+of the code. An intelligent choice of when to launch processes in
+parallel and when to do it in a serial way proved to help.
 
 Due to the fact that executing Scheduling Rounds in
 parallel is efficient only when the amount of processes surpass
 300000, is understandable that with small simulations the adaptive
 algorithm will not find the very optimal threshold, but it will stand
 a chance of making the simulation a bit faster.
-
-As future work, the adaptive algorithm should be improved to determine
-a better and unique threshold over different simulations regardless of
-the initial one at the beginning.
 
 In a final note, the present work was done with the reproducible
 research approach in mind. Thus, the steps and scripts needed to run
