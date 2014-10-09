@@ -446,23 +446,26 @@ speedup, the more optimal threshold it is.
     benchmark and update the treshold This way we could avoid that
     extremely giant/small numbers introduce noise in the estimation.
 
-** 9 [%]
-  - [ ] Start Pmap exps.
-  - [ ] Start adaptive algorithm experiment with different threshold (try 100,1000,10000).
-
+** 9 [100%]
+  - [X] Test new adaptive algorithm (In Progress).  Oh, found a
+    possible drawback that makes simulations >500k nodes slow: using
+    that f*ing sqrt() funtion.  I replaced that for an equivalent
+    arithmetical expression, but still have to check if this fix the
+    problem.
+** 10 [0%]
+  - [ ] try new version of adaptive algorithm.
+  - [ ] Run experiment with all optimizations enabled
   - sr-par-threshold: use density function, not dots.
- 
   - randomize experiments: instead of explicitly choose the breaks, do some random choice of sizes.
+
   - Figure 1:
     - Make the speedup chart and also the amdahl one. Or put those
       two in the same graph
     - Add memory used with 2m nodes when ready
+
   - https://github.com/mquinson/simgrid-simpar/issues
   - bench 3.11. Does this make sense? because of the performance
     problem that 3.11 has...
-  - bench adaptive w/bigger sizes. Keep track of threshold to plot?
-    Note: the final threshold depends on the initial one, does it make
-    sense to plot it?
 
     another graph w/it (Maybe do a graph where the simulated time (the
     differing SRs) are given in abscisse and the adaptative threshold
@@ -472,9 +475,9 @@ speedup, the more optimal threshold it is.
   - run all the exps with other examples
 
 Other things:
-  - To Amdahl plot: measure sequential time and then add SR
-    times. That way, we can tell what should be the theoretical
-    speedup achieved, maybe.
+  - amdahl teorethical speedup
+  - buen plot de optimal threshold (para encontrar el optimal threshold tambien).
+  - hacer ese plot con densidades????
 
 * Useful info:
 ** List of recommended packages/software to run experiments
