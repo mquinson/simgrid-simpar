@@ -1,4 +1,5 @@
 
+
 #+TITLE: Parallel and Distributed Simulation of Large-Scale Distributed Applications
 #+AUTHOR:  Ezequiel Torti Lopez, Martin Quinson
 #+OPTIONS: H:5 title:nil date:nil author:nil email:nil creator:nil timestamp:nil skip:nil toc:nil
@@ -90,7 +91,6 @@ work.
 
 * Context
 #+LaTeX: \label{sec:context}
-
 In the previous work ~\cite{previous} we proposed to parallelize the
 execution of the user code while keeping the simulation engine
 sequential.  This is enabled by applying classical concepts of OS
@@ -181,8 +181,7 @@ execution with 8 threads).
 The actual speedup obtained can be seen in the Figure \ref{fig:one}.
 It is clear from that graph that the real speedup with our parallel
 model is obtained when the size of the problem is bigger than 300000
-nodes.  This is a proof that what was proved in our previous work
-~\cite{previous} is still valid.
+nodes.  This confirms what was proved in ~\cite{previous}.
 
 Figure \ref{fig:one} also shows that increasing the number of threads
 may not be the best option to increase performance, since the best
@@ -338,25 +337,26 @@ purpose, we have done a benchmark to get each SR execution time for both
 parallel and serial executions, and calculated the speedup obtained in
 each SR.
 
-In a typical run with 1000 nodes, with 4 threads, no speedup was found
-in comparison with the same sequential run. This seems like an obvious
-consequence of what we concluded in Section \ref{sec:problem}: the
-performance gain in parallel executions appears after 300000 nodes, so
-it is understandable that we will not find a clear speedup in smaller
-simulations. This situation can be seen in the Figure XXXX, where the
-speedup is visible after SR's with 300000 or more processes.
+A typical run using Chord and with 10000 examples shows that after 500
+processes per SR, the speedup is always bigger than one. It is
+interesting to note that even for simulations with different sizes the
+similar limit is reached. Analyzing the data thoroughly tell us that
+the 83\% of SR's with processes between 250 and 300 show a speedup. In
+consequence, this will be our new optimal threshold for parallel
+execution, and the adaptive algorithm proposed in next section will be
+in charge of increasing or decreasing that threshold according to the
+needs and characteristics of the simulation.
 
-However, analyzing the plot again, we can see that a
-percentage of SR's have obtained a gain in performance.  To take
-advantage of this situation, we could try to use an new way of
-choosing when to execute SR's in parallel, and when to do it
-sequentially. The next section proposes an adaptive algorithm that
-tries to tackle this situation.
+Although in Figure \ref{fig:five} it seems there is an important
+amount of SR with less than 250 processes that are faster in parallel,
+they represent only the 5\% of that subset of SR's, so we ignore
+them. The remaining 95\% of SR's with less than 500 processes showed
+speedup equal or less than 1.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:five
 #+caption: Speedup of parallel vs. sequential executions of SR's, depending in the number of processes taken by each SR
-[[file:fig/sr-par-threshold_40000.png]]
+[[file:fig/sr-par-threshold_10000.png]]
 
 ** Adaptive algorithm to calculate threshold
 Finding an optimal threshold and keep it during all the simulation
@@ -367,7 +367,7 @@ threshold could be inappropriate, leading to parallelize scheduling
 rounds that would run more efficiently in a sequential way.  That's
 why an algorithm for a dynamic threshold calculation is proposed.
 
-The main idea behind this algorithm (\ref{adaptive-algorithm}) is to
+The main idea behind Algorithm (\ref{adaptive-algorithm}) is to
 calculate the optimal number of processes that can be run in parallel
 during the execution of the simulation.
 
@@ -423,7 +423,7 @@ version, and also avoids the increase of the threshold to unrealistic
 values (which may happen in the naive version of the algorithm due to
 fact that we have a lot of SR's with small amount of processes that
 are computed sequentially and the fact that we increase the threshold
-each time a sequential execution performs better than a parallel)
+each time a sequential execution performs better than a parallel).
 
 #+begin_latex
 \begin{algorithm}
@@ -1454,6 +1454,27 @@ saveRDS(df5, file="./logs/sr_counts/precise.Rda")
 #saveRDS(df6,file="./logs/sr_counts/constant.Rda")
 #+end_src
 
+#+name: see_percentages_sr-par-threshold
+#+begin_src: R
+precise <- readRDS(file="./logs/sr_counts/logs/precise_10000.Rda")
+
+under_500 <- precise[precise$V3.x<250,]
+under_500 <- under_500[complete.cases(under_500),]
+under_500 <- under_500[is.finite(rowSums(under_500)), ]
+num_under_500 <- nrow(under_500)
+
+# to calculate percentage of SR's with less than 500 processes that had speedup.
+a <- under_500[under_500$speedup > 1,]
+n_speedup <- nrow(a)
+
+b <- under_500[under_500$speedup <= 1,]
+n_no_speedup <- nrow(b)
+
+# Percentage of SR with less than 500 processes that had/hadnt speedup
+perc_speedup <- (n_speedup * 100) / num_under_500
+perc_no_speedup <- (n_no_speedup * 100) / num_under_500
+#+end_src
+
 # OPTIONAL: Maybe you want to call this function to be sure that the THREADS and SIZES are the ones you want to plot.
 #+call: set_python_args() :session
 
@@ -1692,9 +1713,9 @@ opt_data = read.csv("./logs/busy_waiters/total_times_busy.csv", head=TRUE, sep='
 opt_data[, "baseline"]  <- orig_data[, "p2"]  / orig_data[, "p2"]
 opt_data[, "2"]  <- orig_data[, "p2"]  / opt_data[, "p2"]
 opt_data[, "4"]  <- orig_data[, "p4"]  / opt_data[, "p4"]
-opt_data[, "8"]  <- orig_data[, "p8"]  / opt_data[, "p8"]
+#opt_data[, "8"]  <- orig_data[, "p8"]  / opt_data[, "p8"]
 opt_data[, "16"] <- orig_data[, "p16"] / opt_data[, "p16"]
-opt_data[, "24"] <- orig_data[, "p24"] / opt_data[, "p24"]
+#opt_data[, "24"] <- orig_data[, "p24"] / opt_data[, "p24"]
 keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))], "baseline")
 speedup_precise <- opt_data[keep]
 
