@@ -452,11 +452,20 @@ speedup, the more optimal threshold it is.
     that f*ing sqrt() funtion.  I replaced that for an equivalent
     arithmetical expression, but still have to check if this fix the
     problem.
-** 10 [0%]
-  - [ ] try new version of adaptive algorithm.
+** 10 [100%]
+  - [X] Fix adapt. problem with big sizes (slow). launch exps.
+** 13 [100%]
+  - [X] Change timer in SR: we are using CPU time, that gets
+    multiplied for each CPU when we are using threads. Better use
+    elapsed time and see what happens. Made new plot and modify
+    report.
+  - [X] Test new change in adaptive algorithm. It is working, apparently
+
+** 14 [%]
   - [ ] Run experiment with all optimizations enabled
-  - sr-par-threshold: use density function, not dots.
+
   - randomize experiments: instead of explicitly choose the breaks, do some random choice of sizes.
+  - Quedarse con el smx_context_rawBESTSOFAR, ahi hay algunas correcciones al viejo.
 
   - Figure 1:
     - Make the speedup chart and also the amdahl one. Or put those
@@ -472,12 +481,14 @@ speedup, the more optimal threshold it is.
     computed at that point is given in ordinate. And maybe use several
     curves on that graph, for several sizes of simulation.)
 
-  - run all the exps with other examples
+  - run all the exps with other examples (kademlia at least)
 
 Other things:
   - amdahl teorethical speedup
   - buen plot de optimal threshold (para encontrar el optimal threshold tambien).
   - hacer ese plot con densidades????
+  - final exps with chord/kademlia with all enabled.
+  - busy wait falta con 1m, 8 thr. 70k con 24
 
 * Useful info:
 ** List of recommended packages/software to run experiments
@@ -548,6 +559,8 @@ repository: git+ssh://rtortilo@scm.gforge.inria.fr//gitroot/simgrid/simgrid-perf
 - To rename bunch of files (useful for organizing logs):
   rename 's/^/2_/' sr_5000_threads*
   (basically rename <pattern_prefix>  <pattern_group_files>)
+- To get the sizes simulated so far in a folder of logs:
+  ls | tr "_" " " | awk '{print $2}' | uniq | head -23 | sort -g
 * Paper
 ** Problem Analysis
   1) Optimal threshold for Amdhal. Which portion of the problem is
