@@ -1,5 +1,4 @@
 
-
 #+TITLE: Parallel and Distributed Simulation of Large-Scale Distributed Applications
 #+AUTHOR:  Ezequiel Torti Lopez, Martin Quinson
 #+OPTIONS: H:5 title:nil date:nil author:nil email:nil creator:nil timestamp:nil skip:nil toc:nil
@@ -58,7 +57,7 @@ grained workloads such as P2P protocols. These workloads are the most difficult
 to execute efficiently in parallel because execution times are very short,
 making it very difficult to amortize the synchronization times.
 
-We implemented this parallel schema within the SimGrid framework, and showed
+We implemented this parallel schema within the SimGrid framework \cite{simgrid}, and showed
 that the extra complexity does not endangers the performance since the
 sequential version of SimGrid still outperforms several competing solutions when
 our addition are present but disabled at run time.
@@ -136,6 +135,9 @@ speedup, trying to get a better parallel threshold dynamically
 depending on the simulation, and better performance of the threads
 taking in count their distribution on the CPU cores and the different
 synchronization modes (futex, POSIX primitives or busy waiters).
+
+All the experiments were run using the facilities provided by
+Grid'5000 \cite{g5k}.
 
 
 * Performance Analysis
@@ -407,7 +409,7 @@ These limits are calculated along the simulation and use the average
 amount of processes that have been run so far in parallel (or serial),
 plus the standard deviation. Since we never know beforehand the amount
 of SR's we will have, the average and the standard deviation are
-computed using the algorithm of Welford.
+computed using the algorithm of Welford \cite{acsvar,csacsmv}.
 
 When a prefixed amount of parallel and sequential SR's have been run,
 we proceed to update the threshold applying a similar rule of thumb:
@@ -419,11 +421,13 @@ number of processes of the current SR is smaller than the average, we
 decrease the threshold.
 
 This new implementation proved to be faster than the original parallel
-version, and also avoids the increase of the threshold to unrealistic
-values (which may happen in the naive version of the algorithm due to
-fact that we have a lot of SR's with small amount of processes that
-are computed sequentially and the fact that we increase the threshold
-each time a sequential execution performs better than a parallel).
+version with sizes under 300000 nodes, while with bigger amount of
+nodes the speedup remains almost the same. It also avoids the increase
+of the threshold to unrealistic values (which may happen in the naive
+version of the algorithm due to fact that we have a lot of SR's with
+small amount of processes that are computed sequentially and the fact
+that we increase the threshold each time a sequential execution
+performs better than a parallel).
 
 #+begin_latex
 \begin{algorithm}
@@ -440,32 +444,65 @@ each time a sequential execution performs better than a parallel).
 \Comment {Number of processes computed in par/seq}
 \State $process\_seq, process\_par \gets \textit{0}$
 \State
+\Comment {Average amount of processes parallel/sequential}
+\State avg\_par\_proc, avg\_seq\_proc
+\State
+\Comment {Standard deviation of processes parallel/sequential}
+\State sd\_seq\_proc, sd\_par\_proc
+\State
 
 \Procedure{RunSchedulingRound}{}
 
 \If {computed five par/seq SR's}
-\State $parallel\_SRs \gets \textit{1}$
-\State $sequential\_SRs \gets \textit{1}$
 \State $ratio\_seq \gets seq\_time/process\_seq$
 \State $ratio\_par \gets par\_time/process\_par$
 \State $sequential\_is\_slower \gets ratio\_seq>ratio\_par$
 \If {$sequential\_is\_slower$}
+\If {$processes\_to\_run < avg\_par\_proc$}
 \State decrease($parallel\_threshold$)
+\EndIf
 \Else
+\If {$processes\_to\_run > avg\_seq\_proc$}
 \State increase($parallel\_threshold$)
+\EndIf
 \EndIf
 \EndIf
 
 \State
+
 \If {$processes\_to\_run >= parallel\_threshold$}
-\State execute\_SR\_parallel()
-\State $process\_par \gets get\_number\_of\_processes()$
+
+\If {$processes\_to\_run < par\_window$}
 \State $parallel\_SRs++$
+\State start($timer$)
+\State execute\_SR\_parallel()
+\State stop($timer$)
+\State $par\_time \gets par\_time + $elapsed($timer$)
+\State $process\_par \gets process\_par + processes\_to\_run$
+\State Calculate current avg and sd of par. processes
+\State $par\_windows = avg\_par\_proc + sd\_par\_proc$
+\Else
+\State execute\_SR\_parallel()
+\EndIf
+
+
+\Else
+
+\If {$processes\_to\_run < seq\_window$}
+\State $sequential\_SRs++$
+\State start($timer$)
+\State execute\_SR\_serial()
+\State stop($timer$)
+\State $seq\_time \gets seq\_time +$ elapsed($timer$)
+\State $process\_seq \gets process\_seq + processes\_to\_run$
+\State Calculate current avg and sd of seq. processes
+\State $seq\_windows = avg\_seq\_proc - sd\_seq\_proc$
 \Else
 \State execute\_SR\_serial()
-\State $process\_seq \gets get\_number\_of\_processes()$
-\State $sequential\_SRs++$
 \EndIf
+
+\EndIf
+
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
@@ -507,28 +544,23 @@ development version (3.12). Some of the changes proposed worked in
 some scenarios better than others (for instance, the binding threads
 to cores optimization showed a real speedup in simulations using
 bigger amount of threads, such as 16 or 24, while using busy waiters
-outperforms futexes in simulations with small sizes and small amount
-of threads). Also, some of the modifications did not affect the
-overall performance, or even made it worst, like the parmap changes
-proposed in Section \ref{sec:parallel}.
+proved to be better than futexes in simulations with small sizes and
+small amount of threads). Also, some of the modifications did not
+affect the overall performance, or even made it worst, like the parmap
+changes proposed in Section \ref{sec:parallel}.
 
-It is important to say, the majority of the speedups achieved were
-achieved with big size simulations (up to 300000 nodes), which shows the
-difficulty of parallelize user code efficiently with small sizes.
+Most of the changes proposed gained performance with small sizes
+simulations (under 300000 nodes), but remained the almost the same
+with larger ones, showing the difficulty of optimizing a complex multi
+threaded system.
 
 We certainly arrived to a point where optimization depends heavily on
 reducing the synchronization costs and playing with low level features
 of the code. An intelligent choice of when to launch processes in
-parallel and when to do it in a serial way proved to help.
-
-Due to the fact that executing Scheduling Rounds in
-parallel is efficient only when the amount of processes surpass
-300000, is understandable that with small simulations the adaptive
-algorithm will not find the very optimal threshold, but it will stand
-a chance of making the simulation a bit faster.
+parallel and when to do it in a serial way proved to gain performance. 
 
 In a final note, the present work was done with the reproducible
-research approach in mind. Thus, the steps and scripts needed to run
+research approach in mind. Hence, the steps and scripts needed to run
 the experiment can be found in the appendix section.
 
 * Acknowledgments
@@ -536,6 +568,10 @@ the experiment can be found in the appendix section.
  experimental testbed, being developed under the INRIA ALADDIN development 
  action with support from CNRS, RENATER and several Universities as well 
  as other funding bodies (see https://www.grid5000.fr).
+
+
+#+LaTeX: \bibliographystyle{abbrv}
+#+LaTex: \bibliography{report}
 
 #+LaTeX: \onecolumn
 #+LaTeX: \appendix
