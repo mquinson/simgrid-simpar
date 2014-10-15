@@ -225,7 +225,7 @@ scheduling round.
 
 As it can be seen in the Figure \ref{fig:two}, the amount of SR's
 having just one process varies between 26% and 48% (the larger the
-simulated s size, the lower the amount of SR's that have only one
+simulated size, the lower the amount of SR's that have only one
 process) while the others involve two or more processes. These remaining
 processes are executed in parallel due to the parallel execution
 threshold already setted up in SimGrid (which can be modified).
@@ -317,9 +317,10 @@ and futexes performances, using the chord simulation in
 Precise mode.
 
 As it can be seen in Figure \ref{fig:four}, the gain in speed is
-immediate. With small sizes, the elimination of any synchronization
-call makes the simulation run up to 3 times faster, while with big
-sizes (more than 100000 nodes) is not interesting enough.
+immediate with small sizes: the elimination of any synchronization
+call makes the simulation run up to 3 times faster. However, we can
+see the performance drop and match the one achieved with futexes with
+bigger sizes.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:four
@@ -344,7 +345,7 @@ processes per SR, the speedup is always bigger than one. It is
 interesting to note that even for simulations with different sizes the
 similar limit is reached. Analyzing the data thoroughly tell us that
 the 83\% of SR's with processes between 250 and 300 show a speedup. In
-consequence, this will be our new optimal threshold for parallel
+consequence, this will be our base threshold for parallel
 execution, and the adaptive algorithm proposed in next section will be
 in charge of increasing or decreasing that threshold according to the
 needs and characteristics of the simulation.
@@ -508,9 +509,6 @@ performs better than a parallel).
 \end{algorithm}
 #+end_latex
 
-# \State $seq\_time,par\_time \gets \textit{0}$
-# \State $process\_seq,process\_par \gets \textit{0}$
-
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:six
 #+caption: Speedup achieved with Adaptive Algorithm. Chord simulation.
@@ -578,10 +576,10 @@ the experiment can be found in the appendix section.
 * Data Provenance
 This section explains and show how to run the experiments and how the
 data is saved and then processed.  Note: that all experiments are run
-using the Chord simulation that can be found in examples/msg/chord
+using the Chord simulation that can be found in \texttt{examples/msg/chord}
 folder of your SimGrid install. Unless stated, all the experiments are
 run using the futex synchronization method and raw contexts under a
-Linux environment; in a node from 'parapluie' cluster of Grid5000.
+Linux environment; in a 'parapluie' node at Grid5000.
 The analysis of data can be done within this paper itself, executing
 the corresponding R codes. Note that it is even possible to execute
 them remotely if TRAMP is used to open this file (this is useful if
@@ -596,7 +594,7 @@ last during all your experiments/analysis.
 
 This sizes/threads lists are needed to run the simulations, generate
 platform/deployment files, and generate tables after the
-experiments. Thus, is mandatory to run this snippets.
+experiments. Hence, is mandatory to run this snippets.
 
 #+begin_src sh :session org-sh
 BASE_DIR=$PWD
@@ -1234,21 +1232,18 @@ rm -rf $file_table
 rm -rf tmp
 #+end_src
 
-** Amdahl speedup
+** Baseline Performance
 The benchmark can be run from this org-mode file, or simply by running
-./scripts/chord/testall.sh (in this repository) inside the folder
-examples/msg/chord of your SimGrid installation. Inside that script,
+\texttt{./scripts/chord/testall.sh} inside the folder
+\texttt{examples/msg/chord} of your SimGrid installation. Inside that script,
 the number of threads to test, as well as the amount of nodes, can be
 modified
 
-The constant TIME_BENCH_AMDAHL must be defined in SimGrid in order to
-enable the required logs for this experiment. This variable can be
-defined in the file src/simix/smx_private.h
-
 The script generates a .csv table, but just in case it is done in
-different stages, the gathered logs can be processed with
-get_times.py, located in the same folder as testall.sh. This generates
-a .csv that can easily be plotted with R/gnuplot. 
+different stages, the resulting logs can be processed with
+\texttt{./scripts/chord/get\_times.py} (located in the same folder as
+testall.sh). This generates a .csv that can easily be plotted with
+R/gnuplot.
 
 The script is self-documented.
 
@@ -1259,18 +1254,17 @@ The script is self-documented.
 #+call: testall[:session org-sh](log_folder='timings/logs')
 
 ** SR Distribution
-To enable Scheduling Rounds benchmarks, the constant TIME_BENCH_PER_SR
-has to be defined. It can be defined in src/simix/smx\_private.h
+To enable Scheduling Rounds benchmarks, the constant \texttt{TIME\_BENCH\_ENTIRE\_SRS}
+has to be defined. It can be defined in \texttt{src/simix/smx\_private.h}
 The logs give information about the time it takes to run a scheduling
 round, as well as the amount of processes each SR takes.
 For this experiment, we are only interested in the amount of processes
 taken by each SR.
 
-The script to run this experiment is ./scripts/chord/testall\_sr.sh,
-the id of SR, time of SR and num processes of SR, in a table format.
-
-This can be run from here or just by running testall\_sr.sh in in the
-examples/msg/chord folder of your SimGrid install.
+The script to run this experiment is
+\texttt{./scripts/chord/testall\_sr.sh}. It gathers data about the id
+of each SR, time of each SR and num processes of SR, in stores it in
+table format.
 
 #+call: check_args[:session org-sh]()
 
@@ -1282,9 +1276,10 @@ examples/msg/chord folder of your SimGrid install.
 The data set used for this plot is the same as the one before.
 We just use the data of the sequential simulations (1 thread).
 ** Binding threads to physical cores
-The constant CORE_BINDING has to be defined in src/xbt/parmap.c in
-order to enable this optimization.  The benchmark is then run in the
-same way as the Amdahl Speedup experiment.
+The constant \texttt{CORE\_BINDING} has to be defined in
+\texttt{include/xbt/xbt\_os\_thread.h} in order to enable this
+optimization.  The benchmark is then run in the same way as the Amdahl
+Speedup experiment.
 
 #+call: check_args[:session org-sh]()
 
@@ -1304,8 +1299,8 @@ This is the default setting and the standard benchmark can be used.
 
 *** maestro sleeps with N-1 threads
 To avoid that maestro works with the threads, comment out the line:
-    xbt\_parmap\_work(parmap);
-from the function xbt\_parmap\_apply() in src/xbt/parmap.c
+    \texttt{xbt\_parmap\_work(parmap);}
+from the function \texttt{xbt\_parmap\_apply()} in \texttt{src/xbt/parmap.c}
 
 #+call: check_args[:session org-sh]()
 
@@ -1315,11 +1310,11 @@ from the function xbt\_parmap\_apply() in src/xbt/parmap.c
 
 *** maestro sleeps with N threads
 To avoid that maestro works with the threads, comment out the line:
-    xbt_parmap_work(parmap);
-from the function xbt_parmap_apply() in src/xbt/parmap.c
-Then the function src/xbt/parmap.c:xbt_parmap_new has to be
+    \texttt{xbt\_parmap\_work(parmap);}
+from the function \texttt{xbt\_parmap\_apply()} in \texttt{src/xbt/parmap.c}
+Then the function \texttt{src/xbt/parmap.c:xbt\_parmap\_new} has to be
 modified to create one extra thread. It is easy: just add 1 to
-num_workers parameter.
+\texttt{num\_workers} parameter.
 
 #+call: check_args[:session org-sh]()
 
@@ -1329,11 +1324,10 @@ num_workers parameter.
 
 ** Busy Waiters vs. Futexes performance
 Enable the use of busy waiters running chord with the extra option:
-    --cfg=contexts/synchro:busy\_wait
+    \texttt{--cfg=contexts/synchro:busy\_wait}
 The experiment was run with testall.sh using that extra option in the
-chord command inside the script. The tables were constructed using get_times.py
-The data regarding the futexes synchro times is the same gathered in Amdahl
-Speedup experiment.
+chord command inside the script. The tables were constructed using \texttt{get\_times.py}.
+The data regarding the futexes times is the same gathered in Baseline Performance experiment.
 
 #+call: check_args[:session org-sh]()
 
@@ -1346,7 +1340,8 @@ Speedup experiment.
 The data set is the same as SR Distribution and SR times experiments.
 ** Adaptive Algorithm
 The benchmark is done using testall.sh. The algorithm is the one
-described in section 5.2
+described in section 5.2, and it can be enabled by defining the 
+constant \texttt{ADAPTIVE\_ALGORITHM} in \texttt{src/simix/smx\_private.h}
 
 #+call: check_args[:session org-sh]()
 
@@ -1667,11 +1662,12 @@ data[, "24"] <- data[,"p1"]  / data[, "p24"]
 keep <- c("nodes", colnames(data)[grep("^[1-9]", colnames(data))], "baseline")
 speedup_precise <- data[keep]
 df2 <- melt(speedup_precise ,  id = 'nodes', variable_name = 'threads')
-g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() + theme(axis.text.x = element_text(angle = -45, hjust = 0),
+g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() +
+    theme(axis.text.x = element_text(angle = -45, hjust = 0),
     panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
     panel.background = element_blank(), axis.line=element_line(),
     legend.position="right") + xlab("Amount of nodes simulated") + ylab("Speedup-Precise mode") + 
-    scale_fill_discrete(name="threads")
+    scale_fill_discrete(name="threads") + scale_x_continuous(breaks=df2$nodes)
 g2
 #+end_src
 
@@ -1758,12 +1754,11 @@ speedup_precise <- opt_data[keep]
 df2 <- melt(speedup_precise ,  id = 'nodes', variable_name = 'threads')
 
 g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line() +
-    scale_fill_hue() + theme(axis.text.x = element_text(angle = -45, hjust = 0),
+    theme(axis.text.x = element_text(angle = -45, hjust = 0),
     panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
     panel.background = element_blank(), axis.line=element_line(),
-    legend.position="right") + 
-    scale_y_continuous(breaks=c(1,2,3,4)) + ylab("Speedup") +
-    xlab("Amount of nodes simulated")
+    legend.position="right") + ylab("Speedup") +
+    xlab("Amount of nodes simulated") + scale_x_continuous(breaks=df2$nodes)
 g2
 #+end_src
 
@@ -1834,15 +1829,15 @@ g2
 
 #+name: binding
 #+begin_src R :results output graphics :exports results :file fig/binding.pdf
-orig_data = read.csv("./logs/binding/total_times_orig.csv", head=TRUE, sep=',')
+orig_data = read.csv("./logs/binding_cores/total_times_orig.csv", head=TRUE, sep=',')
 opt_data = read.csv("./logs/binding_cores/total_times_binding.csv", head=TRUE, sep=',')
 
 # Speedups of Precise Mode
 opt_data[, "baseline"]  <- orig_data[, "p2"]  / orig_data[, "p2"]
 opt_data[, "2"]  <- orig_data[, "p2"]  / opt_data[, "p2"]
-opt_data[, "4"]  <- orig_data[, "p4"]  / opt_data[, "p4"]
+#opt_data[, "4"]  <- orig_data[, "p4"]  / opt_data[, "p4"]
 opt_data[, "8"]  <- orig_data[, "p8"]  / opt_data[, "p8"]
-opt_data[, "16"] <- orig_data[, "p16"] / opt_data[, "p16"]
+#opt_data[, "16"] <- orig_data[, "p16"] / opt_data[, "p16"]
 opt_data[, "24"] <- orig_data[, "p24"] / opt_data[, "p24"]
 keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))], "baseline")
 speedup_precise <- opt_data[keep]
