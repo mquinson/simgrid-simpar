@@ -246,8 +246,8 @@ of SR's.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:three
-#+caption: Times of SR's sequential executions depending on the amount of processes of each SR.
-[[file:fig/sr-times.png]]
+#+caption: Average times of sequential executions of SR's depending on the amount of processes of each SR.
+[[file:fig/sr-times.pdf]]
 
 * Optimizations
 #+LaTeX: \label{sec:parallel}
@@ -381,19 +381,18 @@ amount of processes computed.  If the sequential ratio turns to be
 bigger than the parallel one, then the threshold is decreased, and
 increased otherwise.
 
-A naive implementation of this algorithm using the parallel threshold
-by default (2 or more processes), showed a small relative improvement
-in performance (Figure \ref{fig:six}). The times were certainly
-reduced with small sizes, since the algorithm chooses to execute the
-majority of the processes sequentially, while with bigger sizes (more
-than 100000 nodes), the speedup is insignificant, and in terms of
-absolute times, we can see that the execution times have been slightly
-reduced (up to ten minutes less in a one million nodes simulation in
-the best case, with 8 threads).
+A naive implementation of this algorithm, showed a small relative
+improvement in performance. The times were certainly reduced with
+small sizes, since the algorithm chooses to execute the majority of
+the processes sequentially, while with bigger sizes (more than 100000
+nodes), the speedup is insignificant. In terms of absolute times, we
+can see that the execution times have been slightly reduced (up to ten
+minutes less in a one million nodes simulation in the best case, with
+8 threads).
 
 This improvements may be small due to the fact that we are calculating
-the ratio with the latest values, and in consequence, using values that
-may not represent the general situation.
+the ratio with the times of the latest SR's, and in consequence, using
+values that may not represent the general situation.
 
 A new approach, using a cumulative ratio (calculated during all the
 simulation) instead of the one computed with the latest values, proved
@@ -406,7 +405,7 @@ small number of processes) which may introduce errors in the
 estimation of the threshold, and acts like a 'window' to filter the
 cases we are interested in.
 
-These limits are calculated along the simulation and use the average
+These limits are calculated along the simulation with the average
 amount of processes that have been run so far in parallel (or serial),
 plus the standard deviation. Since we never know beforehand the amount
 of SR's we will have, the average and the standard deviation are
@@ -429,6 +428,10 @@ version of the algorithm due to fact that we have a lot of SR's with
 small amount of processes that are computed sequentially and the fact
 that we increase the threshold each time a sequential execution
 performs better than a parallel).
+
+All the experiments were performed setting the initial threshold to
+250 processes, which was estimated as an optimal starting threshold for
+this algorithm in previous section.
 
 #+begin_latex
 \begin{algorithm}
@@ -494,7 +497,7 @@ performs better than a parallel).
 \State start($timer$)
 \State execute\_SR\_serial()
 \State stop($timer$)
-\State $seq\_time \gets seq\_time +$ elapsed($timer$)
+\State $seq\_time \gets seq\_time + $elapsed($timer$)
 \State $process\_seq \gets process\_seq + processes\_to\_run$
 \State Calculate current avg and sd of seq. processes
 \State $seq\_windows = avg\_seq\_proc - sd\_seq\_proc$
@@ -531,31 +534,48 @@ general, as it can be seen in Table /ref{tab:two}.
 | # | 1m    | 3:59:12 | 24.89 | 3:47:22 | 25.19 | 3:37:12 | 24.91 |
 |---+-------+---------+-------+---------+-------+---------+-------|
 
+
+* Mixing Optimizations
+
+The changes proposed are very independent between each other, a fact
+that naturally leads to think that maybe a greater speedup can be
+obtained by mixing them.  A final benchmark with the optimal threshold
+estimated along with the adaptive algorithm, physical binding of
+threads and busy waiters is then compared to the original times of the
+examples to get what we have achieved.
+
+In top of the Figure XX(TODO: CREATE FIGURE), we can see the speedups
+relatives to the sequential execution, and below, the speedups against
+the same parallel versions, but without optimizations enabled.
+
 * Conclusion
 #+LaTeX: \label{sec:cc}
-We have showed in this work several ways to optimize large scale
-distributed simulations, namely, binding threads to physical cores,
-choosing a better threshold for parallel execution or choosing between
-futexes or busy waiters. The optimizations were done over the
-open-source multi-purpose SimGrid simulation framework, in its
-development version (3.12). Some of the changes proposed worked in
-some scenarios better than others (for instance, the binding threads
-to cores optimization showed a real speedup in simulations using
-bigger amount of threads, such as 16 or 24, while using busy waiters
-proved to be better than futexes in simulations with small sizes and
-small amount of threads). Also, some of the modifications did not
-affect the overall performance, or even made it worst, like the parmap
-changes proposed in Section \ref{sec:parallel}.
+We have shown in this work several ways to optimize large scale
+distributed simulations in a specific framework, namely, binding
+threads to physical cores, choosing a better threshold for parallel
+execution or choosing between different synchronization modes between
+threads. The optimizations were done over the open-source
+multi-purpose SimGrid simulation framework, in its development version
+(3.12). Some of the changes proposed worked in some scenarios better
+than others (for instance, the binding threads to cores optimization
+showed a real speedup in simulations using bigger amount of threads,
+such as 16 or 24, while using busy waiters proved to be better than
+futexes in simulations with small sizes and small amount of
+threads). Also, some of the modifications did not affect the overall
+performance, or even made it worst, like the parmap changes proposed
+in Section \ref{sec:parallel}.
 
 Most of the changes proposed gained performance with small sizes
 simulations (under 300000 nodes), but remained the almost the same
-with larger ones, showing the difficulty of optimizing a complex multi
-threaded system.
+with larger ones, showing the difficulty of optimizing a complex
+multi-threaded system.
 
 We certainly arrived to a point where optimization depends heavily on
 reducing the synchronization costs and playing with low level features
 of the code. An intelligent choice of when to launch processes in
-parallel and when to do it in a serial way proved to gain performance. 
+parallel and when to do it in a serial way proved to help with small
+cases but it was unnecessary with bigger ones, where there is already
+speedup achieved using threads to simulate user processes.
 
 In a final note, the present work was done with the reproducible
 research approach in mind. Hence, the steps and scripts needed to run
@@ -1730,10 +1750,16 @@ title(xlab = "Amount of nodes simulated", line=4)
 #+end_src
 
 #+name: sr-times
-#+begin_src R  :results output graphics :exports results  :file fig/sr-times.png
+#+begin_src R  :results output graphics :exports results  :file fig/sr-times.pdf
 sr_data <- readRDS(file="./logs/sr_counts/sr-times.Rda")
 #df <- ddply(sr_data, .(V3), summarize, mean_value = mean(V2))
-ggplot(data=sr_data, geom="histogram", aes(x=V3, y=V2)) + xlim(0,5000) + xlab("Number of processes in SR") + ylab("Time consumed to compute SR (seconds)") + ylim(0,0.005) + geom_point(size = 1) # Replace V2 for 'mean_value' if dont want to plot every dot; and uncomment line above.
+
+# Replace V2 for 'mean_value' if dont want to plot every dot; and uncomment line above.
+ggplot(data=sr_data, geom="histogram", aes(x=V3, y=mean_value)) + xlim(0,4000) + ylim(0,0.02) +
+xlab("Number of processes computed in SR's") + ylab("Average time consumed (seconds)") + geom_point(size = 1) +
+theme(panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
+    panel.background = element_blank(), axis.line=element_line(),
+    legend.position="none") 
 #+end_src
 
 #+name: busy
@@ -1745,9 +1771,9 @@ opt_data = read.csv("./logs/busy_waiters/total_times_busy.csv", head=TRUE, sep='
 opt_data[, "baseline"]  <- orig_data[, "p2"]  / orig_data[, "p2"]
 opt_data[, "2"]  <- orig_data[, "p2"]  / opt_data[, "p2"]
 opt_data[, "4"]  <- orig_data[, "p4"]  / opt_data[, "p4"]
-#opt_data[, "8"]  <- orig_data[, "p8"]  / opt_data[, "p8"]
+opt_data[, "8"]  <- orig_data[, "p8"]  / opt_data[, "p8"]
 opt_data[, "16"] <- orig_data[, "p16"] / opt_data[, "p16"]
-#opt_data[, "24"] <- orig_data[, "p24"] / opt_data[, "p24"]
+opt_data[, "24"] <- orig_data[, "p24"] / opt_data[, "p24"]
 keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))], "baseline")
 speedup_precise <- opt_data[keep]
 
@@ -1835,9 +1861,9 @@ opt_data = read.csv("./logs/binding_cores/total_times_binding.csv", head=TRUE, s
 # Speedups of Precise Mode
 opt_data[, "baseline"]  <- orig_data[, "p2"]  / orig_data[, "p2"]
 opt_data[, "2"]  <- orig_data[, "p2"]  / opt_data[, "p2"]
-#opt_data[, "4"]  <- orig_data[, "p4"]  / opt_data[, "p4"]
+opt_data[, "4"]  <- orig_data[, "p4"]  / opt_data[, "p4"]
 opt_data[, "8"]  <- orig_data[, "p8"]  / opt_data[, "p8"]
-#opt_data[, "16"] <- orig_data[, "p16"] / opt_data[, "p16"]
+opt_data[, "16"] <- orig_data[, "p16"] / opt_data[, "p16"]
 opt_data[, "24"] <- orig_data[, "p24"] / opt_data[, "p24"]
 keep <- c("nodes", colnames(opt_data)[grep("^[1-9]", colnames(opt_data))], "baseline")
 speedup_precise <- opt_data[keep]
@@ -1852,6 +1878,17 @@ g2<-ggplot(df2, aes(x=nodes,y=value, group=threads, colour=threads)) + geom_line
     scale_y_continuous(breaks=c(1.0,1.5,2.0,2.5,3.0,4.0)) + ylab("Speedup-Precise mode") +
     xlab("Amount of nodes simulated")
 g2
+#+end_src
+
+#+name: evol-threshold
+#+begin_src R :results output graphics :exports results :file fig/evol-threshold.pdf
+data = read.table("./logs/threshold/logs/thresh2_10000_threads4_precise.log", head=TRUE, sep=',')
+
+ggplot(data, aes(x=row(data),y=X2)) + geom_line() +
+    theme(axis.text.x = element_text(angle = -45, hjust = 0),
+    panel.grid.major=element_line(colour='grey'),panel.grid.minor=element_blank(),
+    panel.background = element_blank(), axis.line=element_line(),
+    legend.position="right") + xlab("Id of Scheduling Round") + ylab("Value of parallel threshold")
 #+end_src
 
 * Emacs Setup                                                      :noexport:
