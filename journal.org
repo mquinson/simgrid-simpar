@@ -461,34 +461,42 @@ speedup, the more optimal threshold it is.
     report.
   - [X] Test new change in adaptive algorithm. It is working, apparently
 
-** 14 [%]
-  - [ ] Run experiment with all optimizations enabled
+** 14 [100%]
+   - [X] Update report with new algorithm and results.
 
-  - randomize experiments: instead of explicitly choose the breaks, do some random choice of sizes.
-  - Quedarse con el smx_context_rawBESTSOFAR, ahi hay algunas correcciones al viejo.
+** 15 [100%]
+   - [X] worked on definitive plots.
+   - [X] adaptive algorithm now does not drop performance (so much) with big sizes.
 
-  - Figure 1:
-    - Make the speedup chart and also the amdahl one. Or put those
-      two in the same graph
-    - Add memory used with 2m nodes when ready
+** 16[100%]
+   - [X] plot avg in sr-times
+   - [X] Run experiment with threshold, plot the evolution of threshold.
+** 17 [%]
+   - [ ] Try adaptive algorithm with big sizes with optimal threshold (in progress)
+   - [ ] It is necessary to run busy/binding with new revision.
+   - [ ] Run experiment with all optimizations enabled
+         Update data: use new benchmarks (rev 9417357) to compare in adaptive
+         (and later in busy, baseline).
 
-  - https://github.com/mquinson/simgrid-simpar/issues
-  - bench 3.11. Does this make sense? because of the performance
-    problem that 3.11 has...
+   - Figure 1:
+     - Make the speedup chart and also the amdahl one. Or put those
+       two in the same graph
+     - Add memory used with 2m nodes when ready
 
-    another graph w/it (Maybe do a graph where the simulated time (the
-    differing SRs) are given in abscisse and the adaptative threshold
-    computed at that point is given in ordinate. And maybe use several
-    curves on that graph, for several sizes of simulation.)
+   - bench 3.11. Does this make sense? because of the performance
+     problem that 3.11 has...
 
-  - run all the exps with other examples (kademlia at least)
+     another graph w/it (Maybe do a graph where the simulated time (the
+     differing SRs) are given in abscisse and the adaptative threshold
+     computed at that point is given in ordinate. And maybe use several
+     curves on that graph, for several sizes of simulation.)
+
+   - randomize experiments: instead of explicitly choose the breaks, do some random choice of sizes.
+   - run all the exps with other examples (kademlia at least)
 
 Other things:
   - amdahl teorethical speedup
-  - buen plot de optimal threshold (para encontrar el optimal threshold tambien).
-  - hacer ese plot con densidades????
   - final exps with chord/kademlia with all enabled.
-  - busy wait falta con 1m, 8 thr. 70k con 24
 
 * Useful info:
 ** List of recommended packages/software to run experiments
@@ -569,7 +577,7 @@ repository: git+ssh://rtortilo@scm.gforge.inria.fr//gitroot/simgrid/simgrid-perf
      
 ** Find threshold between sequential/parallel
   1) test over real runs. not simulations
-  2) geometric mean (of..)
+  2) geometric mean
 Once I get the basis threshold:
   3) adaptative algorithm to choose how many threads wake up in each round:
      This is what is already done (smx_ctx_*_runall):
@@ -599,14 +607,14 @@ SimGrid3.10   772d63cca583f5d16096fa9f487b4ab07d9af8f0
                                        the rest involves only creating N threads or N-1 threads:
                                            maestrosleep+(N)
                                            maestro sleep+(N-1)
-  3) parmap next. Not now.
-  4) busy waiters with different #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).[X]
+  3) busy waiters with different #proc. (1-5 --> sequential; 6-20 --> 4busy waiters; 20-inf --> 16 busy waiter).[X]
   Performance regression testing
   
-** Hot topics task 5
+** Hot topics
 1) we are near amdhal paralelism threshold, because there are no more
    things to paralellize.
 2) we want to run in parallel not only the threads but also the events
    in each thread?
 3) we want to find the independent events and run them in parallel.
+
 
