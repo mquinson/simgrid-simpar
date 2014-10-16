@@ -14,6 +14,7 @@
 # Change this for the example of examples/msg/ you want to try (tested with
 # Pastry, Chord, Kademlia).
 example="chord"
+par_threshold=2
 
 # Path to installation folder needed to recompile the example
 # If it is not set, assume that the path is '/usr/local'
@@ -44,7 +45,7 @@ file_table="timings_$SGHASH.csv"
 host_info="host_info.org"
 rm -rf $host_info
 
-# The las %U is just to ease the parsing for table
+# The las %e is just to ease the parsing for table
 timefmt="clock:%e user:%U sys:%S telapsed:%e swapped:%W exitval:%x max:%Mk avg:%Kk %e"
 
 # Copy command. This way one can use cp, scp and a local folder or a folder in 
@@ -152,7 +153,7 @@ for size in "${sizes[@]}"; do
 
 
         echo "$size nodes, constant model, $thread threads"
-        cmd="./$example One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0 --cfg=clean_atexit:no"
+        cmd="./$example One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0 --cfg=clean_atexit:no --cfg=contexts/parallel_threshold:$par_threshold"
 
         /usr/bin/time -f "$timefmt" -o $me.timings $cmd $cmd 1>/tmp/stdout-xp 2>/tmp/stderr-xp
 
@@ -188,7 +189,7 @@ for size in "${sizes[@]}"; do
         echo "$size nodes, precise model, $thread threads"
         filename="${example}_${size}_threads${thread}_precise.log"
 
-        cmd="./$example One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=maxmin/precision:0.00001 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0 --cfg=clean_atexit:no"
+        cmd="./$example One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=maxmin/precision:0.00001 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0 --cfg=clean_atexit:no --cfg=contexts/parallel_threshold:$par_threshold"
 
         /usr/bin/time -f "$timefmt" -o $me.timings $cmd $cmd 1>/tmp/stdout-xp 2>/tmp/stderr-xp
 

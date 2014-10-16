@@ -14,6 +14,11 @@
 # MODIFIABLE PARAMETERS: SGPATH, SGHASH, sizes, threads, log_folder, file_table
 # host_info, timefmt, cp_cmd, dest.
 
+# Change this for the example of examples/msg/ you want to try (tested with
+# Pastry, Chord, Kademlia).
+example="chord"
+par_threshold=2
+
 # Path to installation folder needed to recompile chord
 # If it is not set, assume that the path is '/usr/local'
 if [ -z "$1" ]
@@ -35,8 +40,8 @@ threads=(2) # 4 8 16 24)
 # Path where to store logs, and filenames of times table, host info
 log_folder="log/"
 if [ ! -d "$log_folder" ]; then
-    echo "Please create $log_folder directory before."
-    exit 1
+    echo "Creating $log_folder folder"
+    mkdir -p $log_folder
 fi
 
 file_table="timings_$SGHASH.csv"
@@ -44,13 +49,20 @@ host_info="host_info.org"
 rm -rf $host_info
 
 # The las %U is just to ease the parsing for table
-timefmt="clock:%e user:%U sys:%S telapsed:%e swapped:%W exitval:%x max:%Mk avg:%Kk %U"
+timefmt="clock:%e user:%U sys:%S telapsed:%e swapped:%W exitval:%x max:%Mk avg:%Kk %e"
 
 # Copy command. This way one can use cp, scp and a local folder or a folder in 
 # a cluster.
 sep=','
 cp_cmd='cp'
 dest=$log_folder # change for <user>@<node>.grid5000.fr:~/$log_folder if necessary
+###############################################################################
+
+###############################################################################
+if [ ! -e $example ]; then
+    echo "$example does not exist"
+    exit 1;
+fi
 ###############################################################################
 
 ###############################################################################
@@ -143,7 +155,7 @@ for size in "${sizes[@]}"; do
     line_table=$size
     # CONSTANT MODE
     for thread in "${threads[@]}"; do
-        filename="chord_${size}_threads${thread}_constant.log"
+        filename="${example}_${size}_threads${thread}_constant.log"
     	output="sr_${size}_threads${thread}_constant.log"
         rm -rf $filename
 
@@ -157,7 +169,7 @@ for size in "${sizes[@]}"; do
 
 
         echo "$size nodes, constant model, $thread threads"
-        cmd="./chord One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:critical --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0"
+        cmd="./$example One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0 --cfg=clean_atexit:no --cfg=contexts/parallel_threshold:$par_threshold"
 
         /usr/bin/time -f "$timefmt" -o $me.timings $cmd $cmd 1>/tmp/stdout-xp 2>/tmp/stderr-xp
 
@@ -198,10 +210,10 @@ for size in "${sizes[@]}"; do
     #PRECISE MODE    
     for thread in "${threads[@]}"; do
         echo "$size nodes, precise model, $thread threads"
-        filename="chord_${size}_threads${thread}_precise.log"
+        filename="${example}_${size}_threads${thread}_precise.log"
     	output="sr_${size}_threads${thread}_precise.log"
 
-        cmd="./chord One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=maxmin/precision:0.00001 --log=root.thres:critical --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0"
+        cmd="./$example One_cluster_nobb_"$size"_hosts.xml chord$size.xml --cfg=contexts/stack_size:16 --cfg=maxmin/precision:0.00001 --log=root.thres:info --cfg=contexts/nthreads:$thread --cfg=contexts/guard_size:0 --cfg=clean_atexit:no --cfg=contexts/parallel_threshold:$par_threshold"
 
         /usr/bin/time -f "$timefmt" -o $me.timings $cmd $cmd 1>/tmp/stdout-xp 2>/tmp/stderr-xp
 
