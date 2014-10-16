@@ -1,4 +1,12 @@
-* Host
+#+TITLE: Chord experiment on parapluie-38.rennes.grid5000.fr
+#+DATE: Thu Oct 16 10:37:31 CEST 2014
+#+AUTHOR: root
+ 
+* People logged when experiment started:
+root     pts/0        2014-10-16 09:31 (frennes.rennes.grid5000.fr)
+* Hostname
+parapluie-38.rennes.grid5000.fr
+* System information
 Linux parapluie-38.rennes.grid5000.fr 3.2.0-4-amd64 #1 SMP Debian 3.2.54-2 x86_64 GNU/Linux
 * CPU info
 processor	: 0
@@ -21,7 +29,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.68
+bogomips	: 3400.75
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -102,7 +110,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.12
+bogomips	: 3400.11
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -183,7 +191,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.11
+bogomips	: 3400.12
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -264,7 +272,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.11
+bogomips	: 3400.12
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -318,7 +326,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.13
+bogomips	: 3400.12
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -345,7 +353,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.11
+bogomips	: 3400.12
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -372,7 +380,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.11
+bogomips	: 3400.12
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -426,7 +434,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.11
+bogomips	: 3400.12
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -453,7 +461,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.12
+bogomips	: 3400.13
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -480,7 +488,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.12
+bogomips	: 3400.13
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -561,7 +569,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.12
+bogomips	: 3400.11
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -615,7 +623,7 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.12
+bogomips	: 3400.11
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
@@ -642,44 +650,48 @@ fpu_exception	: yes
 cpuid level	: 5
 wp		: yes
 flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm 3dnowext 3dnow constant_tsc rep_good nopl nonstop_tsc extd_apicid amd_dcm pni monitor cx16 popcnt lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt nodeid_msr hw_pstate npt lbrv svm_lock nrip_save pausefilter
-bogomips	: 3400.12
+bogomips	: 3400.10
 TLB size	: 1024 4K pages
 clflush size	: 64
 cache_alignment	: 64
 address sizes	: 48 bits physical, 48 bits virtual
 power management: ts ttp tm stc 100mhzsteps hwpstate
 
-* Mem info
+* CPU governor
+performance
+* CPU frequency
+1700000
+* Meminfo
 MemTotal:       49566328 kB
-MemFree:        47225020 kB
-Buffers:           36520 kB
-Cached:          1891880 kB
+MemFree:        48053348 kB
+Buffers:           19652 kB
+Cached:          1128432 kB
 SwapCached:            0 kB
-Active:           517812 kB
-Inactive:        1418240 kB
-Active(anon):       7684 kB
-Inactive(anon):      104 kB
-Active(file):     510128 kB
-Inactive(file):  1418136 kB
+Active:          1040728 kB
+Inactive:         116184 kB
+Active(anon):       8864 kB
+Inactive(anon):      108 kB
+Active(file):    1031864 kB
+Inactive(file):   116076 kB
 Unevictable:           0 kB
 Mlocked:               0 kB
 SwapTotal:       3905532 kB
 SwapFree:        3905532 kB
-Dirty:                 0 kB
+Dirty:               104 kB
 Writeback:             0 kB
-AnonPages:          7680 kB
-Mapped:             5724 kB
-Shmem:               128 kB
-Slab:             132072 kB
-SReclaimable:     100968 kB
-SUnreclaim:        31104 kB
-KernelStack:        1744 kB
-PageTables:         1180 kB
+AnonPages:          9332 kB
+Mapped:             5492 kB
+Shmem:               132 kB
+Slab:              79772 kB
+SReclaimable:      49336 kB
+SUnreclaim:        30436 kB
+KernelStack:        1768 kB
+PageTables:         1168 kB
 NFS_Unstable:          0 kB
 Bounce:                0 kB
 WritebackTmp:          0 kB
 CommitLimit:    28688696 kB
-Committed_AS:      38520 kB
+Committed_AS:      39128 kB
 VmallocTotal:   34359738367 kB
 VmallocUsed:      383652 kB
 VmallocChunk:   34359354651 kB
@@ -690,13 +702,14 @@ HugePages_Free:        0
 HugePages_Rsvd:        0
 HugePages_Surp:        0
 Hugepagesize:       2048 kB
-DirectMap4k:       96896 kB
-DirectMap2M:     6193152 kB
+DirectMap4k:       92800 kB
+DirectMap2M:     6197248 kB
 DirectMap1G:    44040192 kB
+* Memory hierarchy
 * Environment Variables
 SHELL=/bin/bash
 TERM=xterm
-SSH_CLIENT=172.16.111.106 55329 22
+SSH_CLIENT=172.16.111.106 47238 22
 SSH_TTY=/dev/pts/0
 LC_ALL=en_US.UTF-8
 USER=root
@@ -709,10 +722,12 @@ HOME=/root
 SHLVL=2
 LANGUAGE=en_US:en
 LOGNAME=root
-SSH_CONNECTION=172.16.111.106 55329 172.16.99.38 22
+SSH_CONNECTION=172.16.111.106 47238 172.16.99.38 22
 _=/usr/bin/printenv
 * Tools
-** Compiler
+** Linux and gcc versions
+Linux version 3.2.0-4-amd64 (debian-kernel@lists.debian.org) (gcc version 4.6.3 (Debian 4.6.3-14) ) #1 SMP Debian 3.2.54-2
+** Gcc info
 Using built-in specs.
 COLLECT_GCC=gcc
 COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/4.7/lto-wrapper
@@ -730,5 +745,7 @@ PARTICULAR PURPOSE.
 This program built for x86_64-pc-linux-gnu
 ** CMake
 cmake version 2.8.9
+* SimGrid Version
+SimGrid version 3.12-devel\nCopyright (c) 2004-2014. The Simgrid Team.\nRelease build at commit dd38b27 (2014-08-11 15:18:50 +0200)
 * SimGrid commit hash
 dd38b27
