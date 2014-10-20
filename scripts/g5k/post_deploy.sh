@@ -15,9 +15,8 @@ cmake -Denable_compile_optimizations=ON -Denable_supernovae=OFF -Denable_compile
 make install
 cd examples/msg/chord/
 # Test scripts
-scp rtortilopez@rennes.grid5000.fr:~/testall.sh .
+scp rtortilopez@rennes.grid5000.fr:~/testall* .
 scp rtortilopez@rennes.grid5000.fr:~/generate.py .
-scp rtortilopez@rennes.grid5000.fr:~/testall_sr.sh .
 # Copy some platform and deployment files
 scp rtortilopez@rennes.grid5000.fr:~/platforms/*.xml .
 scp rtortilopez@rennes.grid5000.fr:~/deployments/*.xml .

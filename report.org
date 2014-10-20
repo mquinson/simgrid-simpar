@@ -21,9 +21,16 @@
 #+LATEX_HEADER: \usepackage{url}\urlstyle{sf}
 #+LATEX_HEADER: \usepackage{amscd}
 #+LATEX_HEADER: \usepackage{wrapfig}
+
 #+LATEX_HEADER: \usepackage{algorithm}
 #+LATEX_HEADER: \usepackage[noend]{algpseudocode}
 #+LATEX_HEADER: \renewcommand{\algorithmiccomment}[1]{// #1}
+#+LATEX_HEADER: \makeatletter
+#+LATEX_HEADER: \addto\captionsenglish{\renewcommand{\ALG@name}{Heuristic}}
+#+LATEX_HEADER: \makeatother
+#+LATEX_HEADER: \usepackage{caption}
+#+LATEX_HEADER: \DeclareCaptionLabelFormat{alglabel}{\bfseries\csname ALG@name\endcsname:}
+#+LATEX_HEADER: \captionsetup[algorithm]{labelformat=alglabel}
 
 * Motivation and Problem Statement
 
@@ -78,19 +85,21 @@ and propose generic solutions that could be included in other similar simulators
 of large-scale distributed systems, be them P2P simulators of cloud, HPC or
 sensornets ones.
 
-This paper is organized as follows: Section \ref{sec:context} recaps the SimGrid
-architecture and quickly presents the parallel execution schema detailed in
-\cite{previous}. Section \ref{sec:problem} analysis the theoretical performance
-bound, and discusses the previous work at the light of the Amhdal law. Section
-\ref{sec:parallel} explores several trade-offs for the efficiency of the
-parallel sections. Section \ref{sec:adaptive} proposes an algorithm to
-automatically tune the level of parallelism that is adapted to the simulated
-application. Section \ref{sec:cc} concludes this paper and discusses some future
-work.
+This paper is organized as follows: Section \ref{sec:context} recaps
+the SimGrid architecture and quickly presents the parallel execution
+schema detailed in \cite{previous}. Section \ref{sec:problem} analysis
+the current performance of our model. Section \ref{sec:parallel}
+explores several trade-offs for the efficiency of the parallel
+sections. Section \ref{sec:adaptive} proposes an algorithm to
+automatically tune the level of parallelism that is adapted to the
+simulated application. Section \ref{sec:cc} concludes this paper and
+discusses some future work.
+
+# the theoretical performance bound, and discusses the previous work at the light of the Amhdal law
 
 * Context
 #+LaTeX: \label{sec:context}
-In the previous work ~\cite{previous} we proposed to parallelize the
+In the previous work (\cite{previous}) we proposed to parallelize the
 execution of the user code while keeping the simulation engine
 sequential.  This is enabled by applying classical concepts of OS
 design to this new context: every interaction between the user
@@ -101,36 +110,40 @@ that act as an OS kernel.
 A novel way to virtualize user processes (\emph{raw contexts}) was
 crafted to improve efficiency and avoid unnecesary system calls, but
 other ways to do this can be found for the sake of portability, such
-as full featured threads, or POSIX ucontexts. A new data structure to
+as full featured threads, or POSIX \emph{ucontexts}. A new data structure to
 store the shared state of the system and synchronize the process
 execution was implemented as well (\emph{parmap}).
 
-A new specific layer that acts as the OS kernel was implemented in
-SimGrid to emulate systems calls, called \emph{requests}, and each
-time a user process want to interact with other process, or the kernel
-itself, it raises a \emph{request}.  After that, the engine takes
-control of the program and answer the \emph{requests} of each
+The new layer acting as the OS kernel was implemented in SimGrid to
+emulate systems calls, called \emph{requests}. Each time a process
+want to interact with other process, or the engine itself, it raises a
+\emph{request}.  After what is called a 'Scheduling Round' (SR), all
+the current processes have raised their request and wait for a
+response, or have finished their work; then the engine takes control
+of the program and answer sequentially the \emph{requests} of each
 process. This way the user processes can be parallelized in a safe
-manner.
+manner. More details on the execution model can be found in
+\cite{previous} or the Documentation section of the official website
+of SimGrid \cite{simgrid}.
 
 Experimental results showed that the new design does not hinder the
 tool scalability, and even the sequential version is more scalable
 than state of the art simulators.  The difficulty to get a parallel
 version of a P2P simulator faster than its sequential counterpart was
-also revealed in ~\cite{previous}, being the first time that a
+also revealed in \cite{previous}, being the first time that a
 parallel simulation of Chord runs faster than the best known
 sequential implementation.
 
-An interesting result showed in the previous work is that the speedups
-only increased up to a certain point when increasing the amount of
-working threads.  We also have proved that for small instances,
-parallelism actually hinders the performance, and that the relative
-gain of parallelism seems even strictly increasing with the system
-size.
+Another interesting result showed in the previous work is that the
+speedups only increased up to a certain point when increasing the
+amount of working threads.  We also have proved that for small
+instances, parallelism actually hinders the performance, and that the
+relative gain of parallelism seems even strictly increasing with the
+system size.
 
 Now we are closer to the optimal Amdahl's law threshold, that means
 that we have reach a limit on the parallelizable portions of the code
-in our proposed model.  The remaining optimizations seek for a final
+in our proposed model.  The remaining optimizations look for a final
 speedup, trying to get a better parallel threshold dynamically
 depending on the simulation, and better performance of the threads
 taking in count their distribution on the CPU cores and the different
@@ -139,17 +152,16 @@ synchronization modes (futex, POSIX primitives or busy waiters).
 All the experiments were run using the facilities provided by
 Grid'5000 \cite{g5k}.
 
-
 * Performance Analysis
 #+LaTeX: \label{sec:problem}
 ** Current speedup achieved
 # Also, the benchmarking not intrusive is here.
-To get a baseline timings and a speedup plot starting from the current
-version of SimGrid (3.11), benchmarks to measure the execution time of
-a typical Chord simulation in Precise mode with different amount of
-threads (1, 2, 4, 8, 16 and 24) were done.
+To get a baseline timings and a speedup plot starting from the
+development version of SimGrid (3.12), benchmarks to measure the
+execution time of a typical Chord simulation in Precise mode with
+different amount of threads (1, 2, 4, 8, 16 and 24) were done.
 
-The total times of a normal execution for the Chord simulation in the
+The absolute times of a normal execution for the Chord simulation in the
 precise mode are presented in the table \ref{tab:one}.
 
 #+caption: Execution times of a normal execution of Chord with different sizes, serial and with 2 and 8 threads. The average memory consumption is reported in GB.
@@ -183,7 +195,7 @@ execution with 8 threads).
 The actual speedup obtained can be seen in the Figure \ref{fig:one}.
 It is clear from that graph that the real speedup with our parallel
 model is obtained when the size of the problem is bigger than 300000
-nodes.  This confirms what was proved in ~\cite{previous}.
+nodes.  This confirms what was proved in \cite{previous}.
 
 Figure \ref{fig:one} also shows that increasing the number of threads
 may not be the best option to increase performance, since the best
@@ -218,7 +230,7 @@ amount of threads.
 # intrusive.
 
 ** Parallelizable portions of the problem
-This experiment is based on a typical Chord simulation, and the data
+For this section we want to analyze the Scheduling Rounds. The data
 wanted is the following: ID of each Scheduling Round, time taken by
 each Scheduling Round and number of process executed in each
 scheduling round.
@@ -226,9 +238,10 @@ scheduling round.
 As it can be seen in the Figure \ref{fig:two}, the amount of SR's
 having just one process varies between 26% and 48% (the larger the
 simulated size, the lower the amount of SR's that have only one
-process) while the others involve two or more processes. These remaining
-processes are executed in parallel due to the parallel execution
-threshold already setted up in SimGrid (which can be modified).
+process) while the others involve two or more processes. These
+remaining processes are executed in parallel due to the parallel
+execution threshold already setted up in SimGrid (which can be
+modified trough a parameter).
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:two
@@ -236,13 +249,14 @@ threshold already setted up in SimGrid (which can be modified).
 [[file:fig/sr-distribution.pdf]]
 
 However, launching a small amount of processes is inefficient due to
-the costs of synchronization of threads.  Even when Figure
+the synchronization costs of threads.  Even when Figure
 \ref{fig:three} shows that the bigger the amount of processes in a SR,
 the bigger the execution time, there is no speedup obtained from
 executing small amounts of processes in parallel, as we will see in
-Section \ref{sec:adaptive}. Also, in that section we will try to find
-what is the optimal threshold between serial and parallel executions
-of SR's.
+Section \ref{sec:adaptive}. Hence, it would be convenient to know,
+during a simulation, when to launch SR in parallel and when to do it
+sequentially. An algorithm to accomplish that is proposed later in
+this document.
 
 #+attr_latex: width=0.8\textwidth,placement=[p]
 #+label: fig:three
@@ -252,6 +266,7 @@ of SR's.
 * Optimizations
 #+LaTeX: \label{sec:parallel}
 ** Binding threads to physical cores
+
 Regarding the multicore architectures (like almost every modern CPU),
 parallelization through threads is well proved to be a good
 optimization, as we said in Section \ref{sec:problem}. But there are
@@ -264,15 +279,15 @@ the cpu cores, and probably, run a program in a faster way. Or it may
 just want to switch threads because their execution time quote is
 over. When the first thread is ready to work again, the cpu core where
 it was before might be occupied, forcing the system to run the thread
-in another core. Of course this depend on which scheduler
-implementation we are using.
+in another core.
 
-Regardless of the situation, migration of threads between cores
-entails an increase of CPU migrations, which in a big size simulation
-can be detrimental for the performance.
+Regardless of the situation, or the scheduler we are using, the
+general problem remains: migration of threads between cores entails an
+increase of CPU migrations, which in a big size simulation can be
+detrimental for the performance.
 
 In order to avoid these CPU migrations produced by a constant context
-switching of threads, Glib offers a way to bind each thread to a
+switching of threads, GLibc \cite{glibc} offers a way to bind each thread to a
 physical core of the CPU. Note that this is only available in Linux
 platforms.
 
@@ -283,8 +298,7 @@ relative speedup was not significant: always lower than x1.5,
 regardless the amount of threads/sizes.  However, the bigger speedups
 were obtained with sizes less than 100000 nodes, which allow us to
 conclude that CPU migrations should be avoided when the simulation is
-small enough, since they introduce an unwanted overhead to the
-simulation.
+small enough, since they introduce an unwanted overhead.
 
 ** Parmap between N cores
 
@@ -296,7 +310,7 @@ sleep and let the worker threads do all the computing; the last one
 involves the creation of one extra thread and make all this N threads
 work while maestro sleeps.
 
-The experiments were made using Chord Protocol with Precise mode, but
+The experiments were done using Chord Protocol with Precise mode, but
 no performance gain was achieved. In fact, the creation of one extra
 thread proved to be slower than the original version of parmap, while
 sending maestro to sleep and make its N-1 threads do the computation
@@ -310,11 +324,10 @@ primitives and busy waiters.  While each of them can be chosen when
 running the simulation, futexes are the default option, since they
 have the advantage to implement a fast synchronization mode within the
 parmap abstraction, in user space only.  But even when they are more
-efficient than classical mutexes, which run in kernel space, they may
+efficient than classical mutexes (which run in kernel space), they may
 present performance drawbacks that inherently come with
 synchronization costs. In this section we compare busy waiters
-and futexes performances, using the chord simulation in
-Precise mode.
+and futexes performances, using the Chord example.
 
 As it can be seen in Figure \ref{fig:four}, the gain in speed is
 immediate with small sizes: the elimination of any synchronization
@@ -326,8 +339,6 @@ bigger sizes.
 #+label: fig:four
 #+caption: Relative speedup of busy waiters vs. futexes in Chord simulation.
 [[file:fig/busy.pdf]]
-
-** Performance Regression Testing
 
 * Optimal threshold for parallel execution
 #+LaTeX: \label{sec:adaptive}
@@ -345,7 +356,7 @@ processes per SR, the speedup is always bigger than one. It is
 interesting to note that even for simulations with different sizes the
 similar limit is reached. Analyzing the data thoroughly tell us that
 the 83\% of SR's with processes between 250 and 300 show a speedup. In
-consequence, this will be our base threshold for parallel
+consequence, 250 processes will be our base threshold for parallel
 execution, and the adaptive algorithm proposed in next section will be
 in charge of increasing or decreasing that threshold according to the
 needs and characteristics of the simulation.
@@ -361,16 +372,16 @@ speedup equal or less than 1.
 #+caption: Speedup of parallel vs. sequential executions of SR's, depending in the number of processes taken by each SR
 [[file:fig/sr-par-threshold_10000.png]]
 
-** Adaptive algorithm to calculate threshold
+** Dynamic calculation of the optimal threshold
 Finding an optimal threshold and keep it during all the simulation
 might not always be the best option: some simulations can take more or
 less time in the execution of user processes. If a simulation has very
 efficient processes, or processes that don't work too much, then the
 threshold could be inappropriate, leading to parallelize scheduling
 rounds that would run more efficiently in a sequential way.  That's
-why an algorithm for a dynamic threshold calculation is proposed.
+why an heuristic for a dynamic threshold calculation is proposed.
 
-The main idea behind Algorithm (\ref{adaptive-algorithm}) is to
+The main idea behind this  heuristic (\ref{adaptive-algorithm}) is to
 calculate the optimal number of processes that can be run in parallel
 during the execution of the simulation.
 
@@ -381,7 +392,7 @@ amount of processes computed.  If the sequential ratio turns to be
 bigger than the parallel one, then the threshold is decreased, and
 increased otherwise.
 
-A naive implementation of this algorithm, showed a small relative
+A naive implementation of this heuristic, showed a small relative
 improvement in performance. The times were certainly reduced with
 small sizes, since the algorithm chooses to execute the majority of
 the processes sequentially, while with bigger sizes (more than 100000
@@ -396,14 +407,14 @@ values that may not represent the general situation.
 
 A new approach, using a cumulative ratio (calculated during all the
 simulation) instead of the one computed with the latest values, proved
-to gain performance. This approach also changes the way we do the
-timings: instead of benchmarking the SR's each time, we benchmark the
-SR's that have certain amount of processes, limited by an upper limit
-for parallel execution and a lower limit for the sequential ones. This
-is a way to prevent the timing of extreme cases (very big or very
-small number of processes) which may introduce errors in the
-estimation of the threshold, and acts like a 'window' to filter the
-cases we are interested in.
+better in terms of performance. This approach also changes the way we
+do the timings: instead of benchmarking the SR's each time, we
+benchmark the SR's that have certain amount of processes, limited by
+an upper limit for parallel execution and a lower limit for the
+sequential ones. This is a way to prevent the timing of extreme cases
+(very big or very small number of processes) which may introduce
+errors in the estimation of the threshold, and acts like a 'window' to
+filter the cases we are interested in.
 
 These limits are calculated along the simulation with the average
 amount of processes that have been run so far in parallel (or serial),
@@ -424,14 +435,19 @@ This new implementation proved to be faster than the original parallel
 version with sizes under 300000 nodes, while with bigger amount of
 nodes the speedup remains almost the same. It also avoids the increase
 of the threshold to unrealistic values (which may happen in the naive
-version of the algorithm due to fact that we have a lot of SR's with
-small amount of processes that are computed sequentially and the fact
-that we increase the threshold each time a sequential execution
-performs better than a parallel).
+version, due to fact that we have a lot of SR's with small amount of
+processes that are computed sequentially and the fact that we increase
+the threshold each time a sequential execution performs better than a
+parallel).
 
 All the experiments were performed setting the initial threshold to
-250 processes, which was estimated as an optimal starting threshold for
-this algorithm in previous section.
+250 processes, which was estimated as an optimal starting threshold in
+previous section. The heuristic lead to different final thresholds
+depending on the initial one, of course, since the SR's launched in
+parallel will not be the same from the beginning. However, experiments
+showed that it behaves quite stable, and there is a tendency to
+increase/decrease the threshold in the same simulation regardless the
+one at the beginning.
 
 #+begin_latex
 \begin{algorithm}
@@ -483,7 +499,7 @@ this algorithm in previous section.
 \State stop($timer$)
 \State $par\_time \gets par\_time + $elapsed($timer$)
 \State $process\_par \gets process\_par + processes\_to\_run$
-\State Calculate current avg and sd of par. processes
+\State calculate\_current\_avg\_and\_sd\_of\_par\_processes()
 \State $par\_windows = avg\_par\_proc + sd\_par\_proc$
 \Else
 \State execute\_SR\_parallel()
@@ -499,7 +515,7 @@ this algorithm in previous section.
 \State stop($timer$)
 \State $seq\_time \gets seq\_time + $elapsed($timer$)
 \State $process\_seq \gets process\_seq + processes\_to\_run$
-\State Calculate current avg and sd of seq. processes
+\State calculate\_current\_avg\_and\_sd\_of\_seq\_processes()
 \State $seq\_windows = avg\_seq\_proc - sd\_seq\_proc$
 \Else
 \State execute\_SR\_serial()
@@ -518,7 +534,7 @@ this algorithm in previous section.
 [[file:fig/adapt-algorithm.pdf]]
 
 Regarding the memory consumption, the values remain the same in
-general, as it can be seen in Table /ref{tab:two}.
+general, as it can be seen in Table /cite{tab:two}.
 
 #+caption: Execution times (seconds) of the Adaptive algorithm, with 2,4 and 8 threads. The average memory consumption is reported in GB.
 #+name: tab:two
@@ -537,14 +553,14 @@ general, as it can be seen in Table /ref{tab:two}.
 
 * Mixing Optimizations
 
-The changes proposed are very independent between each other, a fact
+The changes proposed can be seen as independent of each other, a fact
 that naturally leads to think that maybe a greater speedup can be
 obtained by mixing them.  A final benchmark with the optimal threshold
-estimated along with the adaptive algorithm, physical binding of
+estimated, along with the adaptive algorithm, physical binding of
 threads and busy waiters is then compared to the original times of the
 examples to get what we have achieved.
 
-In top of the Figure XX(TODO: CREATE FIGURE), we can see the speedups
+On top of Figure XX(TODO: CREATE FIGURE), we can see the speedups
 relatives to the sequential execution, and below, the speedups against
 the same parallel versions, but without optimizations enabled.
 
@@ -1693,7 +1709,7 @@ g2
 
 #+name: sr-distribution
 #+begin_src R :results output graphics :exports results :file fig/sr-distribution.pdf
-temp = list.files(path='./logs/sr_counts/new/parallel2', pattern="threads4", full.names = TRUE)
+temp = list.files(path='./logs/sr_counts/logs', pattern="threads4", full.names = TRUE)
 temp <- temp[grep("precise",temp)]
 # This data.frame will store the final proportion values.
 #proportions <- data.frame(stringsAsFactors=FALSE)
