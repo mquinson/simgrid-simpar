@@ -1,7 +1,0 @@
-Remember to copy src/surf/surf_c* into respective folder
-Remember to delete line in msg_process.c
-
-Run the experiment
-
-Just put --cfg=contexts/synchro:busy_wait in testall.sh
-

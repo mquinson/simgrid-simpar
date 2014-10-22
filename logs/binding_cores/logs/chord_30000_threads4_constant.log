@@ -1,0 +1,10 @@
+size:30000, constant network, 4 threads
+cmd:./chord One_cluster_nobb_30000_hosts.xml chord30000.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:critical --cfg=contexts/nthreads:4 --cfg=contexts/guard_size:0
+###stderr
+[0.000000] /root/SimGrid/src/xbt/parmap.c:139: [xbt_parmap/CRITICAL] BINDING THREAD TO CORE 0
+[0.000000] /root/SimGrid/src/xbt/parmap.c:139: [xbt_parmap/CRITICAL] BINDING THREAD TO CORE 1
+[0.000000] /root/SimGrid/src/xbt/parmap.c:139: [xbt_parmap/CRITICAL] BINDING THREAD TO CORE 2
+[1255.096300] /root/SimGrid/src/simix/smx_global.c:452: [simix_kernel/CRITICAL] Process list size: 0
+[1255.096300] chord.c:1067: [msg_chord/CRITICAL] Messages created: 9693319
+### results
+clock:286.49 user:376.13 sys:31.07 telapsed:4:46.49 swapped:0 exitval:0 max:765020k avg:0k 376.13

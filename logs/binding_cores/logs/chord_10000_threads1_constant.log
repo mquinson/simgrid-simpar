@@ -1,0 +1,7 @@
+size:10000, constant network, 1 threads
+cmd:./chord One_cluster_nobb_10000_hosts.xml chord10000.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:critical --cfg=contexts/nthreads:1 --cfg=contexts/guard_size:0
+###stderr
+[1251.393400] /root/SimGrid/src/simix/smx_global.c:452: [simix_kernel/CRITICAL] Process list size: 0
+[1251.393400] chord.c:1067: [msg_chord/CRITICAL] Messages created: 3203742
+### results
+clock:58.52 user:58.37 sys:0.14 telapsed:0:58.52 swapped:0 exitval:0 max:253300k avg:0k 58.37

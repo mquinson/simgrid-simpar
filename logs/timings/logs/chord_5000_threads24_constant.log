@@ -1,0 +1,6 @@
+size:5000, constant network, 24 threads
+cmd:./chord One_cluster_nobb_5000_hosts.xml chord5000.xml --cfg=contexts/stack_size:16 --cfg=network/model:Constant --cfg=network/latency_factor:0.1 --log=root.thres:critical --cfg=contexts/nthreads:24 --cfg=contexts/guard_size:0
+###stderr
+[1249.897200] chord.c:1067: [msg_chord/CRITICAL] Messages created: 1570389
+### results
+clock:76.58 user:72.78 sys:1025.02 telapsed:1:16.58 swapped:0 exitval:0 max:131436k avg:0k 72.78

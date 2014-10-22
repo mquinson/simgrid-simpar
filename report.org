@@ -1,7 +1,6 @@
-
 #+TITLE: Parallel and Distributed Simulation of Large-Scale Distributed Applications
 #+AUTHOR:  Ezequiel Torti Lopez, Martin Quinson
-#+OPTIONS: H:5 title:nil date:nil author:nil email:nil creator:nil timestamp:nil skip:nil toc:nil
+#+EMAIL:   ret0110@famaf.unc.edu.ar, martin.quinson@loria.fr
 #+STARTUP: indent hideblocks
 #+TAGS: noexport(n)
 #+EXPORT_SELECT_TAGS: export
@@ -626,6 +625,7 @@ This sizes/threads lists are needed to run the simulations, generate
 platform/deployment files, and generate tables after the
 experiments. Hence, is mandatory to run this snippets.
 
+Bash:
 #+begin_src sh :session org-sh
 BASE_DIR=$PWD
 sizes=(1000 5000 10000 15000 20000 25000 30000 35000 40000 45000 50000 55000 60000 65000 70000 75000 80000 85000 90000 95000 100000 300000 500000 1000000)
@@ -633,6 +633,7 @@ sizes=(1000 5000 10000 15000 20000 25000 30000 35000 40000 45000 50000 55000 600
 threads=(1 2 4 8 16 24)
 #+end_src
 
+Python:
 #+name: set_python_args
 #+begin_src python :session
   SIZES = [1000]
@@ -657,6 +658,7 @@ If the [[setup\_and\_install]] snippet was run before, or everything is
 already installed and set up, then check/modify the parameters of the
 shell session with the snippets [[check\_args]] and [[go\_to\_chord]]
 
+\texttt{setup\_and\_install}:
 #+name: setup_and_install
 #+begin_src sh :session org-sh
 
@@ -675,6 +677,7 @@ make install
 cd ../../
 #+end_src
 
+\texttt{generate\_platform\_files}:
 #+name: generate_platform_files
 #+begin_src python :session :results output
 
@@ -728,6 +731,7 @@ for size in SIZES:
 
 Optional snippets to check arguments and go to chord folder:
 
+\texttt{check\_args}:
 #+name: check_args
 #+begin_src sh :session org-sh
 echo $sizes
@@ -741,6 +745,7 @@ echo $threads
 echo $BASE_DIR
 #+end_src
 
+\texttt{go\_to\_chord}:
 #+name: go_to_chord
 #+begin_src sh :session org-sh
 cd $BASE_DIR/SimGrid/examples/msg/chord
@@ -754,6 +759,7 @@ make
 This are general scripts that can be used to run all the benchmarks
 after the proper modifications were done.
 
+\texttt{testall}:
 #+name: testall
 #+begin_src sh  :var SG_PATH='/usr/local' :var log_folder="logs" :session org-sh
 
@@ -1003,6 +1009,7 @@ rm -rf $file_table
 rm -rf tmp
 #+end_src
 
+\texttt{testall\_sr}:
 #+name: testall_sr
 #+begin_src sh  :var SG_PATH='/usr/local' :var log_folder="logs" :session org-sh
 # This script is to benchmark the Chord simulation that can be found
@@ -1365,7 +1372,6 @@ The data regarding the futexes times is the same gathered in Baseline Performanc
 
 #+call: testall[:session org-sh](log_folder='busy_waiters/logs')
 
-** Performance Regression Testing
 ** SR parallel threshold
 The data set is the same as SR Distribution and SR times experiments.
 ** Adaptive threshold
