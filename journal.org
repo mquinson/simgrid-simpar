@@ -483,15 +483,8 @@ speedup, the more optimal threshold it is.
 ** 22 [100%]
    - [X] finish and check report
 
-** 23[%]
-   - poner que se optimizaron para tamanios chicos pero que es dificil
-     obtener un speedup sobre las cosas que ya andan rapido, es decir,
-     lo multithreading a partir de 300k nodos. Poner que el speedup
-     obtenido con respecto a las mismas versiones pero sin optimizar
-     baja gradualmente a 1, demostrando la dificultad de optimizar
-     simulaciones de larga escala con estos metodos.
-
-* Mixing Optimizations
+* Mixing Optimizations 
+(not included in report)
 
 The changes proposed are independent of each other, a fact
 that naturally leads to think that maybe a greater speedup can be
@@ -499,14 +492,6 @@ obtained by mixing them.  A final benchmark with the optimal threshold
 estimated, along with the adaptive threshold heuristic, physical
 binding of threads and busy waiters is then compared to the original
 times of the examples to get what we have achieved.
-
-On of Figure \ref{fig:seven}, we can see the speedups achieved
-(enabling all optimizations), against the sequential execution.
-
-#+attr_latex: width=0.8\textwidth,placement=[p]
-#+label: fig:seven
-#+caption: Final speedups achieved binding threads to cores, using adaptive threshold heuristic with optimal initial threshold.
-[[file:fig/all-enabled.pdf]]
 
 * Useful info:
 ** List of recommended packages/software to run experiments
