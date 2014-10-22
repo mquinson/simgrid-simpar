@@ -471,32 +471,42 @@ speedup, the more optimal threshold it is.
 ** 16[100%]
    - [X] plot avg in sr-times
    - [X] Run experiment with threshold, plot the evolution of threshold.
-** 17 [%]
-   - [ ] Try adaptive algorithm with big sizes with optimal threshold (in progress)
-   - [ ] It is necessary to run busy/binding with new revision.
-   - [ ] Run experiment with all optimizations enabled
-         Update data: use new benchmarks (rev 9417357) to compare in adaptive
-         (and later in busy, baseline).
+** 17 [100%]
+   - [X] keep testing evolution of threshold
+** 20 [100%]
+   - [X] Run experiment with all optimizations enabled (chord/kademlia. In progress)
+   - [X] Fix heuristic in report.
 
-   - Figure 1:
-     - Make the speedup chart and also the amdahl one. Or put those
-       two in the same graph
-     - Add memory used with 2m nodes when ready
+** 21 [100%]
+   - [X] finish all-enabled exp with chord/kademlia. Plot.
 
-   - bench 3.11. Does this make sense? because of the performance
-     problem that 3.11 has...
+** 22 [100%]
+   - [X] finish and check report
 
-     another graph w/it (Maybe do a graph where the simulated time (the
-     differing SRs) are given in abscisse and the adaptative threshold
-     computed at that point is given in ordinate. And maybe use several
-     curves on that graph, for several sizes of simulation.)
+** 23[%]
+   - poner que se optimizaron para tamanios chicos pero que es dificil
+     obtener un speedup sobre las cosas que ya andan rapido, es decir,
+     lo multithreading a partir de 300k nodos. Poner que el speedup
+     obtenido con respecto a las mismas versiones pero sin optimizar
+     baja gradualmente a 1, demostrando la dificultad de optimizar
+     simulaciones de larga escala con estos metodos.
 
-   - randomize experiments: instead of explicitly choose the breaks, do some random choice of sizes.
-   - run all the exps with other examples (kademlia at least)
+* Mixing Optimizations
 
-Other things:
-  - amdahl teorethical speedup
-  - final exps with chord/kademlia with all enabled.
+The changes proposed are independent of each other, a fact
+that naturally leads to think that maybe a greater speedup can be
+obtained by mixing them.  A final benchmark with the optimal threshold
+estimated, along with the adaptive threshold heuristic, physical
+binding of threads and busy waiters is then compared to the original
+times of the examples to get what we have achieved.
+
+On of Figure \ref{fig:seven}, we can see the speedups achieved
+(enabling all optimizations), against the sequential execution.
+
+#+attr_latex: width=0.8\textwidth,placement=[p]
+#+label: fig:seven
+#+caption: Final speedups achieved binding threads to cores, using adaptive threshold heuristic with optimal initial threshold.
+[[file:fig/all-enabled.pdf]]
 
 * Useful info:
 ** List of recommended packages/software to run experiments
@@ -616,5 +626,6 @@ SimGrid3.10   772d63cca583f5d16096fa9f487b4ab07d9af8f0
 2) we want to run in parallel not only the threads but also the events
    in each thread?
 3) we want to find the independent events and run them in parallel.
+
 
 
