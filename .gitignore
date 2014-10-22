@@ -8,6 +8,8 @@
 *.jpg
 .*
 *.JPG
+*.bbl
+*.blg
 code_binding_cores/
 code_smx_files_SIGSEVFIX/
 documentation.txt
